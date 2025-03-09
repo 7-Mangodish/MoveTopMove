@@ -5,13 +5,13 @@ using UnityEngine.UI;
 public class FloatingTextAboveCharacter : MonoBehaviour
 {
     [SerializeField] private Vector3 offset;
-    [SerializeField] private Transform worldSpaceCanvas;
+    private Transform worldSpaceCanvas;
 
     [SerializeField] private SkinnedMeshRenderer skinCharacter;
     [SerializeField] private Image image;
     [SerializeField] private TextMeshProUGUI nameCharacter;
     [SerializeField] private GameObject scoreTextPrefab;
-    [SerializeField] private TextMeshProUGUI characterCoreText;
+    [SerializeField] private TextMeshProUGUI characterScoreText;
     private Transform mainCam;
     private Transform unit;
     private StateManager ownerStateManager;
@@ -22,11 +22,15 @@ public class FloatingTextAboveCharacter : MonoBehaviour
             Debug.Log("Null owwnerStateManager");
             return;
         }
-        ownerStateManager.OnPlayerTakeScore += FloatingText_OnPlayerTakeScore;
+        ownerStateManager.OnCharacterTakeScore += FloatingText_OnCharacterTakeScore ;
+        ownerStateManager.OnCharacterDead += FloatingText_OnCharacterDead;
+        worldSpaceCanvas = GameObject.FindGameObjectWithTag("WorldSpaceCanvas").transform;
 
         image.color = skinCharacter.material.color;
         nameCharacter.color =skinCharacter.material.color;
     }
+
+
 
     void Start()
     {
@@ -46,11 +50,15 @@ public class FloatingTextAboveCharacter : MonoBehaviour
         this.transform.position = unit.gameObject.transform.position + offset;
     }
 
-    private void FloatingText_OnPlayerTakeScore(object sender, System.EventArgs e) {
+    private void FloatingText_OnCharacterTakeScore(object sender, int newScore) {
         GameObject scorePrefab = Instantiate(scoreTextPrefab, this.transform.position, Quaternion.identity);
         scorePrefab.transform.SetParent(this.transform);
         scorePrefab.transform.position = this.transform.position + offset;
 
-        characterCoreText.text = ownerStateManager.CurrentScore.ToString();
+        characterScoreText.text = newScore.ToString();
+    }
+
+    private void FloatingText_OnCharacterDead(object sender, System.EventArgs e) {
+        Destroy(this.gameObject);
     }
 }

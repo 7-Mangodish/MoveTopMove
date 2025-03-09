@@ -93,7 +93,7 @@ public class PlayerController : MonoBehaviour
 
     private void OnTriggerStay(Collider other) {
         if (other.gameObject.CompareTag("Enemy")) {
-            Debug.Log("Enemy's position in Trigger Stay:" + other.transform.position);
+           // Debug.Log("Enemy's position in Trigger Stay:" + other.transform.position);
             targetPosition = other.transform.position;
         }
 
@@ -114,8 +114,8 @@ public class PlayerController : MonoBehaviour
             this.transform.position.y + 0.2f, this.transform.position.z);
         Vector3 directWeapon = targetPosition - this.transform.position;
         directWeapon.y = 0;
-        Debug.Log("Enenmy's position: " + targetPosition);
-        Debug.Log("Player's position: " + this.transform.position);
+        //Debug.Log("Enenmy's position: " + targetPosition);
+        //Debug.Log("Player's position: " + this.transform.position);
         RotateCharacter(directWeapon);
 
         // Kiem tra xem da len cap chua, neu co thi cap nhat trang thai cua vu khi
@@ -138,13 +138,14 @@ public class PlayerController : MonoBehaviour
 
         await Task.Delay(800);
         animationControl.EndAttack();
+        canAttack = false;
     }
     private void RotateCharacter(Vector3 direct) {
         if (direct == Vector3.zero)
             return;
 
-        Debug.Log(direct);
-        Debug.Log(direct.normalized);
+        //Debug.Log(direct);
+        //Debug.Log(direct.normalized);
         Quaternion rot = Quaternion.LookRotation(direct.normalized, Vector3.up);
         transform.rotation = Quaternion.RotateTowards(this.transform.rotation, rot, deltaAngle);
     }

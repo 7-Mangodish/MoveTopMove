@@ -8,6 +8,8 @@ TagManager:
   - PlayerZone
   - EnemyZone
   - Obstacle
+  - Canvas
+  - WorldSpaceCanvas
   layers:
   - Default
   - TransparentFX

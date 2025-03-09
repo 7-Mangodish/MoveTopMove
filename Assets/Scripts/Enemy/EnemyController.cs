@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.InputSystem.Android;
 using static ThrowWeapon;
 using Random = UnityEngine.Random;
 
@@ -36,10 +37,12 @@ public class EnemyController : MonoBehaviour
         animationControl = GetComponent<AnimationControl>();
         agent = GetComponent<NavMeshAgent>();
         stateManager = GetComponent<StateManager>();
+        stateManager.OnCharacterDead += EnemyController_OnCharacterDead;
     }
+
     void Start()
     {
-        Debug.Log(this.transform.position);
+        //Debug.Log(this.transform.position);
         agent.destination = targetPosition.position;
         stateWeapon = stateManager.GetStateWeapon();
     }
@@ -154,4 +157,9 @@ public class EnemyController : MonoBehaviour
             Math.Pow((this.transform.position.z - targetPosition.position.z), 2)
             );
     }
+
+    private void EnemyController_OnCharacterDead(object sender, EventArgs e) {
+        agent.speed = 0;
+    }
+
 }

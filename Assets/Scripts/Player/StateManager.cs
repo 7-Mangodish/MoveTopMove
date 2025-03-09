@@ -1,6 +1,7 @@
 using System;
 using Unity.Cinemachine;
 using UnityEngine;
+using UnityEngine.AI;
 using UnityEngine.SocialPlatforms.Impl;
 
 public class StateManager : MonoBehaviour
@@ -11,13 +12,17 @@ public class StateManager : MonoBehaviour
     private int addingScore;
     public bool IsLevelUp;
 
+    [Header("Weapon's State")]
     [SerializeField] private float deltaScaleWeapon;
     [SerializeField] private GameObject maxDistancePoint;
     [SerializeField] private GameObject scorePrefabs;
     private ThrowWeapon.StateWeapon stateWeapon;
-    private AnimationControl animationControl;
 
-    public event EventHandler OnPlayerTakeScore;
+    [Header("Character's Control")]
+    [SerializeField] private GameObject characterController;
+    private AnimationControl animationControl;
+    public event EventHandler<int> OnCharacterTakeScore;
+    public event EventHandler OnCharacterDead;
     private void Awake() {
         addingScore = 1;
         currentScore = 0;
@@ -31,7 +36,7 @@ public class StateManager : MonoBehaviour
     }
     public void AddScore() {
         this.currentScore += addingScore;
-        OnPlayerTakeScore?.Invoke(this, EventArgs.Empty);
+        OnCharacterTakeScore?.Invoke(this, this.currentScore);
         Instantiate(scorePrefabs, this.transform.position, Quaternion.identity);
         //Debug.Log(stateWeapon.ownerStateManager + ": " + this.currentScore);
         if (currentScore%5 == 0 && currentScore !=0) {
@@ -57,5 +62,19 @@ public class StateManager : MonoBehaviour
 
     public ThrowWeapon.StateWeapon GetStateWeapon() {
         return stateWeapon;
+    }
+
+    public void TriggerCharacterDead() {
+        //Animation
+        OnCharacterDead?.Invoke(this, EventArgs.Empty);
+        animationControl.SetDead();
+
+
+        //Destroy Gameobject
+        if (this.gameObject.CompareTag("Enemy")) {
+            Destroy(this.transform.parent.gameObject, 2);
+        }
+        else
+            Destroy(this.gameObject, 2);
     }
 }

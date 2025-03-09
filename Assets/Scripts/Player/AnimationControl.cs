@@ -38,10 +38,7 @@ public class AnimationControl : MonoBehaviour
     }
     public void SetDead() {
         SetState(state.IsDead, true);
-        if (this.gameObject.CompareTag("Enemy")) {
-            Destroy(this.gameObject.GetComponent<EnemyController>());
-        }
-        Destroy(this.gameObject,2);
+        PlayDeadEff();
     }
 
     public void EndAttack() {
@@ -66,9 +63,5 @@ public class AnimationControl : MonoBehaviour
         ParticleSystem.ColorOverLifetimeModule colorModule = myParticleSystem.colorOverLifetime;
 
         colorModule.color = characterColor;
-    }
-
-    public void TestParticle() {
-        PlayDeadEff();
     }
 }

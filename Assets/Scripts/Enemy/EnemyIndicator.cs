@@ -1,20 +1,41 @@
+using System.Threading.Tasks;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class EnemyIndicator : MonoBehaviour
 {
-    [SerializeField] private Canvas targetCanvas;
-    [SerializeField] private Image indicatorImage;
+    [Header("Position")]
+    private GameObject targetCanvas;
+    [SerializeField] private GameObject indicatorContainer;
+
+    [Header("Color")]
+    [SerializeField] private Image indicatorIcon;
+    [SerializeField] private Image indicatorScoreContainer;
+    [SerializeField] private TextMeshProUGUI indicatorScoreText;
+    [SerializeField] private SkinnedMeshRenderer skinCharacter;
     private Camera mainCamera;
-    private Sprite indicatorSprite;
+    private StateManager stateManager;
+
+    bool isDead = false;
     private void Awake() {
-        indicatorSprite = indicatorImage.sprite;
+        //indicatorSprite = indicatorImage.sprite;
+        targetCanvas = GameObject.FindGameObjectWithTag("Canvas");
+
         mainCamera = Camera.main;
+        stateManager = GetComponent<StateManager>();
+        stateManager.OnCharacterDead += IndicatorEnemy_OnCharacterDead;
+
+        indicatorIcon.color = skinCharacter.material.color;
+        indicatorScoreContainer.color = skinCharacter.material.color;
     }
+
+
+
     void Start()
     {
-        indicatorImage.transform.SetParent(targetCanvas.transform);
-        indicatorImage.gameObject.SetActive(false);
+        indicatorContainer.transform.SetParent(targetCanvas.transform);
+        indicatorContainer.SetActive(false);
     }
 
     // Update is called once per frame
@@ -25,20 +46,39 @@ public class EnemyIndicator : MonoBehaviour
 
     void UpdateIndicator() {
         Vector3 enemyPositionOnScreen = mainCamera.WorldToScreenPoint(this.transform.position);
-        if(enemyPositionOnScreen.x <0 || enemyPositionOnScreen.x > Screen.width 
+        if (isDead)
+            return;
+        if (enemyPositionOnScreen.z < 0)
+            return;
+        //Debug.Log(enemyPositionOnScreen);
+        if (enemyPositionOnScreen.x <0 || enemyPositionOnScreen.x > Screen.width 
             || enemyPositionOnScreen.y <0 || enemyPositionOnScreen.y > Screen.height) {
 
-            float spriteHalfWidth = (float)indicatorSprite.bounds.size.x / 2;
-            float spriteHalfHeight = (float)indicatorSprite.bounds.size.y / 2;
+            indicatorScoreText.text = stateManager.CurrentScore.ToString();
+            //Debug.Log(sizeDelta);
+            enemyPositionOnScreen.x = Mathf.Clamp(enemyPositionOnScreen.x, 0, Screen.width - 150);
+            enemyPositionOnScreen.y = Mathf.Clamp(enemyPositionOnScreen.y, 0, Screen.height - 150);
+            enemyPositionOnScreen.z = 0;
 
-            enemyPositionOnScreen.x = Mathf.Clamp(enemyPositionOnScreen.x, spriteHalfWidth, Screen.width-spriteHalfWidth);
-            enemyPositionOnScreen.y = Mathf.Clamp(enemyPositionOnScreen.y, spriteHalfHeight, Screen.height-spriteHalfHeight);
+            Vector3 direct = enemyPositionOnScreen - new Vector3(Screen.width/2, Screen.height/2, 0);
+            float angle = Mathf.Atan2(direct.y, direct.x) * Mathf.Rad2Deg;
+            angle = (angle < 0) ? (angle + 360) : angle;
 
-            indicatorImage.gameObject.SetActive(true);
-            indicatorImage.rectTransform.position = enemyPositionOnScreen;
+            indicatorContainer.gameObject.SetActive(true);
+            indicatorContainer.GetComponent<RectTransform>().position = enemyPositionOnScreen;
+
+            indicatorIcon.rectTransform.rotation = Quaternion.Euler(0, 0, angle-90);
+
+
         }
         else {
-            indicatorImage.gameObject.SetActive(false);
+            indicatorContainer.gameObject.SetActive(false);
         }
+    }
+    private async void IndicatorEnemy_OnCharacterDead(object sender, System.EventArgs e) {
+        isDead = true;
+        await Task.Delay(100);
+        Destroy(indicatorContainer);
+        Debug.Log("Player Dead");
     }
 }

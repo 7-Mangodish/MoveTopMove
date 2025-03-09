@@ -28,7 +28,10 @@ public class ThrowWeapon : MonoBehaviour
     private void OnTriggerEnter(Collider other) {
 
         if (stateWeapon.ownerStateManager.CompareTag("Player") && other.gameObject.CompareTag("Enemy")) {
-            other.gameObject.GetComponent<AnimationControl>().TestParticle();
+
+            //other.gameObject.GetComponent<EnemyController>().enabled = false;
+            other.gameObject.GetComponent<StateManager>().TriggerCharacterDead();
+            //GameManager.Instance.SpawnEnemy();
 
             stateWeapon.ownerStateManager.AddScore();
 
@@ -39,7 +42,7 @@ public class ThrowWeapon : MonoBehaviour
 
             //Debug.Log(stateWeapon.ownerStateManager.gameObject.name + " " + other.gameObject.name);
             if (other.gameObject.CompareTag("Player") || other.gameObject.CompareTag("Enemy")) {
-                other.gameObject.GetComponent<AnimationControl>().TestParticle();
+                //other.gameObject.GetComponent<AnimationControl>().TestParticle();
 
                 stateWeapon.ownerStateManager.AddScore();
 
