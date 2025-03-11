@@ -79,6 +79,6 @@ public class EnemyIndicator : MonoBehaviour
         isDead = true;
         await Task.Delay(100);
         Destroy(indicatorContainer);
-        Debug.Log("Player Dead");
+        //Debug.Log("Player Dead");
     }
 }

@@ -33,6 +33,8 @@ public class EnemyController : MonoBehaviour
     [Header("Level Up")]
     private StateManager stateManager;
     private ThrowWeapon.StateWeapon stateWeapon;
+
+    private bool isDead = false;
     private void Awake() {
         animationControl = GetComponent<AnimationControl>();
         agent = GetComponent<NavMeshAgent>();
@@ -49,6 +51,7 @@ public class EnemyController : MonoBehaviour
 
     void Update()
     {
+        if (isDead) return;
         if (CheckDistance() <= .1f) {
             animationControl.SetIdle();
             timeIdleDuration += Time.deltaTime;
@@ -62,23 +65,25 @@ public class EnemyController : MonoBehaviour
                 }
             }
             else {
-                if(timeIdleDuration > timeIdle) {
+                if(timeIdleDuration > timeIdle ) {
                     float randX = Random.Range(-3, 3);
                     float randZ = Random.Range(-3, 3);
                     int randM = Random.Range(-1, 1) < 0 ? -1 : 1;
 
                     Vector3 newPosition = targetPosition.position + new Vector3(randX * randM, 0, randZ * randM);
 
-                    if(NavMesh.SamplePosition(newPosition, out NavMeshHit hit, 1f, NavMesh.AllAreas)) {
+                    if (Math.Abs(targetPosition.position.x + randX) < maxRangeX &&
+                        Math.Abs(targetPosition.position.z + randZ) < maxRangeZ) {
+                        return;
+                    }
+
+                    if (NavMesh.SamplePosition(newPosition, out NavMeshHit hit, 1f, NavMesh.AllAreas)) {
                         targetPosition.position = newPosition;
                     }
                     else {
                         Debug.Log("diem khong hop le:" + newPosition);
                     }
-                    //if (Math.Abs(targetPosition.position.x + randX) < maxRangeX &&
-                    //    Math.Abs(targetPosition.position.z + randZ) < maxRangeZ) {
-                    //    targetPosition.position += new Vector3(randX * randM, 0, randZ * randM);
-                    //}
+
                     timeIdleDuration = 0;
                 }
 
@@ -105,6 +110,8 @@ public class EnemyController : MonoBehaviour
 
     private void OnTriggerStay(Collider other) {
         if (other.gameObject.CompareTag("Player") || other.gameObject.CompareTag("Enemy")) {
+            //Debug.Log("Enemy is still in trigger");
+            canAttack = true;
             playerPosition = other.transform.position;
         }
     }
@@ -144,6 +151,7 @@ public class EnemyController : MonoBehaviour
         }
         await Task.Delay(1000);
         animationControl.EndAttack();
+        canAttack = false;
     }
 
     private void RotateCharacter(Vector3 direct) {
@@ -160,6 +168,7 @@ public class EnemyController : MonoBehaviour
 
     private void EnemyController_OnCharacterDead(object sender, EventArgs e) {
         agent.speed = 0;
+        isDead = true;
     }
 
 }

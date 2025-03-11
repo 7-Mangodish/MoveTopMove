@@ -26,31 +26,35 @@ public class ThrowWeapon : MonoBehaviour
     }
 
     private void OnTriggerEnter(Collider other) {
+        if (other.gameObject.CompareTag("Enemy")) {
+            if(stateWeapon.ownerStateManager.CompareTag("Enemy") && 
+                stateWeapon.ownerStateManager.transform.parent.name != other.transform.parent.name) {
 
-        if (stateWeapon.ownerStateManager.CompareTag("Player") && other.gameObject.CompareTag("Enemy")) {
+                other.GetComponent<StateManager>().TriggerCharacterDead();
+                stateWeapon.ownerStateManager.AddScore();
+                GameManager.Instance.SpawnEnemy();
 
-            //other.gameObject.GetComponent<EnemyController>().enabled = false;
-            other.gameObject.GetComponent<StateManager>().TriggerCharacterDead();
-            //GameManager.Instance.SpawnEnemy();
+                Destroy(this.gameObject);
+            }
+            else if (stateWeapon.ownerStateManager.CompareTag("Player")) {
 
-            stateWeapon.ownerStateManager.AddScore();
-
-            Destroy(this.gameObject);
-        }
-        if (stateWeapon.ownerStateManager.CompareTag("Enemy") && 
-            (stateWeapon.ownerStateManager.gameObject.name != other.gameObject.name)) {
-
-            //Debug.Log(stateWeapon.ownerStateManager.gameObject.name + " " + other.gameObject.name);
-            if (other.gameObject.CompareTag("Player") || other.gameObject.CompareTag("Enemy")) {
-                //other.gameObject.GetComponent<AnimationControl>().TestParticle();
-
+                other.gameObject.GetComponent<StateManager>().TriggerCharacterDead();
+                GameManager.Instance.SpawnEnemy();
                 stateWeapon.ownerStateManager.AddScore();
 
                 Destroy(this.gameObject);
-                //Debug.Log("Enemy Attack: " + other.gameObject);
+
             }
         }
+        else if (other.gameObject.CompareTag("Player")) {
+            if (stateWeapon.ownerStateManager.CompareTag("Enemy")) {
+                other.GetComponent<StateManager>().TriggerCharacterDead();
+                stateWeapon.ownerStateManager.AddScore();
 
+                GameManager.Instance.PlayerLose();
+                Destroy(this.gameObject);
+            }
+        }
     }
 
 

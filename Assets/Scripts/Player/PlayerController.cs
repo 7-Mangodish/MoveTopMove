@@ -34,13 +34,15 @@ public class PlayerController : MonoBehaviour
     [Header("Transparent Obstacle")]
     [SerializeField] private Material transparentMaterial;
     private Material oldMaterial;
-
+    private bool isDead;
     private bool startGame;
     private void Awake() {
         rb = GetComponent<Rigidbody>();
         animationControl = GetComponent<AnimationControl>();
         stateManager = GetComponent<StateManager>();
+        stateManager.OnCharacterDead += PlayerController_OnCharacterDead;
         startGame = false;
+        isDead = false;
     }
 
     private void Start() {
@@ -54,6 +56,8 @@ public class PlayerController : MonoBehaviour
             startGame = true;
         if (startGame == true)
             GameUIManager.Instance.StartGame();
+        if (isDead)
+            return;
         direct.x = joystick.Horizontal;
         direct.z = joystick.Vertical;
         RotateCharacter(direct);
@@ -95,8 +99,8 @@ public class PlayerController : MonoBehaviour
         if (other.gameObject.CompareTag("Enemy")) {
            // Debug.Log("Enemy's position in Trigger Stay:" + other.transform.position);
             targetPosition = other.transform.position;
+            canAttack = true;
         }
-
     }
 
     private void OnTriggerExit(Collider other) {
@@ -149,5 +153,8 @@ public class PlayerController : MonoBehaviour
         Quaternion rot = Quaternion.LookRotation(direct.normalized, Vector3.up);
         transform.rotation = Quaternion.RotateTowards(this.transform.rotation, rot, deltaAngle);
     }
-
+    private void PlayerController_OnCharacterDead(object sender, EventArgs e) {
+        isDead = true;
+        speed = 0;
+    }
 }

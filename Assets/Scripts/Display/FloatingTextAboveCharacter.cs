@@ -36,7 +36,11 @@ public class FloatingTextAboveCharacter : MonoBehaviour
     {
         mainCam = Camera.main.transform;
         unit = transform.parent;
+        Debug.Log(transform.parent.name);   
         this.transform.SetParent(worldSpaceCanvas);
+        this.transform.rotation = Quaternion.LookRotation(transform.position - mainCam.transform.position);
+        Debug.Log(this.transform.position);
+        Debug.Log(mainCam.transform.position);
     }
 
     // Update is called once per frame
@@ -46,7 +50,6 @@ public class FloatingTextAboveCharacter : MonoBehaviour
     }
 
     private void FloatingStatus() {
-        this.transform.rotation = Quaternion.LookRotation(transform.position - mainCam.transform.position);
         this.transform.position = unit.gameObject.transform.position + offset;
     }
 
