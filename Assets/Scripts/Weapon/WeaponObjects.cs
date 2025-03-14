@@ -18,6 +18,11 @@ public class WeaponObjects : ScriptableObject
         return materials;
     }
 
-    public void  SetMaterialPartWeapon(int weaponIndex, int weaponSkinIndex, int weaponPart, Material material) {
+    public void  SetWeaponPartMaterial(int weaponIndex, int weaponSkinIndex, int weaponPart, Material material) {
+        listWeapon[weaponIndex].SetMaterialWeaponSkin(weaponSkinIndex, weaponPart, material);
+    }
+
+    public void TurnOffWeapon(int weaponIndex) {
+        listWeapon[weaponIndex].TurnOff();
     }
 }

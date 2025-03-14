@@ -19,13 +19,27 @@ MonoBehaviour:
     - {fileID: 2621694304590956299, guid: f7b6c112d6bddc845a19570275e48d77, type: 3}
     - {fileID: 4121030702376636329, guid: 9280aa2c417f8434ea4be380a23d3112, type: 3}
     - {fileID: 3241973797489323169, guid: bae0df45fa9916440933bb14937e3e50, type: 3}
+    name: LolliPop
+    isLock: 0
     attribute: 1
     index: 1
   - weaponSkins:
-    - {fileID: 1641302586908938356, guid: 36424b45b0ee5c64e9cd84a89ca4e295, type: 3}
-    - {fileID: 3387278768150794692, guid: dac133c1eabbb2449bead332e6b4cc47, type: 3}
-    - {fileID: 2621694304590956299, guid: f7b6c112d6bddc845a19570275e48d77, type: 3}
-    - {fileID: 4121030702376636329, guid: 9280aa2c417f8434ea4be380a23d3112, type: 3}
-    - {fileID: 3241973797489323169, guid: bae0df45fa9916440933bb14937e3e50, type: 3}
+    - {fileID: 1228265344304733173, guid: b3269500b834c0d4b8a72624c36fb06e, type: 3}
+    - {fileID: 1228265344304733173, guid: 1369aa825933a3f42b8374779d4b1963, type: 3}
+    - {fileID: 1228265344304733173, guid: b02a0d3b19ee5c541914743e25cbda6c, type: 3}
+    - {fileID: 1228265344304733173, guid: a1f77dbfbd271f645a498f99b1ebdc33, type: 3}
+    - {fileID: 1228265344304733173, guid: 8504deef9534f0a479205be38670bffd, type: 3}
+    name: Hammer
+    isLock: 0
     attribute: 1
-    index: 1
+    index: 2
+  - weaponSkins:
+    - {fileID: 1228265344304733173, guid: b3269500b834c0d4b8a72624c36fb06e, type: 3}
+    - {fileID: 1228265344304733173, guid: 1369aa825933a3f42b8374779d4b1963, type: 3}
+    - {fileID: 1228265344304733173, guid: b02a0d3b19ee5c541914743e25cbda6c, type: 3}
+    - {fileID: 1228265344304733173, guid: a1f77dbfbd271f645a498f99b1ebdc33, type: 3}
+    - {fileID: 1228265344304733173, guid: 8504deef9534f0a479205be38670bffd, type: 3}
+    name: Hammer
+    isLock: 0
+    attribute: 1
+    index: 2
