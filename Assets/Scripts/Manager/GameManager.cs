@@ -1,7 +1,9 @@
 using System;
+using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.SceneManagement;
 using Random = UnityEngine.Random;
 
 public class GameManager : MonoBehaviour
@@ -11,10 +13,14 @@ public class GameManager : MonoBehaviour
 
     public event EventHandler<int> OnEnemyQuantityDown;
     public event EventHandler OnPlayerLose;
+    public event EventHandler OnPlayerWin;
 
     [SerializeField] private int enemyQuantityOnMatch;
     [SerializeField] private int maxEnemyQuantity;
     [SerializeField] private GameObject enemyPrefab;
+    [SerializeField] private GameObject zombiePrefab;
+    private HomePageManager homeManager;
+
     private void Awake() {
         if(instance == null) {
             instance = this;
@@ -25,15 +31,35 @@ public class GameManager : MonoBehaviour
     }
 
     private void Start() {
-        for(int i=0; i< enemyQuantityOnMatch; i++) {
-            float randX = Random.Range(-3, 3);
-            float randZ = Random.Range(-3, 3);
-            int randM = Random.Range(-1, 1) < 0 ? -1 : 1;
+        if (SceneManager.GetActiveScene().buildIndex == 0) {
+            HomePageManager.Instance.OnStartGame += GameManager_OnStartGame;
+        }
+        else {
+            StartPanelManager.Instance.OnStartZombieMode += GameManager_OnStartZombieMode;
+        }
+    }
 
-            Vector3 newPosition = new Vector3(randX * randM, 0, randZ * randM);
+    private void GameManager_OnStartZombieMode(object sender, EventArgs e) {
+        SpawnEnemyWhenStartGame();
+        Invoke(nameof(SpawnEnemyWhenStartGame), .5f);
+    }
+
+    private void GameManager_OnStartGame(object sender, EventArgs e) {
+        SpawnEnemyWhenStartGame();
+    }
+
+
+    private void SpawnEnemyWhenStartGame() {
+        for (int i = 0; i < enemyQuantityOnMatch; i++) {
+
+            Vector3 newPosition = GetRandomPosition();
 
             if (NavMesh.SamplePosition(newPosition, out NavMeshHit hit, .5f, NavMesh.AllAreas)) {
-                Instantiate(enemyPrefab, newPosition, Quaternion.identity);
+                if(SceneManager.GetActiveScene().buildIndex == 0)
+                    Instantiate(enemyPrefab, newPosition, Quaternion.identity);
+                else
+                    Instantiate(zombiePrefab, newPosition, Quaternion.identity);
+
             }
         }
     }
@@ -41,19 +67,27 @@ public class GameManager : MonoBehaviour
         this.maxEnemyQuantity -= 1;
         OnEnemyQuantityDown?.Invoke(this, this.maxEnemyQuantity);
         if (maxEnemyQuantity - enemyQuantityOnMatch > 0) {
-            float randX = Random.Range(-3, 3);
-            float randZ = Random.Range(-3, 3);
-            int randM = Random.Range(-1, 1) < 0 ? -1 : 1;
 
-            Vector3 newPosition = new Vector3(randX * randM, 0, randZ * randM);
+            Vector3 newPosition = GetRandomPosition();
 
             if (NavMesh.SamplePosition(newPosition, out NavMeshHit hit, .5f, NavMesh.AllAreas)) {
                 Instantiate(enemyPrefab, newPosition, Quaternion.identity);
             }
 
         }
-        else
+        else {
             Debug.Log("Player Win");
+            OnPlayerWin?.Invoke(this, EventArgs.Empty);
+        }
+    }
+
+    private Vector3 GetRandomPosition() {
+        float randX = Random.Range(-3, 3);
+        float randZ = Random.Range(-3, 3);
+        int randM = Random.Range(-1, 1) < 0 ? -1 : 1;
+
+        Vector3 newPosition = new Vector3(randX * randM, 0, randZ * randM);
+        return newPosition;
     }
 
     public void PlayerLose() {
@@ -64,4 +98,6 @@ public class GameManager : MonoBehaviour
     public int GetMaxEnemyQuantity() {
         return maxEnemyQuantity;
     }
+
+
 }

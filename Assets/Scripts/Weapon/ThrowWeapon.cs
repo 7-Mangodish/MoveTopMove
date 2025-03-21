@@ -12,7 +12,6 @@ public class ThrowWeapon : MonoBehaviour
         public float maxDistance;
         public float curScale;
     }
-
     private StateWeapon stateWeapon;
     private void Start() {
         this.gameObject.transform.localScale += new Vector3(stateWeapon.curScale, stateWeapon.curScale, stateWeapon.curScale); 
@@ -26,7 +25,15 @@ public class ThrowWeapon : MonoBehaviour
     }
 
     private void OnTriggerEnter(Collider other) {
-        if (other.gameObject.CompareTag("Enemy")) {
+        if (other.gameObject.CompareTag("Zombie")) {
+            AnimationControl animationControl = other.GetComponent<AnimationControl>();
+            animationControl.PlayDeadEff();
+            stateWeapon.ownerStateManager.AddScore();
+
+            Destroy(other.gameObject);
+            Destroy(this.gameObject);
+        }
+        else if (other.gameObject.CompareTag("Enemy")) {
             if(stateWeapon.ownerStateManager.CompareTag("Enemy") && 
                 stateWeapon.ownerStateManager.transform.parent.name != other.transform.parent.name) {
 
@@ -70,4 +77,5 @@ public class ThrowWeapon : MonoBehaviour
         this.stateWeapon.maxDistance = s.maxDistance;
         this.stateWeapon.curScale = s.curScale;
     }
+
 }

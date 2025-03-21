@@ -1,0 +1,7 @@
+Lỗi:
+Thay doi vu khi tren cua hang thi thay doi vu khi tren tay cam va vu khi nem
+Floating text khong bien mat khi enemy chet
+chua lam random material, mu va vu khi enemy
+Lam hieu ung UI
+
+

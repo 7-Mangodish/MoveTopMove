@@ -19,8 +19,12 @@ MonoBehaviour:
     - {fileID: 2621694304590956299, guid: f7b6c112d6bddc845a19570275e48d77, type: 3}
     - {fileID: 4121030702376636329, guid: 9280aa2c417f8434ea4be380a23d3112, type: 3}
     - {fileID: 3241973797489323169, guid: bae0df45fa9916440933bb14937e3e50, type: 3}
+    weaponSkinCost: 000000000000000000000000000000002c010000
+    scale: 4000
     name: LolliPop
+    cost: 0
     isLock: 0
+    standardScale: 4000
     attribute: 1
     index: 1
   - weaponSkins:
@@ -29,17 +33,25 @@ MonoBehaviour:
     - {fileID: 1228265344304733173, guid: b02a0d3b19ee5c541914743e25cbda6c, type: 3}
     - {fileID: 1228265344304733173, guid: a1f77dbfbd271f645a498f99b1ebdc33, type: 3}
     - {fileID: 1228265344304733173, guid: 8504deef9534f0a479205be38670bffd, type: 3}
+    weaponSkinCost: 0000000000000000000000001900000064000000
+    scale: 4000
     name: Hammer
+    cost: 0
     isLock: 0
+    standardScale: 4000
     attribute: 1
     index: 2
   - weaponSkins:
-    - {fileID: 1228265344304733173, guid: b3269500b834c0d4b8a72624c36fb06e, type: 3}
-    - {fileID: 1228265344304733173, guid: 1369aa825933a3f42b8374779d4b1963, type: 3}
-    - {fileID: 1228265344304733173, guid: b02a0d3b19ee5c541914743e25cbda6c, type: 3}
-    - {fileID: 1228265344304733173, guid: a1f77dbfbd271f645a498f99b1ebdc33, type: 3}
-    - {fileID: 1228265344304733173, guid: 8504deef9534f0a479205be38670bffd, type: 3}
-    name: Hammer
-    isLock: 0
+    - {fileID: 9042879289352913460, guid: 69981fd6ed5d9804a82605f3ae4812bc, type: 3}
+    - {fileID: 9042879289352913460, guid: c318e420f3092d443af07a5a2356a024, type: 3}
+    - {fileID: 9042879289352913460, guid: 1329474a7ba46354f935550bf1e70880, type: 3}
+    - {fileID: 9042879289352913460, guid: 204758cf08ce72443ab18b7083633b1a, type: 3}
+    - {fileID: 9042879289352913460, guid: 0aea89bf87da86746b7a64fece0091ed, type: 3}
+    weaponSkinCost: 0000000000000000000000000000000064000000
+    scale: 1500
+    name: Boomerang
+    cost: 200
+    isLock: 1
+    standardScale: 4000
     attribute: 1
     index: 2

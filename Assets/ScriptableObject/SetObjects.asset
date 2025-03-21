@@ -1,0 +1,55 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 759b471025ec18f4fa6303782ce960d8, type: 3}
+  m_Name: SetObjects
+  m_EditorClassIdentifier: 
+  listSets:
+  - hat: {fileID: 3100615444415210074, guid: cd3ece144e149f741938b268a4cf0286, type: 3}
+    armor: {fileID: 0}
+    wing: {fileID: 18896146964566725, guid: db8383df5d45ce544ab4a1fe8ec0e635, type: 3}
+    material: {fileID: 2100000, guid: d9ae424681ff13744a037da101cc0825, type: 2}
+    tail: {fileID: 3090200777508558033, guid: 1cfa2e89c39da3b47a551a52136113c9, type: 3}
+    cost: 1000
+    index: 2
+    isLock: 0
+  - hat: {fileID: 564889987972136770, guid: 718a516a0f0cc8540854b85be45103a8, type: 3}
+    armor: {fileID: 4808704080521188535, guid: 756eb137dc4fce34bb419daf2db894e5, type: 3}
+    wing: {fileID: 4527622377431850777, guid: 7ca33fd4af0286b4ebcd998bb3549b6c, type: 3}
+    material: {fileID: 2100000, guid: 93de8c3778743774290af422539a5525, type: 2}
+    tail: {fileID: 0}
+    cost: 1200
+    index: 4
+    isLock: 1
+  - hat: {fileID: 6560373514545906627, guid: 3664dc9029df249478a6269b9705b3a6, type: 3}
+    armor: {fileID: 8010000197011981430, guid: 0bdcb64b2417bd94b9544c9d4874fa9a, type: 3}
+    wing: {fileID: 0}
+    material: {fileID: 2100000, guid: 938bf0eeaa2e5484ab7608e59bfcdca2, type: 2}
+    tail: {fileID: 0}
+    cost: 1000
+    index: 6
+    isLock: 1
+  - hat: {fileID: 0}
+    armor: {fileID: 0}
+    wing: {fileID: 1793895094339770422, guid: 9efc55698d6868b46a55264e53aa594c, type: 3}
+    material: {fileID: 2100000, guid: dd9dce30095b81940b4365c756f9eca7, type: 2}
+    tail: {fileID: 0}
+    cost: 1000
+    index: 8
+    isLock: 1
+  - hat: {fileID: 5180592971215784640, guid: c3ee23b313edd9d48b8d3c60c1c63bc5, type: 3}
+    armor: {fileID: 0}
+    wing: {fileID: 0}
+    material: {fileID: 2100000, guid: 998efac54d854e74b9203dd790ec61d0, type: 2}
+    tail: {fileID: 0}
+    cost: 1000
+    index: 9
+    isLock: 1

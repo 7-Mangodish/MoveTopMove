@@ -1,4 +1,6 @@
 using System;
+using System.Threading.Tasks;
+using TMPro;
 using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.AI;
@@ -15,17 +17,19 @@ public class StateManager : MonoBehaviour
     [Header("Weapon's State")]
     [SerializeField] private float deltaScaleWeapon;
     [SerializeField] private GameObject maxDistancePoint;
-    //[SerializeField] private GameObject scorePrefabs;
     private ThrowWeapon.StateWeapon stateWeapon;
 
     [Header("Character's Control")]
-    [SerializeField] private GameObject characterController;
     private AnimationControl animationControl;
+
+    [Header("Player's Scale")]
+    [SerializeField] private TextMeshProUGUI playerScaleText;
+    private int currentLevel;
+
 
     public event EventHandler<int> OnCharacterTakeScore;
     public event EventHandler OnCharacterDead;
 
-    private int currentLevel;
     public class OnCharacterLevelUpArg : EventArgs {
         public float currentLevel;
         public float deltaPositionY;
@@ -37,11 +41,15 @@ public class StateManager : MonoBehaviour
         addingScore = 1;
         currentScore = 0;
         currentLevel = 1;
-
-        stateWeapon.ownerStateManager = this;
-        stateWeapon.maxDistance = Vector3.Distance(this.transform.position, maxDistancePoint.transform.position);
-        stateWeapon.curScale = 0;
-        deltaScaleWeapon = 3;
+        if(maxDistancePoint != null) {
+            stateWeapon.ownerStateManager = this;
+            stateWeapon.maxDistance = Vector3.Distance(this.transform.position, maxDistancePoint.transform.position);
+            stateWeapon.curScale = 0;
+            deltaScaleWeapon = 3;
+        }
+        else {
+            Debug.Log("maxDistnance is null in " + this.gameObject.name);
+        }
 
         animationControl  = GetComponent<AnimationControl>();
     }
@@ -50,9 +58,9 @@ public class StateManager : MonoBehaviour
 
         this.currentScore += addingScore;
         OnCharacterTakeScore?.Invoke(this, this.currentScore);
-        //GameObject spawnPrefab= Instantiate(scorePrefabs, this.transform.position, Quaternion.identity);
-        //Destroy(spawnPrefab, 1.5f);
-        //Debug.Log(stateWeapon.ownerStateManager + ": " + this.currentScore);
+
+
+
         if (currentScore%2 == 0 && currentScore !=0) {
             IsLevelUp = true;
             currentLevel++;
@@ -66,7 +74,7 @@ public class StateManager : MonoBehaviour
             //Cap nhat scale cua nhan vat, cap nhat tam danh va scale cua vu khi
             this.transform.localScale += new Vector3(0.05f, 0.05f, 0.05f);
             if (this.gameObject.CompareTag("Player")) {
-                GameUIManager.Instance.DisplayPlayerScale(this.transform.localScale.x * 5f);
+                DisplayPlayerScale(this.transform.localScale.x * 5f);
             }
 
 
@@ -75,13 +83,13 @@ public class StateManager : MonoBehaviour
 
             // Cap nhat cammera
             if (this.gameObject.CompareTag("Player"))
-                UpdateCameraPosition();
+                CameraMove.Instance.UpdateCamera(.75f);
         }
     }
     
     private void UpdateCameraPosition() {
-        CinemachineCamera cam = FindFirstObjectByType<CinemachineCamera>();
-        cam.Lens.FieldOfView += 10;
+        CinemachinePositionComposer cam = FindFirstObjectByType<CinemachinePositionComposer>();
+        cam.CameraDistance += .75f;
     }
 
     public ThrowWeapon.StateWeapon GetStateWeapon() {
@@ -102,5 +110,13 @@ public class StateManager : MonoBehaviour
         }
         else
             Destroy(this.gameObject, 2);
+    }
+
+    public async void DisplayPlayerScale(float playerScale) {
+        playerScaleText.gameObject.SetActive(true);
+        playerScaleText.text = playerScale.ToString() + "m";
+        playerScaleText.GetComponent<Animator>().Play("PlayerScaleText");
+        await Task.Delay(1500);
+        playerScaleText.gameObject.SetActive(false);
     }
 }

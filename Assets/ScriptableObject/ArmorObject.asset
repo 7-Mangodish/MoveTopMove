@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 81373fc1caafe2a4aaa93ecea4c2f1d0, type: 3}
+  m_Name: ArmorObject
+  m_EditorClassIdentifier: 
+  listArmor:
+  - armorPrefab: {fileID: 865511459645595182, guid: 44ee0a648c14a56438d2b1de554610df, type: 3}
+    cost: 200
+    index: 2
+    isLock: 0
+  - armorPrefab: {fileID: 8760932476282283681, guid: 63b1eb4f36df2774e83711e5fbf7130a, type: 3}
+    cost: 500
+    index: 4
+    isLock: 1

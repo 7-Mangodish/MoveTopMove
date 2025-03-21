@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
@@ -17,28 +18,37 @@ public class WeaponShopManager : MonoBehaviour
 
     [Header("WeaponSkin")]
     [SerializeField] private GameObject[] listWeaponSkins;
-
-    [Header("UI")]
     [SerializeField] Button[] listWeaponSkinButtons = new Button[5];
     [SerializeField] private Image[] listBorderImage = new Image[5];
     [SerializeField] private Button nextOptionsButton;
     [SerializeField] private Button previousOptionsButton;
-
-    [SerializeField] private Button normalSelectButton;
-    [SerializeField] private TextMeshProUGUI normalText;
-
-    [SerializeField] private Button customSelectButton;
-    [SerializeField] private TextMeshProUGUI customText;
     private int weaponSkinIndexSelected;
-    private int weaponSkinIndexSelecting;
+
+    [Header("Button")]
+    [SerializeField] private Button selectButton;
+    [SerializeField] private Button equipedButton;
+
+    [SerializeField] private Button purchaseWeaponButton;
+    [SerializeField] private TextMeshProUGUI purchaseWeaponText;
+    [SerializeField] private TextMeshProUGUI weaponName;
+    [SerializeField] private Button useOneTimeButton;
+    [SerializeField] private TextMeshProUGUI weaponAttribute;
+
+    [SerializeField] private Button purchaseSkinButton;
+    [SerializeField] private TextMeshProUGUI purchaseSkinText;
 
     [Header("Color")]
     [SerializeField] Button[] listColorButtons = new Button[18];
     [SerializeField] Button[] listWeaponPartButtons = new Button[3];
-    private int materialIndexSelected;
+    [SerializeField] Button[] listPartTargetButton = new Button[3];
     private int partSelected;
-    int materitalCount;
-    private Dictionary<int, SaveData>  weaponData = new Dictionary<int, SaveData>();
+    int materialCount;
+
+    private SaveData data;
+    private HomePageManager homePageManager;
+
+    public event EventHandler OnUserChangeWeapon;
+
     private void Awake() {
         if (instance == null)
             instance = this;
@@ -61,13 +71,9 @@ public class WeaponShopManager : MonoBehaviour
             SetStart();
         });
 
-        normalSelectButton.onClick.AddListener(() => {
-            SetSelectButton();
-        });
-
-        customSelectButton.onClick.AddListener(() => {
-            SetSelectButton();
-        });
+        selectButton.onClick.AddListener(SetUpSelectButton);
+        purchaseSkinButton.onClick.AddListener(SetUpPurchaseSkinButton);
+        purchaseWeaponButton.onClick.AddListener(SetUpPurchaseWeaponButton);
 
         //Skin
         for(int i=0; i<listWeaponSkinButtons.Length; i++) {
@@ -80,7 +86,8 @@ public class WeaponShopManager : MonoBehaviour
         for(int i=0; i < listWeaponPartButtons.Length; i++) {
             int ind = i;
             listWeaponPartButtons[i].onClick.AddListener(() => {
-                SelectPart(ind);
+                partSelected = ind;
+                SetUpTargetPartButton();
             });
         }
 
@@ -94,60 +101,123 @@ public class WeaponShopManager : MonoBehaviour
     }
 
     private void Start() {
+        homePageManager = GameObject.FindFirstObjectByType<HomePageManager>();
         SetStart();
     }
 
     void SetStart() {
-        //Lay vu khi hien tai dang su dung
+        //Lay vu khi hien tai dang duoc chon
         int weaponIndexSaved = PlayerPrefs.GetInt("CurWeapon");
+        weaponIndexSelected = weaponIndexSaved;
 
-        SaveData data = GetWeaponData(weaponIndexSaved);
+        // Them moi vao pref neu chua co
+        if (!PlayerPrefs.HasKey(weaponIndexSelected.ToString())) {
+            SaveData newData = new SaveData {
+                skinIndex = 0,
+            };
+            SaveWeaponData(weaponIndexSelected, newData);
+        }
+
+        data = GetWeaponData(weaponIndexSaved);
         Debug.Log("Start, vu khi: " + weaponIndexSaved + " " + "skin: " +
             data.skinIndex + ", " + data.showMaterial());
 
         // SetUp cac skin cua vu khi
         int skinIndexSaved = data.skinIndex;
         weaponSkinIndexSelected = skinIndexSaved;
-        SetUpSkin(weaponIndexSaved, skinIndexSaved);
+        for(int i=0; i< listWeaponSkinButtons.Length; i++) {
+            if (i == skinIndexSaved)
+                listBorderImage[i].gameObject.SetActive(true);
+            else
+                listBorderImage[i].gameObject.SetActive(false);
+            SetUpSkin(weaponIndexSaved, i);
+        }
 
-        //SetUp material cho WeaponDisplay
-        Mesh skinMesh = listWeaponSkins[skinIndexSaved].GetComponent<MeshFilter>().sharedMesh;
-        Material[] skinMaterial = listWeaponSkins[skinIndexSaved].GetComponent<MeshRenderer>().sharedMaterials;
-        SetMeshAndMaterial(weaponDisplay,skinMesh, skinMaterial);
+        //SetUp material  va scale cho WeaponDisplay
+        Mesh skinMesh = weaponObjects.GetMeshWeapon(weaponIndexSaved, skinIndexSaved);
+        Material[] skinMaterial = weaponObjects.GetListMaterials(weaponIndexSaved, skinIndexSaved);
+        SetMeshAndMaterial(weaponDisplay, skinMesh, skinMaterial);
+
+        float scale = 3 * weaponObjects.listWeapon[weaponIndexSelected].scale;
+        weaponDisplay.transform.localScale = new Vector3(scale, scale, scale);
+
+        // SetUp Name va thuoc tinh cua bu khi
+        weaponName.text = weaponObjects.listWeapon[weaponIndexSaved].name;
+        weaponAttribute.text = "+" + weaponObjects.listWeapon[weaponIndexSaved].index + " " +
+            weaponObjects.listWeapon[weaponIndexSaved].attribute;
+
+        //Kiem tra xemvu khi da duoc mua hay chua
+        if (weaponObjects.listWeapon[weaponIndexSaved].isLock) {
+            purchaseWeaponText.text = weaponObjects.listWeapon[weaponIndexSaved].cost.ToString();
+            purchaseWeaponButton.gameObject.SetActive(true);
+            useOneTimeButton.gameObject.SetActive(true);
+            TurnOffUI();
+            return;
+
+        }
+        else {
+            listWeaponSkinButtons[skinIndexSaved].onClick.Invoke();
+            TurnOnUI();
+        }
+
+        for(int i=0; i < listWeaponSkinButtons.Length; i++) {
+            Transform lockIcon = null;
+            foreach (Transform child in listWeaponSkinButtons[i].transform) {
+                if (child.gameObject.CompareTag("LockImage")) {
+                    lockIcon = child; break;
+                }
+
+            }
+            purchaseSkinText.text = weaponObjects.listWeapon[weaponIndexSelected].weaponSkinCost[i].ToString();
+            //Debug.Log(weaponObjects.listWeapon[weaponIndexSelected].weaponSkinCost[i]);
+            if (weaponObjects.listWeapon[weaponIndexSelected].weaponSkinCost[i] == 0) {
+                if(lockIcon != null)
+                    lockIcon.gameObject.SetActive(false);
+
+            }
+            else {
+                if(lockIcon != null)
+                    lockIcon.gameObject.SetActive(true);
+            }
+        }
 
         // Sua mau cua cac nut chinh mau
         Material[] skinMaterials = listWeaponSkins[0].GetComponent<MeshRenderer>().sharedMaterials;
-        materitalCount = skinMaterials.Length;
-        if (materitalCount == 2) {
-            Debug.Log("Lenght: " + 2);
-            Debug.Log(listWeaponPartButtons[2].name);
-            Debug.Log(listWeaponPartButtons[2].IsActive());
-            listWeaponPartButtons[2].gameObject.SetActive(false);
-            Debug.Log(listWeaponPartButtons[2].IsActive());
+        materialCount = skinMaterials.Length;
+        SetUpTargetPartButton();
+        for (int i=0; i<3; i++) {
+            if (i < materialCount) {
+                listWeaponPartButtons[i].gameObject.SetActive(true);
+                listWeaponPartButtons[i].GetComponent<Image>().color = skinMaterials[i].color;
 
-        }
-        for (int i=0; i<skinMaterials.Length; i++) {
-            listWeaponPartButtons[i].GetComponent<Image>().color = skinMaterials[i].color;
+            }
+            else
+                listWeaponPartButtons[i].gameObject.SetActive(false);
         }
 
         // Hien thi mau neu skin duoc chon = 0
-
-        SetUpColorBoard(skinIndexSaved, materitalCount);
+        SetUpColorBoard(skinIndexSaved, materialCount);
 
     }
 
     void SetUpSkin(int weaponIndex, int skinIndex) {
-        for(int i=0; i< listWeaponSkinButtons.Length; i++) {
-            int ind = i;
-            //Lay mesh va material cua skin
-            Mesh skinMesh = weaponObjects.GetMeshWeapon(weaponIndex, ind);
-            Material[] skinMaterials = weaponObjects.GetListMaterials(weaponIndex, ind);
+        
+        // Lay scale
+        float scale = weaponObjects.listWeapon[weaponIndex].scale;
+        listWeaponSkins[skinIndex].gameObject.transform.localScale = new Vector3(scale, scale, scale);
 
-            if (ind == skinIndex)
-                listBorderImage[ind].gameObject.SetActive(true);
+        // Lay mesh va material cua skin
+        Mesh skinMesh = weaponObjects.GetMeshWeapon(weaponIndex, skinIndex);
+        Material[] skinMaterials = weaponObjects.GetListMaterials(weaponIndex, skinIndex);
+        SetMeshAndMaterial(listWeaponSkins[skinIndex],skinMesh ,skinMaterials);
+    }
+
+    void SetUpTargetPartButton() {
+        for (int j = 0; j < materialCount; j++) {
+            if (j == partSelected)
+                listPartTargetButton[j].gameObject.SetActive(true);
             else
-                listBorderImage[ind].gameObject.SetActive(false);
-            SetMeshAndMaterial(listWeaponSkins[ind], skinMesh, skinMaterials);
+                listPartTargetButton[j].gameObject.SetActive(false);
         }
     }
     void SetUpColorBoard(int skinIndex, int materialCount) {
@@ -158,8 +228,6 @@ public class WeaponShopManager : MonoBehaviour
             foreach (Button btn in listColorButtons) {
                 btn.gameObject.SetActive(true);
             }
-            normalSelectButton.gameObject.SetActive(false);
-            customSelectButton.gameObject.SetActive(true);
         }
         else {
             foreach (Button btn in listWeaponPartButtons) {
@@ -168,16 +236,6 @@ public class WeaponShopManager : MonoBehaviour
             foreach (Button btn in listColorButtons) {
                 btn.gameObject.SetActive(false);
             }
-            normalSelectButton.gameObject.SetActive(true);
-            customSelectButton.gameObject.SetActive(false);
-        }
-        if (skinIndex == weaponSkinIndexSelected) {
-            normalText.text = "Equipped";
-            customText.text = "Euipped";
-        }
-        else {
-            normalText.text = "Select";
-            customText.text = "Select";
         }
     }
     void SetMeshAndMaterial(GameObject obj, Mesh mesh, Material[] materials) {
@@ -185,36 +243,37 @@ public class WeaponShopManager : MonoBehaviour
         obj.GetComponent<MeshRenderer>().sharedMaterials = materials;
     }
 
-    void SetSelectButton() {
-        if (weaponSkinIndexSelected != weaponSkinIndexSelecting) {
-            normalText.text = "Equipped";
-            customText.text = "Equipped";
-
-            weaponSkinIndexSelected = weaponSkinIndexSelecting;
-            SaveData saveData = GetWeaponData(weaponIndexSelected);
-            saveData.skinIndex = weaponSkinIndexSelected;
-            SaveWeaponData(weaponIndexSelected, saveData);
-        }
-        else {
-            Debug.Log("Equipped");
-        }
-    }
     void SelectSkin(int skinIndex) {
-        SetUpColorBoard(skinIndex, materitalCount);
+        weaponSkinIndexSelected = skinIndex;
+
+        SetUpColorBoard(skinIndex, materialCount);
 
         for(int i=0; i<listBorderImage.Length; i++) {
             if (skinIndex == i)
                 listBorderImage[i].gameObject.SetActive(true);
             else
                 listBorderImage[i].gameObject.SetActive(false);
-
         }
-
-        weaponSkinIndexSelecting = skinIndex;
+        //Debug.Log("Skin " + skinIndex);
         //Lay mesh va material cua skin
         Mesh skinMesh = listWeaponSkins[skinIndex].GetComponent<MeshFilter>().mesh;
         Material[] skinMaterials = listWeaponSkins[skinIndex].GetComponent<MeshRenderer>().sharedMaterials;
         SetMeshAndMaterial(weaponDisplay, skinMesh, skinMaterials);
+
+        // Doi transform cua Select Button
+        SetPurchaseSkinAndSelect(skinIndex);
+        if (selectButton.IsActive())
+            SetSelectAndEquipButton(skinIndex);
+
+        if (skinIndex != 0) {
+            selectButton.gameObject.GetComponent<RectTransform>().localPosition = new Vector3(0, -500, -2);
+            equipedButton.gameObject.GetComponent<RectTransform>().localPosition = new Vector3(0, -500, -2);
+        }
+        else {
+            selectButton.gameObject.GetComponent<RectTransform>().localPosition = new Vector3(0, -700, -2);
+            equipedButton.gameObject.GetComponent<RectTransform>().localPosition = new Vector3(0, -700, -2);
+        }
+
     }
 
     void SelectMaterial(int materialIndex) {
@@ -223,7 +282,12 @@ public class WeaponShopManager : MonoBehaviour
         SetWeaponDisplay(partSelected, materialSelected);
 
         // Can sua cho nay
-        weaponObjects.SetWeaponPartMaterial(weaponIndexSelected, 
+        Mesh skinMesh = listWeaponSkins[0].GetComponent<MeshFilter>().mesh;
+        Material[] skinMaterials = listWeaponSkins[0].GetComponent <MeshRenderer>().sharedMaterials;
+        skinMaterials[partSelected] = materialSelected;
+        SetMeshAndMaterial(listWeaponSkins[0], skinMesh, skinMaterials);
+
+        weaponObjects.SetWeaponPartMaterial(weaponIndexSelected,
             0, partSelected, materialSelected);
 
         // Luu Data
@@ -232,17 +296,14 @@ public class WeaponShopManager : MonoBehaviour
             string jsonTemp = JsonUtility.ToJson(dataTemp);
             PlayerPrefs.SetString(weaponIndexSelected.ToString(), jsonTemp);
         }
-        SaveData data = GetWeaponData(weaponIndexSelected);
-        //Debug.Log("Vu khi:" + weaponIndexSelected + " " + JsonUtility.ToJson(data));
+        data = GetWeaponData(weaponIndexSelected);
+        
         data.weaponMaterials[partSelected] = materialIndex;
 
-        SaveWeaponData(weaponIndexSelected, data);
+        SaveWeaponData(weaponSkinIndexSelected, data);
 
     }
-    void SelectPart(int ind) {
-        partSelected = ind;
-    }
-    // Set material theo tung part
+
     void SetWeaponDisplay(int weaponPart, Material material) {
         // hien thi mau tren phan duoc chon
         MeshRenderer renderer = weaponDisplay.GetComponent<MeshRenderer>();
@@ -254,18 +315,122 @@ public class WeaponShopManager : MonoBehaviour
         listWeaponPartButtons[weaponPart].GetComponent<Image>().color = material.color;
 
     }
-    private SaveData GetWeaponData(int weaponIndex) {
+
+    void SetPurchaseSkinAndSelect(int skinIndex) {
+        equipedButton.gameObject.SetActive(false);
+
+        if (weaponObjects.listWeapon[weaponIndexSelected].weaponSkinCost[skinIndex] > 0) {
+            purchaseSkinButton.gameObject.SetActive(true);
+            purchaseSkinText.text = weaponObjects.listWeapon[weaponIndexSelected].weaponSkinCost[skinIndex].ToString();
+            selectButton.gameObject.SetActive(false);
+        }
+        else {
+            purchaseSkinButton.gameObject.SetActive(false); 
+            selectButton.gameObject.SetActive(true);
+        }
+    }
+    void SetSelectAndEquipButton(int skinIndex) {
+        data = GetWeaponData(weaponIndexSelected);
+        if (data.skinIndex == skinIndex) {
+            equipedButton.gameObject.SetActive(true);
+            selectButton.gameObject.SetActive(false);
+        }
+        else {
+            selectButton.gameObject.SetActive(true);
+            equipedButton.gameObject.SetActive(false);
+        }
+    }
+
+    void SetUpPurchaseWeaponButton() {
+        int playerCoin = PlayerPrefs.GetInt("PlayerCoin");
+        if (playerCoin > weaponObjects.listWeapon[weaponIndexSelected].cost)
+            playerCoin -= weaponObjects.listWeapon[weaponIndexSelected].cost;
+        else {
+            Debug.Log("Thieu tien roi b ei");
+            return;
+        }
+        PlayerPrefs.SetInt("PlayerCoin", playerCoin);
+        homePageManager.SetCoinText();
+
+        purchaseWeaponButton.gameObject.SetActive(false);
+        useOneTimeButton.gameObject.SetActive(false);
+        weaponObjects.listWeapon[weaponIndexSelected].isLock = false;
+        TurnOnUI();
+
+
+    }
+    void SetUpPurchaseSkinButton() {
+        int playerCoin = PlayerPrefs.GetInt("PlayerCoin");
+        if (playerCoin > weaponObjects.listWeapon[weaponIndexSelected].weaponSkinCost[weaponSkinIndexSelected])
+            playerCoin -= weaponObjects.listWeapon[weaponIndexSelected].weaponSkinCost[weaponSkinIndexSelected];
+        else {
+            Debug.Log("Khong du tien");
+            return;
+        }
+        PlayerPrefs.SetInt("PlayerCoin", playerCoin);
+        homePageManager.SetCoinText();
+
+        weaponObjects.listWeapon[weaponIndexSelected].weaponSkinCost[weaponSkinIndexSelected] = 0;
+
+        purchaseSkinButton.gameObject.SetActive(false);
+        equipedButton.gameObject.SetActive(true);
+        Transform lockIcon = null;
+        foreach(Transform child in listWeaponSkinButtons[weaponSkinIndexSelected].transform) {
+            if (child.gameObject.CompareTag("LockImage")) {
+                lockIcon = child; break;
+            }
+
+        }
+        if(lockIcon != null) 
+            lockIcon.gameObject.SetActive(false);
+
+        data = GetWeaponData(weaponIndexSelected);
+        data.skinIndex = weaponSkinIndexSelected;
+        SaveWeaponData(weaponIndexSelected, data);
+    }
+    void SetUpSelectButton() {
+        data = GetWeaponData(weaponIndexSelected);
+        data.skinIndex = weaponSkinIndexSelected;
+        SaveWeaponData(weaponIndexSelected, data);
+        selectButton.gameObject.SetActive(false);
+        equipedButton.gameObject.SetActive(true);
+    }
+
+    void TurnOnUI() {
+        purchaseWeaponButton.gameObject.SetActive(false);
+        useOneTimeButton.gameObject.SetActive(false);
+        foreach (Button btn in listWeaponSkinButtons)
+            btn.gameObject.SetActive(true);
+        foreach (Button btn in listWeaponPartButtons)
+            btn.gameObject.SetActive(true);
+        foreach (Button btn in listColorButtons)
+            btn.gameObject.SetActive(true);
+    }
+
+    void TurnOffUI() {
+        purchaseSkinButton.gameObject.SetActive(false);
+        selectButton.gameObject.SetActive(false);
+        equipedButton.gameObject.SetActive(false);
+        foreach (Button btn in listWeaponSkinButtons)
+            btn.gameObject.SetActive(false);
+        foreach (Button btn in listWeaponPartButtons)
+            btn.gameObject.SetActive(false);
+        foreach (Button btn in listColorButtons)
+            btn.gameObject.SetActive(false);
+    }
+    public SaveData GetWeaponData(int weaponIndex) {
         string json = PlayerPrefs.GetString(weaponIndex.ToString());
         SaveData data = JsonUtility.FromJson<SaveData>(json);
         return data;
     }
 
-    private void SaveWeaponData(int weaponIndex, SaveData data) {
+    public void SaveWeaponData(int weaponIndex, SaveData data) {
         string json = JsonUtility.ToJson(data);
-        Debug.Log("Save Weapon: " + weaponIndex + "skin: " + data.skinIndex + ", " + data.showMaterial());
+        Debug.Log("Save Weapon: " + weaponIndex + ", skin: " + data.skinIndex + ", " + data.showMaterial());
         PlayerPrefs.SetString(weaponIndex.ToString(), json);
+        OnUserChangeWeapon?.Invoke(this, EventArgs.Empty);
     }
-    private class SaveData {
+    public class SaveData {
         public int skinIndex;
         public int[] weaponMaterials = new int[3];
 

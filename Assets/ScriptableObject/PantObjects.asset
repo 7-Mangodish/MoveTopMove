@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: be4c6c4001943de4e9735c59b70e857b, type: 3}
+  m_Name: PantObjects
+  m_EditorClassIdentifier: 
+  listPants:
+  - cost: 25
+    material: {fileID: 2100000, guid: 41cf9a756d43ecb4a9c8e50841f7b72e, type: 2}
+    index: 1
+    isLock: 1
+  - cost: 50
+    material: {fileID: 2100000, guid: fdc607ea5515e2a428ab30e87e612e3a, type: 2}
+    index: 2
+    isLock: 1
+  - cost: 100
+    material: {fileID: 2100000, guid: 3fc5a98f60f73bb48aabecfce389fd23, type: 2}
+    index: 3
+    isLock: 0
+  - cost: 100
+    material: {fileID: 2100000, guid: d40eac1b70e5858449a0d88a7e52d7e7, type: 2}
+    index: 4
+    isLock: 1
+  - cost: 250
+    material: {fileID: 2100000, guid: 2c168f092589f1944b8960164670f443, type: 2}
+    index: 5
+    isLock: 1
+  - cost: 250
+    material: {fileID: 2100000, guid: 853c3dd900c0db04e974443e40239bb1, type: 2}
+    index: 6
+    isLock: 1
+  - cost: 250
+    material: {fileID: 2100000, guid: d195ee3576e25794485806fc99e5bd68, type: 2}
+    index: 7
+    isLock: 1

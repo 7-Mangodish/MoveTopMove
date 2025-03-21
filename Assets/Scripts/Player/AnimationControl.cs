@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Rendering;
+using UnityEngine.SceneManagement;
 
 public class AnimationControl : MonoBehaviour
 {
@@ -11,28 +12,47 @@ public class AnimationControl : MonoBehaviour
     public enum state {
         IsIdle,
         IsAttack,
-        IsDead
+        IsDead,
+        IsDance,
+        IsWalk,
     }
     //public state currentState = state.Idle;
-    void Start() {
+
+    private void Awake() {
         animator = GetComponent<Animator>();
-        //animator.SetBool("IsIdle", false);
+
+
+    }
+    void Start() {
         characterColor = GetComponentInChildren<SkinnedMeshRenderer>().material.color;
-        
+        //animator.SetBool("IsIdle", false);
+        if (SceneManager.GetActiveScene().buildIndex == 0) {
+            HomePageManager homeManager = GameObject.FindFirstObjectByType<HomePageManager>();
+            homeManager.OnShopping += Animation_OnShopping;
+            homeManager.OnOutShopping += Animation_OnOutShopping;
+        }
     }
 
     private void SetState(state state, bool val) {
         animator.SetBool(state.ToString(), val);
     }
+    private void Animation_OnShopping(object sender, System.EventArgs e) {
+        SetState(state.IsDance, true);
+    }
 
+    private void Animation_OnOutShopping(object sender, System.EventArgs e) {
+        SetState(state.IsDance, false);
+    }
+
+    public void SetZombieRun() {
+        SetState(state.IsWalk, false);
+    }
     public void SetIdle() {
         SetState(state.IsIdle, true);
     }
-
     public void SetRun() {
         SetState(state.IsIdle, false);
     }
-
     public void SetAttack() {
         SetState(state.IsAttack, true);
     }
@@ -40,11 +60,9 @@ public class AnimationControl : MonoBehaviour
         SetState(state.IsDead, true);
         PlayDeadEff();
     }
-
     public void EndAttack() {
         SetState(state.IsAttack, false);
     }
-
     public void PlayDeadEff() {
         Vector3 positionSpawn = new Vector3(this.transform.position.x, this.transform.position.y + .2f, this.transform.position.z);
         Transform pref = Instantiate(deadPrefab, positionSpawn, Quaternion.identity);

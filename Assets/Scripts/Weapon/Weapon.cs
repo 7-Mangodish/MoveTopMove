@@ -1,3 +1,4 @@
+using JetBrains.Annotations;
 using UnityEngine;
 
 [System.Serializable]
@@ -6,8 +7,12 @@ public class Weapon
 
     //[SerializeField] private GameObject weaponObject;
     [SerializeField] private GameObject[] weaponSkins;
-    [SerializeField] private string name;
-    [SerializeField] private bool isLock;
+    [SerializeField] public int[] weaponSkinCost = new int[5];
+    [SerializeField] public float scale;
+    [SerializeField] public string name;
+    [SerializeField] public int cost;
+    [SerializeField] public bool isLock;
+    [HideInInspector] public float standardScale = 4000;
     public enum WeaponAttribute {
         None,
         Range, 

@@ -22,7 +22,4 @@ public class WeaponObjects : ScriptableObject
         listWeapon[weaponIndex].SetMaterialWeaponSkin(weaponSkinIndex, weaponPart, material);
     }
 
-    public void TurnOffWeapon(int weaponIndex) {
-        listWeapon[weaponIndex].TurnOff();
-    }
 }

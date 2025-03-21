@@ -9,7 +9,10 @@ TagManager:
   - EnemyZone
   - Obstacle
   - Canvas
-  - WorldSpaceCanvas
+  - LockImage
+  - BodyMesh
+  - HatHolder
+  - Zombie
   layers:
   - Default
   - TransparentFX
