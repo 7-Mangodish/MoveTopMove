@@ -1,12 +1,14 @@
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class CoinManager : MonoBehaviour
 {
     private static CoinManager instance;
-    public static CoinManager Instance;
-    private int playerCoin;
+    public static CoinManager Instance { get => instance; }
+    [SerializeField] private int beginPlayerCoin;
 
     private void Awake() {
+        PlayerPrefs.SetInt("PlayerCoin", beginPlayerCoin);
         if (instance == null)
             instance = this;
         else
@@ -15,19 +17,18 @@ public class CoinManager : MonoBehaviour
 
     void Start() {
         GameManager.Instance.OnPlayerWin += CoinManager_OnPlayerWin;
-        PlayerPrefs.SetInt("PlayerCoin", 500);
     }
     private void CoinManager_OnPlayerWin(object sender, System.EventArgs e) {
-        playerCoin += 500;
-        PlayerPrefs.SetInt("PlayerCoin", playerCoin);
+        beginPlayerCoin += 500;
+        PlayerPrefs.SetInt("PlayerCoin", beginPlayerCoin);
     }
-    
-    //public bool PurchaseItem(int itemCost) {
-    //    playerCoin = PlayerPrefs.GetInt("PlayerCoin");
-    //    if ( playerCoin >= itemCost) {
-    //        PlayerPrefs.SetInt("PlayerCoin",playerCoin -= itemCost);
-    //        return true;
-    //    }
-    //    return false;
-    //}
+
+    public bool PurchaseItem(int itemCost) {
+        int playerCoin = PlayerPrefs.GetInt("PlayerCoin");
+        if (playerCoin >= itemCost) {
+            PlayerPrefs.SetInt("PlayerCoin", playerCoin -= itemCost);
+            return true;
+        }
+        return false;
+    }
 }

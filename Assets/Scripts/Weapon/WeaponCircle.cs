@@ -10,8 +10,7 @@ public class WeaponCircle : MonoBehaviour
     void Start()
     {
         stateManager = playerTransform.gameObject.GetComponent<StateManager>();
-        stateManager.OnCharacterLevelUp += WeaponCircle_OnCharacterLevelUp;
-        SetUpWeapon();
+        //SetUpWeapon();
     }
 
 
@@ -31,9 +30,6 @@ public class WeaponCircle : MonoBehaviour
         }
     }
 
-    private void WeaponCircle_OnCharacterLevelUp(object sender, StateManager.OnCharacterLevelUpArg e) {
-        Debug.Log("Level Up");
-    }
     void RotateAbility() {
         float scaledRadius = baseRadius * playerTransform.localScale.x;
         float angle = Time.time * 180; 
@@ -46,15 +42,16 @@ public class WeaponCircle : MonoBehaviour
         //this.transform.RotateAround(playerTransform.position, Vector3.up, 90 * Time.deltaTime);
     }
 
-    private void SetUpWeapon() {
-        int curWeapon = PlayerPrefs.GetInt("CurWeapon");
-        Debug.Log("Vu khi duoc chon: " + curWeapon);
+    //private void SetUpWeapon() {
+    //    int curWeapon = PlayerPrefs.GetInt("CurWeapon");
+    //    Debug.Log("Vu khi duoc chon: " + curWeapon);
 
-        WeaponShopManager.SaveData data = WeaponShopManager.Instance.GetWeaponData(curWeapon);
-        Mesh mesh = weaponObjects.GetMeshWeapon(curWeapon, data.skinIndex);
-        Material[] materials = weaponObjects.GetListMaterials(curWeapon, data.skinIndex);
+    //    WeaponShopManager.SaveData data = WeaponShopManager.Instance.GetWeaponData(curWeapon);
+    //    Debug.Log(data);
+    //    Mesh mesh = weaponObjects.GetMeshWeapon(curWeapon, data.skinIndex);
+    //    Material[] materials = weaponObjects.GetListMaterials(curWeapon, data.skinIndex);
 
-        this.GetComponent<MeshFilter>().mesh = mesh;
-        this.GetComponent<MeshRenderer>().materials = materials;
-    }
+    //    this.GetComponent<MeshFilter>().mesh = mesh;
+    //    this.GetComponent<MeshRenderer>().materials = materials;
+    //}
 }

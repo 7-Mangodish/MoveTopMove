@@ -12,10 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 14164eaea9e12074b84618279fdc6860, type: 3}
   m_Name: SkillObjects
   m_EditorClassIdentifier: 
-  hp: 1
+  shield: 0
   speed: 2
   range: 2
-  weaponCount: 1
-  currentLevelSkill: 01000000010000000100000001000000
+  weaponBonus: 0
+  currentLevelSkill: 00000000000000000000000000000000
   maxLevelSkill: 03000000050000000500000005000000
-  costUpdateSkill: 6400000064000000c8000000f4010000
+  costUpdateSkill: 6400000064000000f4010000b0040000
+  BEGIN_SHIELD: 0
+  BEGIN_SPEED: 2
+  BEGIN_RANGE: 2
+  BEGIN_WEAPON: 0

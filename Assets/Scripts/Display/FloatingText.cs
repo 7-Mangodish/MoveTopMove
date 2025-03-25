@@ -18,7 +18,6 @@ public class FloatingText : MonoBehaviour
     private void Awake() {
         cam = Camera.main;
         stateManager = GetComponent<StateManager>();
-        stateManager.OnCharacterLevelUp += FloatingText_OnCharacterLevelUp;
         stateManager.OnCharacterTakeScore += FloatingText_OnCharacterTakeScore;
         characterSkinMesh = GetComponentInChildren<SkinnedMeshRenderer>();
     }
@@ -43,13 +42,6 @@ public class FloatingText : MonoBehaviour
     void UpdateCanvas() {
         characterCanvas.position = new Vector3(this.transform.position.x, characterCanvas.position.y, this.transform.position.z);
     }
-
-    private void FloatingText_OnCharacterLevelUp(object sender, StateManager.OnCharacterLevelUpArg arg) {
-        float newPosY = this.transform.position.y + arg.deltaPositionY * arg.currentLevel;
-        characterCanvas.position += new Vector3(0, newPosY, 0);
-        
-    }
-
     private void FloatingText_OnCharacterTakeScore(object sender, int e) {
         GameObject scorePrefab = Instantiate(takeScorePrefab, this.transform.position, Quaternion.identity);
         scorePrefab.transform.SetParent(characterCanvas.transform);

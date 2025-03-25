@@ -11,8 +11,8 @@ public class GameUIManager : MonoBehaviour
     private static GameUIManager instance;
     public static GameUIManager Instance { get { return instance; } }
 
-    [SerializeField] private GameObject startPanel;
     [SerializeField] private GameObject topPanel;
+    [SerializeField] private GameObject coinPanel;
 
     [Header("Setting")]
     [SerializeField] private Button settingButton;
@@ -22,7 +22,6 @@ public class GameUIManager : MonoBehaviour
 
     [Header("Enemy's Quantity")]
     [SerializeField] private TextMeshProUGUI enemyQuantityText;
-
 
 
     [Header("Player Lose")]
@@ -69,19 +68,6 @@ public class GameUIManager : MonoBehaviour
         GameManager.Instance.OnEnemyQuantityDown += GameUIManager_OnEnemyQuantityDown;
     }
 
-    private void GameUIManager_OnStartGame(object sender, System.EventArgs e) {
-        startPanel.SetActive(true);
-        topPanel.SetActive(true);
-    }
-
-    private void GameUIManager_OnPlayerLose(object sender, System.EventArgs e) {
-        revivePanel.gameObject.SetActive(true);
-
-    }
-
-    public void TurnOffStartPanel() {
-        startPanel.SetActive(false);
-    }
 
     private void SetUpRevivePanel() {
         exitReviveButton.onClick.AddListener(() => {
@@ -101,4 +87,14 @@ public class GameUIManager : MonoBehaviour
         enemyQuantityText.text = "Alive: " +  e.ToString();
     }
 
+    private void GameUIManager_OnStartGame(object sender, System.EventArgs e) {
+        topPanel.SetActive(true);
+        IntructionPanelManager.Instance.TurnOnPanel();
+        coinPanel.gameObject.SetActive(false);
+    }
+
+    private void GameUIManager_OnPlayerLose(object sender, System.EventArgs e) {
+        revivePanel.gameObject.SetActive(true);
+
+    }
 }

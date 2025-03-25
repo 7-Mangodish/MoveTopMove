@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 using Unity.VisualScripting;
@@ -16,7 +17,7 @@ public class PlayerController : MonoBehaviour
     [Header("Skill")]
     [SerializeField] private float speed;
     [SerializeField] private GameObject playerAttackArea;
-    private float hp;
+    private float shield;
     private float range;
     private float weaponCount;
 
@@ -25,12 +26,12 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Joystick joystick;
     private Vector3 direct;
     private Rigidbody rb;
-
     private AnimationControl animationControl;
 
     [Header("Attack")]
     [SerializeField] private GameObject weapon;
     [SerializeField] private GameObject weaponHold;
+    [SerializeField] private Transform weaponSpawnPosition;
     [SerializeField] private float speedWeapon;
     [SerializeField] private float timeAttack;
     [SerializeField] private float heightAttack;
@@ -50,34 +51,57 @@ public class PlayerController : MonoBehaviour
     private bool isDead;
     private bool startGame;
 
+    /*Ability*/
     public event EventHandler OnPlayerAttack;
+    private PlayerAbility playerAbility;
+
+    //Ability3
+    private bool isAbility3;
+
+    // Ability4
+    private bool isAbility4;
+
     private void Awake() {
         rb = GetComponent<Rigidbody>();
         animationControl = GetComponent<AnimationControl>();
         stateManager = GetComponent<StateManager>();
-        stateManager.OnCharacterDead += PlayerController_OnCharacterDead;
+        playerAbility = GetComponent<PlayerAbility>();
+
         startGame = false;
         isDead = false;
+        weaponCount = 1;
     }
 
     private void Start() {
-        ReferenceToObject(SkillObjects.TypeSkill.none) ;
+        SetUpWeaponMaterial();
+
+        if(SceneManager.GetActiveScene().buildIndex == 1) {
+            playerAbility.OnPlayerChooseAbility3 += PlayerController_OnPlayerChooseAbility3;
+            playerAbility.OnplayerChooseAbility4 += PlayerController_OnplayerChooseAbility4;
+        }
+        GameManager.Instance.OnPlayerWin += PlayerController_OnPlayerWin;
+
+        stateManager.OnCharacterDead += PlayerController_OnCharacterDead;
+
+        ReferenceToObject() ;
 
         timeAttackDuration = 3;
         stateWeapon = stateManager.GetStateWeapon();
 
-        if(SceneManager.GetActiveScene().buildIndex == 0)
+        if(SceneManager.GetActiveScene().buildIndex == 0) {
             WeaponShopManager.Instance.OnUserChangeWeapon += PlayerController_OnUserChangeWeapon;
+            HomePageManager.Instance.OnShopping += PlayerController_OnShopping;
+            HomePageManager.Instance.OnOutShopping += PlayerController_OnOutShopping;
+        }
         else if(SceneManager.GetActiveScene().buildIndex == 1)
             StartPanelManager.Instance.OnPlayerUpgradeSkill += PlayerController_OnPlayerUpgradeSkill;
             
     }
 
-
-
     void Update() {
-        if (!startGame && joystick.Horizontal != 0)
+        if (!startGame && joystick.Horizontal != 0) {
             startGame = true;
+        }
         if (isDead)
             return;
         direct.x = joystick.Horizontal;
@@ -85,7 +109,7 @@ public class PlayerController : MonoBehaviour
         RotateCharacter(direct);
     }
 
-    private void FixedUpdate() {
+    private  void FixedUpdate() {
         if(timeAttackDuration < 5)
             timeAttackDuration += Time.fixedDeltaTime;
 
@@ -97,9 +121,14 @@ public class PlayerController : MonoBehaviour
         else {
             animationControl.SetIdle();
             if (canAttack && timeAttackDuration > timeAttack) {
-                animationControl.SetAttack();
+                if (!isAbility4) {
+                    animationControl.SetAttack();
+                    Attack();
+                }
+                else {
+                    StartCoroutine(AttackTwice());
+                }
                 timeAttackDuration = 0;
-                Attack();
             }
         }
 
@@ -136,36 +165,44 @@ public class PlayerController : MonoBehaviour
     }
     private async void Attack() {
 
+        // chon direct va quay character ve huong ke dich
         Vector3 directEnemy = targetPosition - this.transform.position;
         directEnemy.y = 0;
         RotateCharacter(directEnemy);
+
+        // Delay .2s gay bien mat vu khi
+        await Task.Delay(200);
+        weaponHold.gameObject.SetActive(false);
+
+        // Tan cong va goi su kien
         angleSpread = angleAttack / weaponCount;
         int startIndexWeapon = (int)-weaponCount / 2;
         OnPlayerAttack?.Invoke(this, EventArgs.Empty);
-        //Debug.Log(startIndexWeapon);
-        //Debug.Log(weaponCount / 2);
 
         for (int i = startIndexWeapon; i <= weaponCount/2; i++) {
             if (i == 0 && weaponCount % 2 == 0)
                 continue;
             // Xac dinh vi tri spawn va huong nem
-            Vector3 positionSpawn = new Vector3(this.transform.position.x,
-                this.transform.position.y + 0.2f, this.transform.position.z);
+            Vector3 positionSpawn = new Vector3(weaponSpawnPosition.position.x,
+                weaponSpawnPosition.position.y + 0.2f, weaponSpawnPosition.position.z);
 
-            Vector3 directWeapon = Quaternion.AngleAxis(startIndexWeapon * angleSpread, Vector3.up) * this.transform.forward;
+            Vector3 directWeapon = Quaternion.AngleAxis(startIndexWeapon * angleSpread, Vector3.up) * this.transform.forward;   
 
             //Khoi tao vu khi
             GameObject weaponSpawn = Instantiate(weapon, positionSpawn, Quaternion.Euler(new Vector3(90, 0, 0)));
             weaponSpawn.transform.localScale = new Vector3(6, 6, 6);
 
-            // Kiem tra xem da len cap chua, neu co thi cap nhat trang thai cua vu khi
+
+            // Kiem tra xem da len cap chua, neu co thi cap nhat lai trang thai cua vu khi
             if (stateManager.IsLevelUp) {
                 stateWeapon = stateManager.GetStateWeapon();
+
                 stateManager.IsLevelUp = false;
                 heightAttack *= transform.localScale.x;
             }
 
-            //Set trang thai(chu the, tam ban, scale)
+            //Set trang thai(chu the, tam ban, scale, vi tri khoi tao)
+            stateWeapon.positionSpawn = positionSpawn;
             Rigidbody weaponRb = weaponSpawn.GetComponent<Rigidbody>();
             weaponRb.GetComponent<ThrowWeapon>().SetStateWeapon(stateWeapon);
 
@@ -176,10 +213,12 @@ public class PlayerController : MonoBehaviour
             startIndexWeapon++;
         }
 
+        StartCoroutine(StopAnimation());
 
         await Task.Delay(800);
-        animationControl.EndAttack();
+        weaponHold.gameObject.SetActive(true);
         canAttack = false;
+
     }
     private void RotateCharacter(Vector3 direct) {
         if (direct == Vector3.zero)
@@ -188,25 +227,19 @@ public class PlayerController : MonoBehaviour
         Quaternion rot = Quaternion.LookRotation(direct.normalized, Vector3.up);
         transform.rotation = Quaternion.RotateTowards(this.transform.rotation, rot, deltaAngle);
     }
-    private void PlayerController_OnCharacterDead(object sender, EventArgs e) {
-        isDead = true;
-        speed = 0;
-    }
     
     // Duoc goi khi tham chieu den SkillObjects de lay chi so
-    private void ReferenceToObject(SkillObjects.TypeSkill type) {
-        hp = skillObjects.hp;
+    private void ReferenceToObject() {
+        shield = skillObjects.shield;
         speed = skillObjects.speed;
         range = skillObjects.range;
-        if(type == SkillObjects.TypeSkill.range) {
-            playerAttackArea.transform.localScale = new Vector3(range, range, range);
-            CameraMove.Instance.UpdateCamera(.5f);
-        }
-        weaponCount = skillObjects.weaponCount;
+        playerAttackArea.transform.localScale = new Vector3(range, range, range);
+        weaponCount += skillObjects.weaponBonus;
     }
-    private void PlayerController_OnUserChangeWeapon(object sender, EventArgs e) {
+
+    private void SetUpWeaponMaterial() {
         int curWeapon = PlayerPrefs.GetInt("CurWeapon");
-        Debug.Log("Vu khi duoc chon: " +curWeapon);
+        Debug.Log("Vu khi duoc chon: " + curWeapon);
         WeaponShopManager.SaveData data = WeaponShopManager.Instance.GetWeaponData(curWeapon);
         Mesh mesh = weaponObjects.GetMeshWeapon(curWeapon, data.skinIndex);
         Material[] materials = weaponObjects.GetListMaterials(curWeapon, data.skinIndex);
@@ -215,12 +248,63 @@ public class PlayerController : MonoBehaviour
         weaponHold.GetComponent<MeshRenderer>().materials = materials;
 
         weapon.GetComponent<MeshFilter>().mesh = mesh;
-        weapon.GetComponent <MeshRenderer>().materials = materials;
+        weapon.GetComponent<MeshRenderer>().materials = materials;
+    }
+    private void PlayerController_OnCharacterDead(object sender, EventArgs e) {
+        isDead = true;
+        speed = 0;
     }
 
-    // Ham xu li su kien khi player upgradeskill
-    private void PlayerController_OnPlayerUpgradeSkill(object sender, SkillObjects.TypeSkill type) {
-        ReferenceToObject(type);
+    private void PlayerController_OnShopping(object sender, EventArgs e) {
+        animationControl.SetDance();
     }
+    private void PlayerController_OnOutShopping(object sender, EventArgs e) {
+        animationControl.StopDance();
+    }
+
+    private void PlayerController_OnUserChangeWeapon(object sender, EventArgs e) {
+        SetUpWeaponMaterial();
+    }
+
+    // Ham xu li su kien khi player upgradeskill, tham chieu toi skill object 1 lan nua
+    private void PlayerController_OnPlayerUpgradeSkill(object sender, SkillObjects.TypeSkill type) {
+        ReferenceToObject();
+    }
+
+    //Ham xu li xu kien khi player chon ability3, 
+    private void PlayerController_OnPlayerChooseAbility3(object sender, EventArgs e) {
+        //isAbility3 = true;
+    }
+    private void PlayerController_OnplayerChooseAbility4(object sender, EventArgs e) {
+        isAbility4 = true;
+        animationControl.SetSpeedMultiplayer();
+    }
+    private void PlayerController_OnPlayerWin(object sender, EventArgs e) {
+        animationControl.SetDanceWin();
+        this.transform.rotation = Quaternion.Euler(0, 180, 0);
+        speed = 0;  
+        canAttack = false;
+        joystick.gameObject.SetActive(false);
+    }
+    IEnumerator StopAnimation() {
+        while (animationControl.animator.GetCurrentAnimatorStateInfo(0).IsName("Attack")
+            && animationControl.animator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1f) {
+            yield return null;
+        }
+
+        animationControl.EndAttack();
+        //Debug.Log("End Attack");
+    }
+    private IEnumerator AttackTwice() {
+        animationControl.SetAttack();
+        Attack();
+
+        yield return new WaitForSeconds(0.5f);
+
+        animationControl.SetAttack();
+        Attack();
+    }
+
+
 
 }

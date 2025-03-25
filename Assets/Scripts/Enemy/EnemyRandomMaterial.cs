@@ -10,9 +10,4 @@ public class EnemyRandomMaterial : MonoBehaviour
         int randNumber = Random.Range(0, materialObjects.listMaterials.Length);
         characterSkin.material = materialObjects.listMaterials[randNumber];
     }
-
-    void Start()
-    {
-
-    }
 }

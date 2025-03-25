@@ -1,6 +1,8 @@
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Random = UnityEngine.Random;
 
 public class FloatingTextAboveCharacter : MonoBehaviour {
 
@@ -15,13 +17,13 @@ public class FloatingTextAboveCharacter : MonoBehaviour {
     private Camera mainCam;
     private StateManager stateManager;
     private GameObject canvas;
+    bool isStart = false;
+    bool isDead = false;
     private void Awake() {
         mainCam = Camera.main;
         stateManager = this.GetComponent<StateManager>();
         canvas = GameObject.FindGameObjectWithTag("Canvas");
      }
-
-
 
     private void Start() {
         render = GetComponentInChildren<SkinnedMeshRenderer>();
@@ -32,17 +34,31 @@ public class FloatingTextAboveCharacter : MonoBehaviour {
             int randomNum = (int)Random.Range(0, 100);
             nameCharacterText.text = "Enemy" + randomNum.ToString();
             this.gameObject.transform.parent.name = nameCharacterText.text;
+            isStart = true;
         }
+        if (this.gameObject.CompareTag("Player"))
+            isStart = false;
 
         nameContainer.transform.SetParent(canvas.transform);
-        stateManager.OnCharacterLevelUp += FloatingText_OnCharacterLevelUp;
         stateManager.OnCharacterTakeScore += FloatingText_OnCharacterTakeScore;
+        stateManager.OnCharacterDead += FloatingText_OnCharacterDeadOrWin;
+
+        GameManager.Instance.OnPlayerWin += FloatingText_OnCharacterDeadOrWin;
+        HomePageManager.Instance.OnStartGame += FloatingText_OnStartGame;
+    }
+
+    private void FloatingText_OnStartGame(object sender, System.EventArgs e) {
+        isStart = true;
     }
 
     private void FixedUpdate() {
-        UpdateText();
+        if (isDead)
+            return;
+        if(isStart)
+            UpdateText();
     }
     private void UpdateText() {
+        
         Vector3 characterOnscreen = mainCam.WorldToScreenPoint(this.transform.position);
         if (characterOnscreen.x < 0 || characterOnscreen.x > Screen.width
             || characterOnscreen.y < 0 || characterOnscreen.y > Screen.height) {
@@ -60,13 +76,18 @@ public class FloatingTextAboveCharacter : MonoBehaviour {
             characterOnscreen - new Vector3(Screen.width / 2, Screen.height / 2) + offset;
     }
 
-    private void FloatingText_OnCharacterLevelUp(object sender, StateManager.OnCharacterLevelUpArg e) {
-        offset.y += 60;
-    }
     private void FloatingText_OnCharacterTakeScore(object sender, int e) {
-        GameObject scorePrefab = Instantiate(takeScorePrefab, canvas.transform);
-        Destroy(scorePrefab, 1.5f);
+        if (this.gameObject.CompareTag("Player")) {
+            GameObject scorePrefab = Instantiate(takeScorePrefab, canvas.transform);
+            Destroy(scorePrefab, 1.5f);
+        }
         characterScore.text = e.ToString();
     }
 
+
+    private void FloatingText_OnCharacterDeadOrWin(object sender, System.EventArgs e) {
+        isDead = true;
+        //Debug.Log(this.gameObject.transform.parent.name);
+        Destroy(nameContainer.gameObject);
+    }
 }

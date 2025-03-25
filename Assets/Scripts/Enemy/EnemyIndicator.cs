@@ -24,16 +24,18 @@ public class EnemyIndicator : MonoBehaviour
 
         mainCamera = Camera.main;
         stateManager = GetComponent<StateManager>();
-        stateManager.OnCharacterDead += IndicatorEnemy_OnCharacterDead;
-
-        indicatorIcon.color = skinCharacter.material.color;
-        indicatorScoreContainer.color = skinCharacter.material.color;
     }
 
 
 
     void Start()
     {
+
+        indicatorIcon.color = skinCharacter.material.color;
+        indicatorScoreContainer.color = skinCharacter.material.color;
+
+        stateManager.OnCharacterDead += IndicatorEnemy_OnCharacterDead;
+
         indicatorContainer.transform.SetParent(targetCanvas.transform);
         indicatorContainer.SetActive(false);
     }
@@ -79,6 +81,7 @@ public class EnemyIndicator : MonoBehaviour
         isDead = true;
         await Task.Delay(100);
         Destroy(indicatorContainer);
+        //Debug.Log("Character Dead");
         //Debug.Log("Player Dead");
     }
 }

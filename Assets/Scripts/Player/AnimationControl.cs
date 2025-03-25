@@ -7,12 +7,13 @@ public class AnimationControl : MonoBehaviour
 {
     [SerializeField] private Transform deadPrefab;
     [SerializeField] private Transform levelUpPrefab;
-    private Animator animator;
+    public Animator animator;
     private Color characterColor;
     public enum state {
         IsIdle,
         IsAttack,
         IsDead,
+        IsWin,
         IsDance,
         IsWalk,
     }
@@ -20,29 +21,18 @@ public class AnimationControl : MonoBehaviour
 
     private void Awake() {
         animator = GetComponent<Animator>();
-
+        if(this.gameObject.CompareTag("Player"))
+            animator.SetFloat("AttackSpeed", 1f);
 
     }
     void Start() {
         characterColor = GetComponentInChildren<SkinnedMeshRenderer>().material.color;
-        //animator.SetBool("IsIdle", false);
-        if (SceneManager.GetActiveScene().buildIndex == 0) {
-            HomePageManager homeManager = GameObject.FindFirstObjectByType<HomePageManager>();
-            homeManager.OnShopping += Animation_OnShopping;
-            homeManager.OnOutShopping += Animation_OnOutShopping;
-        }
     }
 
     private void SetState(state state, bool val) {
-        animator.SetBool(state.ToString(), val);
-    }
-    private void Animation_OnShopping(object sender, System.EventArgs e) {
-        SetState(state.IsDance, true);
+        animator.SetBool(state.ToString(), val);    
     }
 
-    private void Animation_OnOutShopping(object sender, System.EventArgs e) {
-        SetState(state.IsDance, false);
-    }
 
     public void SetZombieRun() {
         SetState(state.IsWalk, false);
@@ -52,6 +42,7 @@ public class AnimationControl : MonoBehaviour
     }
     public void SetRun() {
         SetState(state.IsIdle, false);
+        SetState(state.IsAttack, false);
     }
     public void SetAttack() {
         SetState(state.IsAttack, true);
@@ -59,6 +50,16 @@ public class AnimationControl : MonoBehaviour
     public void SetDead() {
         SetState(state.IsDead, true);
         PlayDeadEff();
+    }
+    public void SetDanceWin() {
+        SetState(state.IsWin, true);
+    }
+
+    public void SetDance() {
+        SetState(state.IsDance, true);
+    }
+    public void StopDance() {
+        SetState(state.IsDance, false);
     }
     public void EndAttack() {
         SetState(state.IsAttack, false);
@@ -81,5 +82,9 @@ public class AnimationControl : MonoBehaviour
         ParticleSystem.ColorOverLifetimeModule colorModule = myParticleSystem.colorOverLifetime;
 
         colorModule.color = characterColor;
+    }
+
+    public void SetSpeedMultiplayer() {
+        animator.SetFloat("AttackSpeed", 2.5f);
     }
 }

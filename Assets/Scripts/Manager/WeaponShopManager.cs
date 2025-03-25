@@ -10,7 +10,7 @@ using UnityEngine.UI;
 public class WeaponShopManager : MonoBehaviour
 {
     private static WeaponShopManager instance;
-    public static WeaponShopManager Instance { get { return instance; } }
+    public static WeaponShopManager Instance { get => instance; }
 
     [SerializeField] private WeaponObjects weaponObjects;
     [SerializeField] private GameObject weaponDisplay;
@@ -281,7 +281,6 @@ public class WeaponShopManager : MonoBehaviour
 
         SetWeaponDisplay(partSelected, materialSelected);
 
-        // Can sua cho nay
         Mesh skinMesh = listWeaponSkins[0].GetComponent<MeshFilter>().mesh;
         Material[] skinMaterials = listWeaponSkins[0].GetComponent <MeshRenderer>().sharedMaterials;
         skinMaterials[partSelected] = materialSelected;

@@ -22,9 +22,10 @@ public class EnemyController : MonoBehaviour
     private float timeIdleDuration;
 
     [Header("Enenmy Attack")]
-    [SerializeField] private GameObject enemyWeapon;
+    private GameObject enemyWeapon;
     [SerializeField] private float speedWeapon;
     [SerializeField] private float timeAttack;
+    private EnemyRamdomItem enemyRandomItem;
     private float timeAttackDuration;
     private bool canAttack;
     private Vector3 playerPosition;
@@ -39,6 +40,8 @@ public class EnemyController : MonoBehaviour
         animationControl = GetComponent<AnimationControl>();
         agent = GetComponent<NavMeshAgent>();
         stateManager = GetComponent<StateManager>();
+        enemyRandomItem = GetComponent<EnemyRamdomItem>();
+
         stateManager.OnCharacterDead += EnemyController_OnCharacterDead;
     }
 
@@ -47,6 +50,8 @@ public class EnemyController : MonoBehaviour
         //Debug.Log(this.transform.position);
         agent.destination = targetPosition.position;
         stateWeapon = stateManager.GetStateWeapon();
+
+        enemyWeapon = enemyRandomItem.GetRandomEnemyWeapon();
     }
 
     void Update()
@@ -126,6 +131,7 @@ public class EnemyController : MonoBehaviour
     }
 
     private async void EnemyAttack() {
+        if(isDead) return;
         // Xac dinh vi tri spawn va huong nem
         Vector3 positionSpawn = new Vector3(this.transform.position.x, 
             this.transform.position.y + 0.2f, this.transform.position.z);
@@ -142,7 +148,8 @@ public class EnemyController : MonoBehaviour
         //Khoi tao vu khi
         GameObject weaponSpawn = Instantiate(enemyWeapon, positionSpawn, Quaternion.Euler(new Vector3(90, 0, 0)));
 
-        //Set trang thai(chu the, tam ban, scale)
+        //Set trang thai(chu the, tam ban, scale, vi tri)
+        stateWeapon.positionSpawn = this.transform.position;
         Rigidbody weaponRb = weaponSpawn.GetComponent<Rigidbody>();
         weaponRb.GetComponent<ThrowWeapon>().SetStateWeapon(stateWeapon);
         //Nem vu khi theo huong

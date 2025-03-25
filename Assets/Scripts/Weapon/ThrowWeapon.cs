@@ -5,12 +5,12 @@ using UnityEngine;
 public class ThrowWeapon : MonoBehaviour
 {
 
-    private Vector3 targetPosition;
     [SerializeField] private float deltaAngle;
     public struct StateWeapon {
         public StateManager ownerStateManager;
         public float maxDistance;
         public float curScale;
+        public Vector3 positionSpawn;
     }
     private StateWeapon stateWeapon;
     private void Start() {
@@ -28,7 +28,10 @@ public class ThrowWeapon : MonoBehaviour
         if (other.gameObject.CompareTag("Zombie")) {
             AnimationControl animationControl = other.GetComponent<AnimationControl>();
             animationControl.PlayDeadEff();
+
             stateWeapon.ownerStateManager.AddScore();
+
+            GameManager.Instance.DoZombieDead();
 
             Destroy(other.gameObject);
             Destroy(this.gameObject);
@@ -39,14 +42,14 @@ public class ThrowWeapon : MonoBehaviour
 
                 other.GetComponent<StateManager>().TriggerCharacterDead();
                 stateWeapon.ownerStateManager.AddScore();
-                GameManager.Instance.SpawnEnemy();
+                GameManager.Instance.DoEnemyDead();
 
                 Destroy(this.gameObject);
             }
             else if (stateWeapon.ownerStateManager.CompareTag("Player")) {
 
                 other.gameObject.GetComponent<StateManager>().TriggerCharacterDead();
-                GameManager.Instance.SpawnEnemy();
+                GameManager.Instance.DoEnemyDead();
                 stateWeapon.ownerStateManager.AddScore();
 
                 Destroy(this.gameObject);
@@ -66,7 +69,8 @@ public class ThrowWeapon : MonoBehaviour
 
 
     void  Throw() {
-        if (Vector3.Distance(this.transform.position, stateWeapon.ownerStateManager.transform.position) > stateWeapon.maxDistance + .25) {
+        if (Vector3.Distance(this.transform.position, stateWeapon.positionSpawn) > stateWeapon.maxDistance) {
+            //Debug.Log("Out range");
             Destroy(this.gameObject);
         }
         this.transform.RotateAround(this.transform.position,Vector3.up, deltaAngle * Time.deltaTime);
@@ -76,6 +80,7 @@ public class ThrowWeapon : MonoBehaviour
         this.stateWeapon.ownerStateManager = s.ownerStateManager;
         this.stateWeapon.maxDistance = s.maxDistance;
         this.stateWeapon.curScale = s.curScale;
+        this.stateWeapon.positionSpawn = s.positionSpawn;
     }
 
 }

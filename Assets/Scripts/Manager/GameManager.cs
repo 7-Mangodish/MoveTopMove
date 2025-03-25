@@ -15,12 +15,20 @@ public class GameManager : MonoBehaviour
     public event EventHandler OnPlayerLose;
     public event EventHandler OnPlayerWin;
 
-    [SerializeField] private int enemyQuantityOnMatch;
+    [SerializeField] private int enemyQuantityWhenStart;
     [SerializeField] private int maxEnemyQuantity;
     [SerializeField] private GameObject enemyPrefab;
-    [SerializeField] private GameObject zombiePrefab;
-    private HomePageManager homeManager;
 
+    [Header("Zombie Mode")]
+    [SerializeField] private GameObject zombiePrefab;
+    [SerializeField] private float timeSpawnZombie;
+    private float timeDuration;
+
+
+    private int currentEnemyQuantity;
+    private int activeEnemyQuantity;
+
+    private bool isStartZombieMode = false;
     private void Awake() {
         if(instance == null) {
             instance = this;
@@ -28,6 +36,7 @@ public class GameManager : MonoBehaviour
         else {
             Destroy(this.gameObject);
         }
+        timeSpawnZombie = 1f;
     }
 
     private void Start() {
@@ -39,9 +48,20 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    private void Update() {
+        if (SceneManager.GetActiveScene().buildIndex == 1 && isStartZombieMode) {
+            if (currentEnemyQuantity < maxEnemyQuantity) {
+                timeDuration += Time.deltaTime;
+                if (timeDuration > timeSpawnZombie) {
+                    SpawnEnemy();
+                    currentEnemyQuantity++;
+                }
+            }
+        }
+    }
     private void GameManager_OnStartZombieMode(object sender, EventArgs e) {
+        isStartZombieMode = true;
         SpawnEnemyWhenStartGame();
-        Invoke(nameof(SpawnEnemyWhenStartGame), .5f);
     }
 
     private void GameManager_OnStartGame(object sender, EventArgs e) {
@@ -50,7 +70,9 @@ public class GameManager : MonoBehaviour
 
 
     private void SpawnEnemyWhenStartGame() {
-        for (int i = 0; i < enemyQuantityOnMatch; i++) {
+        activeEnemyQuantity = maxEnemyQuantity;
+        currentEnemyQuantity = enemyQuantityWhenStart;
+        for (int i = 0; i < enemyQuantityWhenStart; i++) {
 
             Vector3 newPosition = GetRandomPosition();
 
@@ -64,23 +86,38 @@ public class GameManager : MonoBehaviour
         }
     }
     public void SpawnEnemy() {
-        this.maxEnemyQuantity -= 1;
-        OnEnemyQuantityDown?.Invoke(this, this.maxEnemyQuantity);
-        if (maxEnemyQuantity - enemyQuantityOnMatch > 0) {
-
-            Vector3 newPosition = GetRandomPosition();
-
-            if (NavMesh.SamplePosition(newPosition, out NavMeshHit hit, .5f, NavMesh.AllAreas)) {
+        Vector3 newPosition = GetRandomPosition();
+        if (NavMesh.SamplePosition(newPosition, out NavMeshHit hit, .5f, NavMesh.AllAreas)) {
+            if (SceneManager.GetActiveScene().buildIndex == 0)
                 Instantiate(enemyPrefab, newPosition, Quaternion.identity);
-            }
-
+            else
+                Instantiate(zombiePrefab, newPosition, Quaternion.identity);
         }
-        else {
-            Debug.Log("Player Win");
+
+    }
+
+    public void DoZombieDead() {
+        this.activeEnemyQuantity -= 1;
+        OnEnemyQuantityDown?.Invoke(this, this.activeEnemyQuantity);
+        if (this.activeEnemyQuantity == 0) {
             OnPlayerWin?.Invoke(this, EventArgs.Empty);
+            Debug.Log("Player Win");
+            return;
         }
     }
 
+    public void DoEnemyDead() {
+        this.activeEnemyQuantity -= 1;
+        OnEnemyQuantityDown?.Invoke(this, this.activeEnemyQuantity);
+        if(this.activeEnemyQuantity == 0) {
+            Debug.Log("Player Win");
+            OnPlayerWin?.Invoke(this, EventArgs.Empty);
+            return;
+        }
+        if (activeEnemyQuantity-enemyQuantityWhenStart >= 0) {
+            SpawnEnemy();
+        }
+    }
     private Vector3 GetRandomPosition() {
         float randX = Random.Range(-3, 3);
         float randZ = Random.Range(-3, 3);

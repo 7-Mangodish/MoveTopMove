@@ -4,37 +4,36 @@ using TMPro;
 using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.SceneManagement;
 using UnityEngine.SocialPlatforms.Impl;
 
 public class StateManager : MonoBehaviour
 {
-
+    
     private int currentScore;
     public int CurrentScore { get { return currentScore; } }
     private int addingScore;
     public bool IsLevelUp;
+
+    [SerializeField] private SkillObjects skillObjects;
 
     [Header("Weapon's State")]
     [SerializeField] private float deltaScaleWeapon;
     [SerializeField] private GameObject maxDistancePoint;
     private ThrowWeapon.StateWeapon stateWeapon;
 
-    [Header("Character's Control")]
+    [Header("Character's Animation Control")]
     private AnimationControl animationControl;
 
     [Header("Player's Scale")]
     [SerializeField] private TextMeshProUGUI playerScaleText;
     private int currentLevel;
 
+    [Header("Zombie Mode")]
+    [SerializeField] private GameObject playerShield;
 
     public event EventHandler<int> OnCharacterTakeScore;
     public event EventHandler OnCharacterDead;
-
-    public class OnCharacterLevelUpArg : EventArgs {
-        public float currentLevel;
-        public float deltaPositionY;
-    }
-    public event EventHandler<OnCharacterLevelUpArg> OnCharacterLevelUp;
 
     public bool isDead = false;
     private void Awake() {
@@ -59,31 +58,23 @@ public class StateManager : MonoBehaviour
         this.currentScore += addingScore;
         OnCharacterTakeScore?.Invoke(this, this.currentScore);
 
-
-
         if (currentScore%2 == 0 && currentScore !=0) {
             IsLevelUp = true;
             currentLevel++;
 
             animationControl.PlayLevelUpEff();
-            OnCharacterLevelUp?.Invoke(this, new OnCharacterLevelUpArg {
-                currentLevel = this.currentLevel,
-                deltaPositionY = 0.05f
-            });
-
             //Cap nhat scale cua nhan vat, cap nhat tam danh va scale cua vu khi
             this.transform.localScale += new Vector3(0.05f, 0.05f, 0.05f);
             if (this.gameObject.CompareTag("Player")) {
                 DisplayPlayerScale(this.transform.localScale.x * 5f);
             }
 
-
             stateWeapon.curScale += deltaScaleWeapon;
             stateWeapon.maxDistance = Vector3.Distance(this.transform.position, maxDistancePoint.transform.position);
 
             // Cap nhat cammera
             if (this.gameObject.CompareTag("Player"))
-                CameraMove.Instance.UpdateCamera(.75f);
+                CameraMove.Instance.UpdateDistanceCamera(.75f);
         }
     }
     
@@ -96,13 +87,32 @@ public class StateManager : MonoBehaviour
         return stateWeapon;
     }
 
-    public void TriggerCharacterDead() {
+    public async void TriggerCharacterDead() {      
+        
+        if(this.gameObject.CompareTag("Player") && SceneManager.GetActiveScene().buildIndex == 1) {
+            skillObjects.shield -= 1;
+            if (skillObjects.shield >=0) {
+                StartPanelManager.Instance.SetUpListHpImage();
+
+                playerShield.gameObject.SetActive(true);
+                Physics.IgnoreLayerCollision(3, 7, true);
+                await Task.Delay(1000);
+                playerShield.gameObject.SetActive(false);
+                Physics.IgnoreLayerCollision(3,7, false);
+                return;
+            }
+                
+        }
+
         this.isDead = true;
 
         //Animation
         OnCharacterDead?.Invoke(this, EventArgs.Empty);
         animationControl.SetDead();
 
+        // Event
+        if (this.gameObject.CompareTag("Player"))
+            GameManager.Instance.PlayerLose();
 
         //Destroy Gameobject
         if (this.gameObject.CompareTag("Enemy")) {
