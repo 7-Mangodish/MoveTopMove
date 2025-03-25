@@ -89,7 +89,7 @@ public class PlayerController : MonoBehaviour
         stateWeapon = stateManager.GetStateWeapon();
 
         if(SceneManager.GetActiveScene().buildIndex == 0) {
-            WeaponShopManager.Instance.OnUserChangeWeapon += PlayerController_OnUserChangeWeapon;
+            WeaponDataManager.Instance.OnUserChangeWeapon += PlayerController_OnUserChangeWeapon;
             HomePageManager.Instance.OnShopping += PlayerController_OnShopping;
             HomePageManager.Instance.OnOutShopping += PlayerController_OnOutShopping;
         }
@@ -101,6 +101,7 @@ public class PlayerController : MonoBehaviour
     void Update() {
         if (!startGame && joystick.Horizontal != 0) {
             startGame = true;
+            IntructionPanelManager.Instance.TurnOffPanel();
         }
         if (isDead)
             return;
@@ -240,7 +241,7 @@ public class PlayerController : MonoBehaviour
     private void SetUpWeaponMaterial() {
         int curWeapon = PlayerPrefs.GetInt("CurWeapon");
         Debug.Log("Vu khi duoc chon: " + curWeapon);
-        WeaponShopManager.SaveData data = WeaponShopManager.Instance.GetWeaponData(curWeapon);
+        WeaponDataManager.SaveData data = WeaponDataManager.Instance.GetWeaponData(curWeapon);
         Mesh mesh = weaponObjects.GetMeshWeapon(curWeapon, data.skinIndex);
         Material[] materials = weaponObjects.GetListMaterials(curWeapon, data.skinIndex);
 

@@ -23,6 +23,8 @@ public class CameraMove : MonoBehaviour
     private void Start() {
         GameManager.Instance.OnPlayerWin += Camera_OnPlayerWin;
         if(SceneManager.GetActiveScene().buildIndex == 0) {
+            winingCamera.gameObject.SetActive(false);
+            gamePlayCamera.gameObject.SetActive(false);
             HomePageManager.Instance.OnStartGame += Camera_OnStartGame;
             HomePageManager.Instance.OnShopping += Camera_OnShopping;
             HomePageManager.Instance.OnOutShopping += Camera_OnOutShopping;

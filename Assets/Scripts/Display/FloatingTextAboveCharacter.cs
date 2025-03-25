@@ -1,6 +1,8 @@
 using System;
 using TMPro;
+using UnityEditor.SearchService;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
@@ -44,7 +46,9 @@ public class FloatingTextAboveCharacter : MonoBehaviour {
         stateManager.OnCharacterDead += FloatingText_OnCharacterDeadOrWin;
 
         GameManager.Instance.OnPlayerWin += FloatingText_OnCharacterDeadOrWin;
-        HomePageManager.Instance.OnStartGame += FloatingText_OnStartGame;
+        
+        if(SceneManager.GetActiveScene().buildIndex == 0)
+            HomePageManager.Instance.OnStartGame += FloatingText_OnStartGame;
     }
 
     private void FloatingText_OnStartGame(object sender, System.EventArgs e) {

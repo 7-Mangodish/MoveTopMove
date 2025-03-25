@@ -29,9 +29,12 @@ public class GameUIManager : MonoBehaviour
     [SerializeField] private GameObject revivePanel;
     [SerializeField] private Button exitReviveButton;
     /*Dead Panel*/
-    [SerializeField] private GameObject DeadPanel;
+    [SerializeField] private GameObject deadPanel;
     [SerializeField] private Button continueButton;
 
+    [Header("Player Win")]
+    [SerializeField] private GameObject winPanel;
+    [SerializeField] private Button playNextZone;
 
     private HomePageManager homeManager;
     private void Awake() {
@@ -58,6 +61,8 @@ public class GameUIManager : MonoBehaviour
 
         SetUpRevivePanel();
         SetUpDeadPanel();
+
+        SetUpWinPanel();
     }
 
     private void Start() {
@@ -65,21 +70,28 @@ public class GameUIManager : MonoBehaviour
         homeManager.OnStartGame += GameUIManager_OnStartGame;
 
         GameManager.Instance.OnPlayerLose += GameUIManager_OnPlayerLose;
+        GameManager.Instance.OnPlayerWin += GameUIManager_OnPlayerWin;
         GameManager.Instance.OnEnemyQuantityDown += GameUIManager_OnEnemyQuantityDown;
     }
-
 
     private void SetUpRevivePanel() {
         exitReviveButton.onClick.AddListener(() => {
             revivePanel.gameObject.SetActive(false);
-            DeadPanel.gameObject.SetActive(true);
+            deadPanel.gameObject.SetActive(true);
         });
     }
 
     private void SetUpDeadPanel() {
         continueButton.onClick.AddListener(() => {
             SceneManager.LoadScene(0);
-            DeadPanel.gameObject.SetActive(false);
+            deadPanel.gameObject.SetActive(false);
+        });
+    }
+
+    private void SetUpWinPanel() {
+        playNextZone.onClick.AddListener(() => {
+            SceneManager.LoadScene(0);
+            winPanel.gameObject.SetActive(false);
         });
     }
     private void GameUIManager_OnEnemyQuantityDown(object sender, int e) {
@@ -96,5 +108,10 @@ public class GameUIManager : MonoBehaviour
     private void GameUIManager_OnPlayerLose(object sender, System.EventArgs e) {
         revivePanel.gameObject.SetActive(true);
 
+    }
+
+    private async void GameUIManager_OnPlayerWin(object sender, System.EventArgs e) {
+        await Task.Delay(1000);
+        winPanel.SetActive(true);
     }
 }
