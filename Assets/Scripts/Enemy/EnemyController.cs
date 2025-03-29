@@ -67,29 +67,12 @@ public class EnemyController : MonoBehaviour
             if (canAttack) {
                 if(timeAttackDuration > timeAttack) {
                     animationControl.SetAttack();
-                    EnemyAttack();
                     timeAttackDuration = 0;
+                    EnemyAttack();
                 }
             }
             else {
                 if(timeIdleDuration > timeIdle ) {
-                    //float randX = Random.Range(-3, 3);
-                    //float randZ = Random.Range(-3, 3);
-                    //int randM = Random.Range(-1, 1) < 0 ? -1 : 1;
-
-                    //Vector3 newPosition = targetPosition.position + new Vector3(randX * randM, 0, randZ * randM);
-
-                    //if (Math.Abs(targetPosition.position.x + randX) < maxRangeX &&
-                    //    Math.Abs(targetPosition.position.z + randZ) < maxRangeZ) {
-                    //    return;
-                    //}
-
-                    //if (NavMesh.SamplePosition(newPosition, out NavMeshHit hit, 1f, NavMesh.AllAreas)) {
-                    //    targetPosition.position = newPosition;
-                    //}
-                    //else {
-                    //    Debug.Log("diem khong hop le:" + newPosition);
-                    //}
                     targetPosition.position = GetRandomPosition();
                     timeIdleDuration = 0;
                 }
@@ -133,6 +116,7 @@ public class EnemyController : MonoBehaviour
     }
 
     private async void EnemyAttack() {
+
         if(isDead) return;
         // Xac dinh vi tri spawn va huong nem
         Vector3 positionSpawn = new Vector3(this.transform.position.x, 
@@ -159,7 +143,6 @@ public class EnemyController : MonoBehaviour
             weaponRb.linearVelocity = directWeapon.normalized * speedWeapon * Time.fixedDeltaTime;
         }
         await Task.Delay(1000);
-        animationControl.EndAttack();
         canAttack = false;
     }
 
@@ -182,13 +165,19 @@ public class EnemyController : MonoBehaviour
 
         Vector3 newPosition = targetPosition.position + new Vector3(randX * randM, 0, randZ * randM);
 
-        while(!NavMesh.SamplePosition(newPosition, out NavMeshHit hit, 1f, NavMesh.AllAreas)) {
+        for(int i = 0; i< 30; i++) {
+            if(NavMesh.SamplePosition(newPosition, out NavMeshHit hit, .5f, NavMesh.AllAreas)) {
+                newPosition = hit.position;
+                break;
+            }
             randX = Random.Range(-3, 3);
             randZ = Random.Range(-3, 3);
             randM = Random.Range(-1, 1) < 0 ? -1 : 1;
 
             newPosition = targetPosition.position + new Vector3(randX * randM, 0, randZ * randM);
+
         }
+
         return newPosition;
     }
     private void EnemyController_OnCharacterDead(object sender, EventArgs e) {

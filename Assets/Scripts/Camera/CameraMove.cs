@@ -45,7 +45,8 @@ public class CameraMove : MonoBehaviour
 
     private async void Camera_OnPlayerWin(object sender, System.EventArgs e) {
         await Task.Delay(500);
-        winingCamera.gameObject.SetActive(true);
+        if(winingCamera!= null)
+            winingCamera.gameObject.SetActive(true);
     }
 
     private void Camera_OnPlayerUpgradeSkill(object sender, SkillObjects.TypeSkill e) {

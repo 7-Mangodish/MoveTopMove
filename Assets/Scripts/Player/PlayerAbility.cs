@@ -13,16 +13,17 @@ public class PlayerAbility : MonoBehaviour
     private PlayerController playerController;
     private Action playerAbility;
 
-    /*Ability0*/
+    /*Ability0 - Attack Behind*/
     [SerializeField] private float speedWeapon;
     private StateManager stateManager;
     private ThrowWeapon.StateWeapon stateWeapon;
 
-    /*Ability1 - Attack Back*/
+    /*Ability1 - WeaponCirle*/
     [SerializeField] private GameObject weaponCircleObject;
 
-    /*Ability2 - WeaponCircle*/
+    /*Ability2 - Bullet plus*/
     [SerializeField] private SkillObjects skillObjects;
+    public event EventHandler OnPlayerChooseAbility2;
 
     /*Ability3 - Chasing Weapon*/
     public event EventHandler OnPlayerChooseAbility3;
@@ -31,6 +32,24 @@ public class PlayerAbility : MonoBehaviour
     public event EventHandler OnplayerChooseAbility4;
 
     /*Ability5 - CrossAttack*/
+
+    /*Ability8 - Growing Bullet*/
+    public event EventHandler OnPlayerChooseAbility8;
+
+    /*Ability9 - Piering */
+    public event EventHandler OnPlayerChooseAbility9;
+
+    /*Ability 10 - Revive*/
+    public event EventHandler OnPlayerChooseAbility10;
+
+    /*Ability 11 - Start Bigger*/
+    public event EventHandler OnPlayerChooseAbility11;
+    
+    /*Ability 12 - Tripple Arrow*/
+    public event EventHandler OnPlayerChooseAbility12;
+
+    /*Ability 13 - Move Fast*/
+    public event EventHandler OnPlayerChooseAbility13;
     private void Awake() {
         stateManager = GetComponent<StateManager>();
         playerController = GetComponent<PlayerController>();
@@ -47,7 +66,6 @@ public class PlayerAbility : MonoBehaviour
             playerController.OnPlayerAttack += PlayerAbility_OnPlayerAttack;
             stateWeapon = stateManager.GetStateWeapon();
         }
-        
     }
 
     private void PlayerAbility_OnPlayerChooseAbility(object sender, int abilityIndex) {
@@ -62,7 +80,20 @@ public class PlayerAbility : MonoBehaviour
                 Ability3(); break;
             case 4:
                 Ability4(); break;
-
+            case 7:
+                Ability7(); break;
+            case 8:
+                Ability8(); break;
+            case 9:
+                Ability9(); break;
+            case 10:
+                Ability10(); break;
+            case 11:
+                Ability11(); break;
+            case 12:
+                Ability12(); break;
+            case 13:   
+                Ability13(); break;
         }
     }
 
@@ -110,8 +141,7 @@ public class PlayerAbility : MonoBehaviour
     }
 
     private void Ability2() {
-        skillObjects.UpgradeWeaponCount();
-        StartPanelManager.Instance.TriggerOnPlayerUpgradeSkill();
+        OnPlayerChooseAbility2?.Invoke(this, EventArgs.Empty);
         // Can them bien luu weaponCount ban dau
         // Khi ket thuc man choi thi tra ve so luong weapon ban dau
     }
@@ -184,6 +214,29 @@ public class PlayerAbility : MonoBehaviour
                 }
             }
         }
+    }
+    private void Ability7() {
+        CoinManager.Instance.isDoubleAward = true;
+    }
+    private void Ability8() {
+        OnPlayerChooseAbility8?.Invoke(this, EventArgs.Empty);
+    }
+    private void Ability9() {
+        OnPlayerChooseAbility9?.Invoke(this, EventArgs.Empty);
+    }
+    private void Ability10() {
+        OnPlayerChooseAbility10?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void Ability11() {
+        OnPlayerChooseAbility11?.Invoke(this, EventArgs.Empty);
+    }
+    private void Ability12() {
+        OnPlayerChooseAbility12?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void Ability13() {
+        OnPlayerChooseAbility13?.Invoke(this, EventArgs.Empty);
     }
     //private void SetUpWeapon(GameObject weaponObject) {
     //    int curWeapon = PlayerPrefs.GetInt("CurWeapon");

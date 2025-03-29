@@ -1,5 +1,6 @@
 
 using System;
+using System.Data;
 using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
@@ -52,7 +53,10 @@ public class SkinShopManager : MonoBehaviour {
     [SerializeField] private Button equipedButton;
     [SerializeField] private GameObject borderImagePref;
     private GameObject currentBorderImage;
+    [SerializeField] private GameObject equippedImagePref;
+    private GameObject currentEquippedImage;
     [SerializeField] private Button exitSkinButton;
+
 
 
     [Header("Text")]
@@ -66,11 +70,12 @@ public class SkinShopManager : MonoBehaviour {
     }
     private TypeSkin type;
     private SkinData data;
-    private HomePageManager homePageManager;
 
+    //private int hatEquippedIndex;
+    //private int pantEquippedIndex;
+    //private int armorEquippedIndex;
+    //private int setEquippedIndex;
     private void Awake() {
-
-        homePageManager = GameObject.FindFirstObjectByType<HomePageManager>();
 
         SetUpShopButton();
         SetUpExitButton();
@@ -89,8 +94,13 @@ public class SkinShopManager : MonoBehaviour {
         pantSkin = characterPant.GetComponent<SkinnedMeshRenderer>();
         data = GetSkinData();
         Debug.Log("Hat: " + data.hatIndex + ", Pant: " +
-            data.pantIndex + ", Armor: " + data.armorIndex + ", Set: " + data.setIndex);
-        if (data.setIndex >= 0) {
+            data.pantIndex + ", Armor: " + data.armorIndex + ", Set: " + data.setIndex + ", isSet:" + data.isSet);
+        hatIndexSelected = data.hatIndex;
+        pantIndexSelected = data.pantIndex;
+        armorIndexSelected = data.armorIndex;
+        setIndexSelected = data.setIndex;
+
+        if (data.isSet) {
             listShopButton[3].onClick.Invoke();
         }
         else {
@@ -104,26 +114,32 @@ public class SkinShopManager : MonoBehaviour {
             switch (type) {
                 case TypeSkin.hat: {
                         data.hatIndex = hatIndexSelected;
+                        SetUpEquippedImage(listHatButtons[hatIndexSelected].transform);
                         break;
                     }
                 case TypeSkin.pant: {
                         data.pantIndex = pantIndexSelected;
+                        SetUpEquippedImage(listPantButtons[pantIndexSelected].transform);
                         break;
                     }
                 case TypeSkin.armor: {
                         data.armorIndex = armorIndexSelected;
+                        SetUpEquippedImage(listArmorButtons[armorIndexSelected].transform);
                         break;
                     }
                 case TypeSkin.set: {
                         data.setIndex = setIndexSelected;
+                        SetUpEquippedImage(listSetButtons[setIndexSelected].transform);
                         break;
                     }
             }
             SaveSkinData(data);
+
             selectButton.gameObject.SetActive(false);
             equipedButton.gameObject.SetActive(true);
         });
     }
+
     void SetUpPurchaseButton() {
         purchaseButton.onClick.AddListener(() => {
             if (!PurchaseSkin())
@@ -272,6 +288,8 @@ public class SkinShopManager : MonoBehaviour {
                         }
                 }
                 LoadSkin(type);
+                //SetUpBackGroundButtonColor();
+
                 listShopButton[ind].GetComponent<Image>().enabled = false;
                 listShopIcon[ind].color = Color.white;
                 listShopPanel[ind].gameObject.SetActive(true);
@@ -285,17 +303,6 @@ public class SkinShopManager : MonoBehaviour {
                 }
             });
         }
-    }
-
-    SkinData GetSkinData() {
-        string json = PlayerPrefs.GetString("PlayerSkin");
-        SkinData data = JsonUtility.FromJson<SkinData>(json);
-        return data;
-    }
-    void SaveSkinData(SkinData data) {
-        string json = JsonUtility.ToJson(data);
-        PlayerPrefs.SetString("PlayerSkin", json);
-        Debug.Log("Save Skin: " + data.hatIndex + " " + data.pantIndex + " " + data.armorIndex + " " + data.setIndex);
     }
 
     void SetUpSelectAndEquipedButton(TypeSkin type, int ind) {
@@ -351,6 +358,13 @@ public class SkinShopManager : MonoBehaviour {
         currentBorderImage = Instantiate(borderImagePref, parentTranform);
     }
 
+    void SetUpEquippedImage(Transform parentTransform) {
+        if (currentEquippedImage != null){
+            Destroy(currentEquippedImage);
+        }
+        currentEquippedImage = Instantiate(equippedImagePref, parentTransform);
+    }
+
     void SetUpExitButton() {
         exitSkinButton.onClick.AddListener(() => {
             LoadSkin(type);
@@ -368,6 +382,7 @@ public class SkinShopManager : MonoBehaviour {
             setObjects.SetCharacterWingSet(data.setIndex, wingHolderTransform);
             setObjects.SetCharacterTailSet(data.setIndex, tailHolderTransform);
             setObjects.SetCharacterMaterialSet(data.setIndex, playerMesh);
+            data.isSet = true;
         }
         else {
             setObjects.DestroySet();
@@ -377,19 +392,34 @@ public class SkinShopManager : MonoBehaviour {
             hatObjects.SetCharacterHat(data.hatIndex, hatHolderTransform);
             pantObjects.SetPantMaterial(data.pantIndex, pantSkin);
             armorObjects.SetCharacterArmor(data.armorIndex, armorHolderTransform);
+
+            data.isSet = false;
         }
 
         switch (typeSkin) {
-            case TypeSkin.hat:
-                SetUpBorderImage(listHatButtons[data.hatIndex].transform); break;
-            case TypeSkin.pant:
-                SetUpBorderImage(listPantButtons[data.pantIndex].transform); break;
-            case TypeSkin.armor:
-                SetUpBorderImage(listArmorButtons[data.armorIndex].transform); break;
-            case TypeSkin.set:
-                SetUpBorderImage(listSetButtons[data.setIndex].transform); break;
+            case TypeSkin.hat: {
+                    SetUpBorderImage(listHatButtons[data.hatIndex].transform);
+                    SetUpEquippedImage(listHatButtons[data.hatIndex].transform);
+                    break;
+                }
+            case TypeSkin.pant: {
+                    SetUpBorderImage(listPantButtons[data.pantIndex].transform);
+                    SetUpEquippedImage(listPantButtons[data.pantIndex].transform);
+                    break;
+                }
+            case TypeSkin.armor: {
+                    SetUpBorderImage(listArmorButtons[data.armorIndex].transform);
+                    SetUpEquippedImage(listArmorButtons[data.armorIndex].transform);
+                    break;
+                }
+            case TypeSkin.set: {
+                    SetUpBorderImage(listSetButtons[data.setIndex].transform);
+                    SetUpEquippedImage(listSetButtons[data.setIndex].transform);
+                    break;
 
+                }
         }
+        
     }
     Transform FindChildWithTag(Transform parentTransform) {
         foreach(Transform trans in parentTransform) {
@@ -447,13 +477,25 @@ public class SkinShopManager : MonoBehaviour {
         }
         PlayerPrefs.SetInt("PlayerCoin", playerCoin);
         SaveSkinData(data);
-        homePageManager.SetCoinText();
+        HomePageManager.Instance.SetCoinText();
         return true;
+    }
+
+    SkinData GetSkinData() {
+        string json = PlayerPrefs.GetString("PlayerSkin");
+        SkinData data = JsonUtility.FromJson<SkinData>(json);
+        return data;
+    }
+    void SaveSkinData(SkinData data) {
+        string json = JsonUtility.ToJson(data);
+        PlayerPrefs.SetString("PlayerSkin", json);
+        Debug.Log("Save Skin: " + data.hatIndex + " " + data.pantIndex + " " + data.armorIndex + " " + data.setIndex);
     }
     private class SkinData {
         public int hatIndex;
         public int pantIndex;
         public int armorIndex;
         public int setIndex;
+        public bool isSet;
     }
 }

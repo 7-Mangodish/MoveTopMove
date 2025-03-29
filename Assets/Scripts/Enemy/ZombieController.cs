@@ -13,43 +13,44 @@ public class ZombieController : MonoBehaviour
     private NavMeshAgent agent;
     private AnimationControl animationControl;
 
+    [SerializeField] private int hp;
+
     public event EventHandler OnZombieDead;
     private void Awake() {
         targetTransform = GameObject.FindGameObjectWithTag("Player").transform;
         animationControl = GetComponent<AnimationControl>();
+        if (animationControl == null)
+            Debug.Log("Animation null");
         agent = GetComponent<NavMeshAgent>();
     }
 
     void Start() {
-        if (animationControl != null)
-            animationControl.SetZombieRun();
-        else
-            Debug.Log("Animation control is null");
         agent.destination = targetTransform.position;
-        GameManager.Instance.OnPlayerLose += ZombieController_OnPlayerLose;
     }
 
     void Update() {
-        if(targetTransform != null)
+        if(targetTransform != null) {
             agent.destination = targetTransform.position;
+            agent.speed = 0.5f;
+            animationControl.SetZombieRun();
+        }
         else {
             agent.destination = this.transform.position;
             agent.speed = 0;
+            animationControl.SetDanceWin();
         }
 
     }
 
     private void OnCollisionEnter(Collision other) {
         if (other.gameObject.CompareTag("Player")) {
-            Debug.Log("Player Dead");
+            //Debug.Log("Player Dead");
             StateManager playerStateManager = other.gameObject.GetComponent<StateManager>();
             if(playerStateManager != null ) {
                 playerStateManager.TriggerCharacterDead();
             }
+            ZombieDead();
 
-            animationControl.PlayDeadEff();
-            Destroy(this.gameObject);
-            OnZombieDead?.Invoke(this, EventArgs.Empty);
         }
     }
     private void OnTriggerEnter(Collider other) {
@@ -66,8 +67,24 @@ public class ZombieController : MonoBehaviour
         }
     }
 
-    private void ZombieController_OnPlayerLose(object sender, EventArgs e) {
-        if(animationControl != null)
-            animationControl.SetDanceWin();
+    private void ZombieDead() {
+        OnZombieDead?.Invoke(this, EventArgs.Empty);
+        Destroy(this.gameObject);
+    }
+
+    public void ZombieTakeDame(StateManager playerState) {
+        hp -= 1;
+        animationControl.PlayDeadEff();
+        if (hp == 6 || hp == 3) {
+            this.transform.localScale -= new Vector3(.25f, .25f, .25f);
+        }
+        if (hp == 0) {
+            ZombieDead();
+            playerState.AddScore();
+        }
+
+    }
+    private void OnDestroy() {
+        GameManager.Instance.DoZombieDead();
     }
 }

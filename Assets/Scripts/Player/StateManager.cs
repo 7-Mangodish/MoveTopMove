@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.SceneManagement;
 using UnityEngine.SocialPlatforms.Impl;
+using Random = UnityEngine.Random;
 
 public class StateManager : MonoBehaviour
 {
@@ -31,11 +32,15 @@ public class StateManager : MonoBehaviour
 
     [Header("Zombie Mode")]
     [SerializeField] private GameObject playerShield;
+    public bool isLevelUpZombieMode;
 
     public event EventHandler<int> OnCharacterTakeScore;
     public event EventHandler OnCharacterDead;
 
     public bool isDead = false;
+
+    // Player
+    public bool isCanRevive = false;
     private void Awake() {
         addingScore = 1;
         currentScore = 0;
@@ -52,37 +57,56 @@ public class StateManager : MonoBehaviour
 
         animationControl  = GetComponent<AnimationControl>();
     }
+
+    private void Start() {
+        if (this.gameObject.CompareTag("Player"))
+            GameManager.Instance.OnPlayerRevive += StateManager_OnPlayerRevive;
+    }
+
     public void AddScore() {
         if (isDead) return;
 
         this.currentScore += addingScore;
         OnCharacterTakeScore?.Invoke(this, this.currentScore);
 
-        if (currentScore%2 == 0 && currentScore !=0) {
-            IsLevelUp = true;
-            currentLevel++;
-
-            animationControl.PlayLevelUpEff();
-            //Cap nhat scale cua nhan vat, cap nhat tam danh va scale cua vu khi
-            this.transform.localScale += new Vector3(0.05f, 0.05f, 0.05f);
-            if (this.gameObject.CompareTag("Player")) {
-                DisplayPlayerScale(this.transform.localScale.x * 5f);
-            }
-
-            stateWeapon.curScale += deltaScaleWeapon;
-            stateWeapon.maxDistance = Vector3.Distance(this.transform.position, maxDistancePoint.transform.position);
-
-            // Cap nhat cammera
-            if (this.gameObject.CompareTag("Player"))
-                CameraMove.Instance.UpdateDistanceCamera(.75f);
+        if (currentScore%10 == 0 && currentScore !=0) {
+            if (SceneManager.GetActiveScene().buildIndex == 0)
+                DoCharacterLevelUp();
+            else
+                DoCharaterLevelUpZombieMode();
         }
     }
-    
-    private void UpdateCameraPosition() {
-        CinemachinePositionComposer cam = FindFirstObjectByType<CinemachinePositionComposer>();
-        cam.CameraDistance += .75f;
+
+
+    public void DoCharacterLevelUp() {
+        IsLevelUp = true;
+        currentLevel++;
+
+        animationControl.PlayLevelUpEff();
+        //Cap nhat scale cua nhan vat, cap nhat tam danh va scale cua vu khi
+        this.transform.localScale += new Vector3(0.05f, 0.05f, 0.05f);
+        if (this.gameObject.CompareTag("Player")) {
+            DisplayPlayerScale(this.transform.localScale.x * 5f);
+        }
+
+        DoUpdateStateWeapon();
+
+        // Cap nhat cammera
+        if (this.gameObject.CompareTag("Player"))
+            CameraMove.Instance.UpdateDistanceCamera(.75f);
+    }
+    public void DoCharaterLevelUpZombieMode() {
+        isLevelUpZombieMode = true;
+        DoUpdateStateWeaponZombieMode();
+    }
+    public void DoUpdateStateWeapon() {
+        stateWeapon.curScale += deltaScaleWeapon;
+        stateWeapon.maxDistance = Vector3.Distance(this.transform.position, maxDistancePoint.transform.position);
     }
 
+    public void DoUpdateStateWeaponZombieMode() {
+        stateWeapon.maxDistance = Vector3.Distance(this.transform.position, maxDistancePoint.transform.position);
+    }
     public ThrowWeapon.StateWeapon GetStateWeapon() {
         return stateWeapon;
     }
@@ -114,12 +138,18 @@ public class StateManager : MonoBehaviour
         if (this.gameObject.CompareTag("Player"))
             GameManager.Instance.PlayerLose();
 
+        if (isCanRevive) {
+            this.gameObject.SetActive(false);
+            return;
+        }
+
         //Destroy Gameobject
         if (this.gameObject.CompareTag("Enemy")) {
             Destroy(this.transform.parent.gameObject, 2);
         }
         else
-            Destroy(this.gameObject, 2);
+            Destroy(this.gameObject, 1);
+
     }
 
     public async void DisplayPlayerScale(float playerScale) {
@@ -128,5 +158,14 @@ public class StateManager : MonoBehaviour
         playerScaleText.GetComponent<Animator>().Play("PlayerScaleText");
         await Task.Delay(1500);
         playerScaleText.gameObject.SetActive(false);
+    }
+
+    private void PlayerRevive(Vector3 newPosition) {
+        this.gameObject.SetActive(true);
+        this.gameObject.transform.localPosition = new Vector3(newPosition.x, 0, newPosition.z) ;
+    }
+    private void StateManager_OnPlayerRevive(object sender, Vector3 e) {
+        PlayerRevive(e);
+        //Debug.Log("New player's position: " + e);
     }
 }

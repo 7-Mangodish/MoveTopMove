@@ -22,7 +22,7 @@ public class AnimationControl : MonoBehaviour
     private void Awake() {
         animator = GetComponent<Animator>();
         if(this.gameObject.CompareTag("Player"))
-            animator.SetFloat("AttackSpeed", 1f);
+            animator.SetFloat("AttackSpeed", 1.5f);
 
     }
     void Start() {
@@ -36,6 +36,7 @@ public class AnimationControl : MonoBehaviour
 
     public void SetZombieRun() {
         SetState(state.IsWalk, false);
+        SetState(state.IsWin, false);
     }
     public void SetIdle() {
         SetState(state.IsIdle, true);
@@ -61,7 +62,7 @@ public class AnimationControl : MonoBehaviour
     public void StopDance() {
         SetState(state.IsDance, false);
     }
-    public void EndAttack() {
+    public void SetEndAttack() {
         SetState(state.IsAttack, false);
     }
     public void PlayDeadEff() {

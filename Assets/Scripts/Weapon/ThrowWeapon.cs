@@ -13,11 +13,12 @@ public class ThrowWeapon : MonoBehaviour
         public Vector3 positionSpawn;
     }
     private StateWeapon stateWeapon;
+
+    public bool isGrowing = false;
+    public bool isPiering = false;
     private void Start() {
-        this.gameObject.transform.localScale += new Vector3(stateWeapon.curScale, stateWeapon.curScale, stateWeapon.curScale); 
-        //Debug.Log(stateWeapon.ownerStateManager);
-        //Debug.Log(stateWeapon.maxDistance);
-        //Debug.Log(stateWeapon.curScale);
+        this.gameObject.transform.localScale += 
+            new Vector3(stateWeapon.curScale, stateWeapon.curScale, stateWeapon.curScale); 
     }
     void Update()
     {
@@ -26,15 +27,12 @@ public class ThrowWeapon : MonoBehaviour
 
     private void OnTriggerEnter(Collider other) {
         if (other.gameObject.CompareTag("Zombie")) {
-            AnimationControl animationControl = other.GetComponent<AnimationControl>();
-            animationControl.PlayDeadEff();
 
-            stateWeapon.ownerStateManager.AddScore();
+            //stateWeapon.ownerStateManager.AddScore();
+            other.GetComponent<ZombieController>().ZombieTakeDame(stateWeapon.ownerStateManager);
 
-            GameManager.Instance.DoZombieDead();
-
-            Destroy(other.gameObject);
-            Destroy(this.gameObject);
+            if(!isPiering)
+                Destroy(this.gameObject);
         }
         else if (other.gameObject.CompareTag("Enemy")) {
             if(stateWeapon.ownerStateManager.CompareTag("Enemy") && 
@@ -54,6 +52,7 @@ public class ThrowWeapon : MonoBehaviour
 
                 Destroy(this.gameObject);
 
+                Debug.Log("Enemy Take Dame");
             }
         }
         else if (other.gameObject.CompareTag("Player")) {
@@ -61,7 +60,7 @@ public class ThrowWeapon : MonoBehaviour
                 other.GetComponent<StateManager>().TriggerCharacterDead();
                 stateWeapon.ownerStateManager.AddScore();
 
-                GameManager.Instance.PlayerLose();
+                //GameManager.Instance.PlayerLose();
                 Destroy(this.gameObject);
             }
         }
@@ -69,6 +68,9 @@ public class ThrowWeapon : MonoBehaviour
 
 
     void  Throw() {
+        if (isGrowing)
+            this.transform.localScale += new Vector3(.15f, .15f, .15f); 
+
         if (Vector3.Distance(this.transform.position, stateWeapon.positionSpawn) > stateWeapon.maxDistance) {
             //Debug.Log("Out range");
             Destroy(this.gameObject);

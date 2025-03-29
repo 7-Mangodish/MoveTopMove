@@ -69,6 +69,6 @@ public class ZombieIndicator : MonoBehaviour
     private async void ZombieIndicator_OnZombieDead(object sender, System.EventArgs e) {
         isDead = true;
         await Task.Delay(100);
-        Destroy(indicatorContainer);
+        DestroyImmediate(indicatorContainer);
     }
 }

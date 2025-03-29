@@ -20,6 +20,11 @@ public class SkillObjects : ScriptableObject
     public float BEGIN_SPEED = 2;
     public float BEGIN_RANGE = 2;
     public float BEGIN_WEAPON = 0;
+
+    private float BEGIN_SHIELD_COST = 100;
+    private float BEGIN_SPEED_COST = 200;
+    private float BEGIN_RANGE_COST = 500;
+    private float BEGIN_WEAPON_COST = 1000;
     public enum TypeSkill {
         none,
         hp,
