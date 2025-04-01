@@ -19,7 +19,7 @@ MonoBehaviour:
     - {fileID: 2621694304590956299, guid: f7b6c112d6bddc845a19570275e48d77, type: 3}
     - {fileID: 4121030702376636329, guid: 9280aa2c417f8434ea4be380a23d3112, type: 3}
     - {fileID: 3241973797489323169, guid: bae0df45fa9916440933bb14937e3e50, type: 3}
-    weaponSkinCost: 000000000000000000000000000000002c010000
+    weaponSkinCost: 000000000000000000000000c80000002c010000
     scale: 4000
     name: LolliPop
     cost: 0
@@ -33,25 +33,39 @@ MonoBehaviour:
     - {fileID: 1228265344304733173, guid: b02a0d3b19ee5c541914743e25cbda6c, type: 3}
     - {fileID: 1228265344304733173, guid: a1f77dbfbd271f645a498f99b1ebdc33, type: 3}
     - {fileID: 1228265344304733173, guid: 8504deef9534f0a479205be38670bffd, type: 3}
-    weaponSkinCost: 0000000000000000000000001900000064000000
+    weaponSkinCost: 0000000000000000000000003200000064000000
     scale: 4000
     name: Hammer
     cost: 0
-    isLock: 0
-    standardScale: 4000
-    attribute: 1
-    index: 2
-  - weaponSkins:
-    - {fileID: 9042879289352913460, guid: 69981fd6ed5d9804a82605f3ae4812bc, type: 3}
-    - {fileID: 9042879289352913460, guid: c318e420f3092d443af07a5a2356a024, type: 3}
-    - {fileID: 9042879289352913460, guid: 1329474a7ba46354f935550bf1e70880, type: 3}
-    - {fileID: 9042879289352913460, guid: 204758cf08ce72443ab18b7083633b1a, type: 3}
-    - {fileID: 9042879289352913460, guid: 0aea89bf87da86746b7a64fece0091ed, type: 3}
-    weaponSkinCost: 0000000000000000000000000000000064000000
-    scale: 1500
-    name: Boomerang
-    cost: 200
     isLock: 1
     standardScale: 4000
     attribute: 1
     index: 2
+  - weaponSkins:
+    - {fileID: 7718864798309270226, guid: c08e44e8917b3934aab2b28c457072ac, type: 3}
+    - {fileID: 7718864798309270226, guid: 04342726b498ab440b5dba02ccc8dba2, type: 3}
+    - {fileID: 7718864798309270226, guid: 460a760e108bf6d4abf6c5ff570f7123, type: 3}
+    - {fileID: 7718864798309270226, guid: 3abf204280d1cf547a62fb285baac64e, type: 3}
+    - {fileID: 7718864798309270226, guid: 5f243b8e2af9ab345a845ba767faf3f7, type: 3}
+    weaponSkinCost: 0000000000000000000000000000000064000000
+    scale: 4000
+    name: Rieu Cua
+    cost: 200
+    isLock: 1
+    standardScale: 4000
+    attribute: 1
+    index: 4
+  - weaponSkins:
+    - {fileID: 4848246232461898487, guid: 7c0bf84e4cadf144c9c81d34515018f8, type: 3}
+    - {fileID: 4848246232461898487, guid: e35a876ed1aabb44bbc1cb938bc27d2f, type: 3}
+    - {fileID: 4848246232461898487, guid: a8874ae246b9ba346b8f2cd821c78d6b, type: 3}
+    - {fileID: 4848246232461898487, guid: dae62e1bc808e114ab92ec6df4a832ea, type: 3}
+    - {fileID: 4848246232461898487, guid: 213a9d119d463e341988826b637a7a27, type: 3}
+    weaponSkinCost: 0000000000000000000000000000000064000000
+    scale: 4000
+    name: Keo Deo
+    cost: 500
+    isLock: 1
+    standardScale: 4000
+    attribute: 1
+    index: 4

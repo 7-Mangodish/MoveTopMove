@@ -189,6 +189,9 @@ public class PlayerController : MonoBehaviour
     private async void Attack() {
         if (isDead)
             return;
+
+        SoundManager.Instance.PlaySound(SoundManager.SoundName.weapon_throw);
+
         weaponHold.gameObject.SetActive(false);
         canAttack = false;
 
@@ -303,6 +306,7 @@ public class PlayerController : MonoBehaviour
     }
 
     private void PlayerController_OnUserChangeWeapon(object sender, EventArgs e) {
+        Debug.Log("Change Weapon");
         SetUpWeaponMaterial();
     }
 
@@ -343,6 +347,8 @@ public class PlayerController : MonoBehaviour
         speed += 2;
     }
     private void PlayerController_OnPlayerWin(object sender, EventArgs e) {
+        if(this == null)
+            return;
         if(animationControl)
             animationControl.SetDanceWin();
         this.transform.rotation = Quaternion.Euler(0, 180, 0);

@@ -21,10 +21,10 @@ public class SkillObjects : ScriptableObject
     public float BEGIN_RANGE = 2;
     public float BEGIN_WEAPON = 0;
 
-    private float BEGIN_SHIELD_COST = 100;
-    private float BEGIN_SPEED_COST = 200;
-    private float BEGIN_RANGE_COST = 500;
-    private float BEGIN_WEAPON_COST = 1000;
+    private int BEGIN_SHIELD_COST = 100;
+    private int BEGIN_SPEED_COST = 200;
+    private int BEGIN_RANGE_COST = 500;
+    private int BEGIN_WEAPON_COST = 1000;
     public enum TypeSkill {
         none,
         hp,
@@ -80,5 +80,12 @@ public class SkillObjects : ScriptableObject
         speed = currentLevelSkill[1] * 0.4f + 2;
         range = currentLevelSkill[2] * .5f + 2;
         weaponBonus = currentLevelSkill[3];
+    }
+
+    public void UpdateSkillCost() {
+        costUpdateSkill[0] = BEGIN_SHIELD_COST * (currentLevelSkill[0] +1);
+        costUpdateSkill[1] = BEGIN_SPEED_COST * (currentLevelSkill[1] +1);
+        costUpdateSkill[2] = BEGIN_RANGE_COST * (currentLevelSkill[2] +1);
+        costUpdateSkill[3] = BEGIN_WEAPON_COST * (currentLevelSkill[3] + 1);
     }
 }

@@ -142,6 +142,8 @@ public class SkinShopManager : MonoBehaviour {
 
     void SetUpPurchaseButton() {
         purchaseButton.onClick.AddListener(() => {
+            SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
+
             if (!PurchaseSkin())
                 Debug.Log("Khong Du Tien");
             else {
@@ -163,6 +165,8 @@ public class SkinShopManager : MonoBehaviour {
             }
 
             listHatButtons[i].onClick.AddListener(() => {
+                SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
+
                 hatIndexSelected = ind;
 
                 skinInfor.text = "+" + hatObjects.listHats[ind].index.ToString() + " Range";
@@ -189,6 +193,8 @@ public class SkinShopManager : MonoBehaviour {
             }
 
             listPantButtons[i].onClick.AddListener(() => {
+                SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
+
                 pantIndexSelected = ind;
 
                 skinInfor.text = "+" + pantObjects.listPants[ind].index.ToString() + " Range";
@@ -216,6 +222,8 @@ public class SkinShopManager : MonoBehaviour {
             }
 
             listArmorButtons[i].onClick.AddListener(() => {
+                SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
+
                 armorIndexSelected = ind;
 
                 skinInfor.text = "+" + armorObjects.listArmor[ind].index.ToString() + " Hp";
@@ -244,6 +252,8 @@ public class SkinShopManager : MonoBehaviour {
                 }
             }         
             listSetButtons[i].onClick.AddListener(() => {
+                SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
+
                 //Debug.Log("Set: " + ind);
                 setIndexSelected = ind;
 
@@ -269,6 +279,8 @@ public class SkinShopManager : MonoBehaviour {
         for (int i = 0; i < listShopButton.Length; i++) {
             int ind = i;
             listShopButton[i].onClick.AddListener(() => {
+                SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
+
                 switch (ind) {
                     case 0: {
                             type = TypeSkin.hat;
@@ -367,6 +379,8 @@ public class SkinShopManager : MonoBehaviour {
 
     void SetUpExitButton() {
         exitSkinButton.onClick.AddListener(() => {
+            SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
+
             LoadSkin(type);
         });
     }

@@ -92,8 +92,10 @@ public class StateManager : MonoBehaviour
         DoUpdateStateWeapon();
 
         // Cap nhat cammera
-        if (this.gameObject.CompareTag("Player"))
+        if (this.gameObject.CompareTag("Player")) {
             CameraMove.Instance.UpdateDistanceCamera(.75f);
+            SoundManager.Instance.PlaySound(SoundManager.SoundName.size_up);
+        }
     }
     public void DoCharaterLevelUpZombieMode() {
         isLevelUpZombieMode = true;

@@ -22,6 +22,13 @@ public class WeaponDataManager : MonoBehaviour
         return data;
     }
 
+    public void SaveWeaponData(int weaponIndex, SaveData data) {
+        string json = JsonUtility.ToJson(data);
+        Debug.Log("Save Weapon: " + weaponIndex + ", skin: " + data.skinIndex + ", " + data.showMaterial());
+        PlayerPrefs.SetString(weaponIndex.ToString(), json);
+        OnUserChangeWeapon?.Invoke(this, EventArgs.Empty);
+    }
+
     public class SaveData {
         public int skinIndex;
         public int[] weaponMaterials = new int[3];
@@ -29,12 +36,5 @@ public class WeaponDataManager : MonoBehaviour
         public string showMaterial() {
             return weaponMaterials[0] + " " + weaponMaterials[1] + " " + weaponMaterials[2];
         }
-    }
-
-    public void SaveWeaponData(int weaponIndex, SaveData data) {
-        string json = JsonUtility.ToJson(data);
-        Debug.Log("Save Weapon: " + weaponIndex + ", skin: " + data.skinIndex + ", " + data.showMaterial());
-        PlayerPrefs.SetString(weaponIndex.ToString(), json);
-        OnUserChangeWeapon?.Invoke(this, EventArgs.Empty);
     }
 }

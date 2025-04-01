@@ -37,6 +37,8 @@ public class HomePageManager : MonoBehaviour
     public event EventHandler OnShopping;
     public event EventHandler OnOutShopping;
 
+    [Header("Player's Name")]
+    [SerializeField] private TMP_InputField playerNameInput;
 
     private void Awake() {
         if (instance == null)
@@ -52,11 +54,16 @@ public class HomePageManager : MonoBehaviour
         SetUpZombieModeButton();
 
         playButton.onClick.AddListener(() => {
-            //Debug.Log("Start Game");
+            SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
+
             leftPanel.SetActive(false);
             rightPanel.SetActive(false);
             joystick.gameObject.SetActive(true);
             OnStartGame?.Invoke(this, EventArgs.Empty);
+        });
+        playerNameInput.text = PlayerPrefs.GetString("PlayerName");
+        playerNameInput.onValueChanged.AddListener((string name) => {
+            PlayerPrefs.SetString("PlayerName", name);
         });
 
         GameManager.Instance.OnPlayerWin += HomePage_OnPlayerWin;
@@ -66,6 +73,8 @@ public class HomePageManager : MonoBehaviour
 
     private void SetUpWeaponShop() {
         weaponShopButton.onClick.AddListener(() => {
+            SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
+
             leftPanel.SetActive(false);
             rightPanel.SetActive(false);
             weaponShopPanel.gameObject.SetActive(true);
@@ -73,6 +82,8 @@ public class HomePageManager : MonoBehaviour
         });
 
         exitWeaponButton.onClick.AddListener(() => {
+            SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
+
             weaponShopPanel.gameObject.SetActive(false);
             leftPanel.SetActive(true);
             rightPanel.SetActive(true);
@@ -82,8 +93,8 @@ public class HomePageManager : MonoBehaviour
     }
     private void SetUpSkinShop() {
         skinShopButton.onClick.AddListener(() => {
-            //leftPanel.SetActive(false);
-            //rightPanel.SetActive(false);
+            SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
+
             skinShopPanel.gameObject.SetActive(true);
 
             OnShopping?.Invoke(this, EventArgs.Empty);
@@ -92,10 +103,9 @@ public class HomePageManager : MonoBehaviour
 
 
         exitSkinButton.onClick.AddListener(() => {
-            skinShopPanel.gameObject.SetActive(false);
-            //leftPanel.SetActive(true);
-            //rightPanel.SetActive(true);
+            SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
 
+            skinShopPanel.gameObject.SetActive(false);
             OnOutShopping?.Invoke(this, EventArgs.Empty);
             HomePageIn();
         });
@@ -103,6 +113,8 @@ public class HomePageManager : MonoBehaviour
 
     private void SetUpZombieModeButton() {
         zombieModeButton.onClick.AddListener(() => {
+            SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
+
             SceneManager.LoadScene(1);
         });
         int day = PlayerPrefs.GetInt("ZombieDayVictory");

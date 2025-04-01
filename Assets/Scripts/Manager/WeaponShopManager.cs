@@ -45,7 +45,6 @@ public class WeaponShopManager : MonoBehaviour
     int materialCount;
 
     private WeaponDataManager.SaveData data;
-    private HomePageManager homePageManager;
 
     //public event EventHandler OnUserChangeWeapon;
 
@@ -56,6 +55,8 @@ public class WeaponShopManager : MonoBehaviour
             Destroy(this.gameObject);
 
         nextOptionsButton.onClick.AddListener(() =>{
+            SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
+
             weaponIndexSelected += 1;
             if (weaponIndexSelected >= weaponObjects.listWeapon.Length)
                 weaponIndexSelected = 0;
@@ -64,6 +65,8 @@ public class WeaponShopManager : MonoBehaviour
         });
 
         previousOptionsButton.onClick.AddListener(() => {
+            SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
+
             weaponIndexSelected -= 1;
             if (weaponIndexSelected < 0)
                 weaponIndexSelected = weaponObjects.listWeapon.Length-1;
@@ -101,7 +104,6 @@ public class WeaponShopManager : MonoBehaviour
     }
 
     private void Start() {
-        homePageManager = GameObject.FindFirstObjectByType<HomePageManager>();
         SetStart();
     }
 
@@ -139,7 +141,7 @@ public class WeaponShopManager : MonoBehaviour
         SetMeshAndMaterial(weaponDisplay, skinMesh, skinMaterial);
 
         float scale = 3 * weaponObjects.listWeapon[weaponIndexSelected].scale;
-        weaponDisplay.transform.localScale = new Vector3(scale, scale, scale);
+        weaponDisplay.transform.localScale = new Vector3(scale, scale, scale);  
 
         // SetUp Name va thuoc tinh cua bu khi
         weaponName.text = weaponObjects.listWeapon[weaponIndexSaved].name;
@@ -341,6 +343,8 @@ public class WeaponShopManager : MonoBehaviour
     }
 
     void SetUpPurchaseWeaponButton() {
+        SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
+
         int playerCoin = PlayerPrefs.GetInt("PlayerCoin");
         if (playerCoin > weaponObjects.listWeapon[weaponIndexSelected].cost)
             playerCoin -= weaponObjects.listWeapon[weaponIndexSelected].cost;
@@ -349,7 +353,7 @@ public class WeaponShopManager : MonoBehaviour
             return;
         }
         PlayerPrefs.SetInt("PlayerCoin", playerCoin);
-        homePageManager.SetCoinText();
+        HomePageManager.Instance.SetCoinText();
 
         purchaseWeaponButton.gameObject.SetActive(false);
         useOneTimeButton.gameObject.SetActive(false);
@@ -359,6 +363,8 @@ public class WeaponShopManager : MonoBehaviour
 
     }
     void SetUpPurchaseSkinButton() {
+        SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
+
         int playerCoin = PlayerPrefs.GetInt("PlayerCoin");
         if (playerCoin > weaponObjects.listWeapon[weaponIndexSelected].weaponSkinCost[weaponSkinIndexSelected])
             playerCoin -= weaponObjects.listWeapon[weaponIndexSelected].weaponSkinCost[weaponSkinIndexSelected];
@@ -367,7 +373,7 @@ public class WeaponShopManager : MonoBehaviour
             return;
         }
         PlayerPrefs.SetInt("PlayerCoin", playerCoin);
-        homePageManager.SetCoinText();
+        HomePageManager.Instance.SetCoinText();
 
         weaponObjects.listWeapon[weaponIndexSelected].weaponSkinCost[weaponSkinIndexSelected] = 0;
 
@@ -388,6 +394,8 @@ public class WeaponShopManager : MonoBehaviour
         WeaponDataManager.Instance.SaveWeaponData(weaponIndexSelected, data);
     }
     void SetUpSelectButton() {
+        SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
+
         data = WeaponDataManager.Instance.GetWeaponData(weaponIndexSelected);
         data.skinIndex = weaponSkinIndexSelected;
         WeaponDataManager.Instance.SaveWeaponData(weaponIndexSelected, data);
@@ -417,24 +425,5 @@ public class WeaponShopManager : MonoBehaviour
         foreach (Button btn in listColorButtons)
             btn.gameObject.SetActive(false);
     }
-    //public SaveData GetWeaponData(int weaponIndex) {
-    //    string json = PlayerPrefs.GetString(weaponIndex.ToString());
-    //    SaveData data = JsonUtility.FromJson<SaveData>(json);
-    //    return data;
-    //}
 
-    //public void SaveWeaponData(int weaponIndex, SaveData data) {
-    //    string json = JsonUtility.ToJson(data);
-    //    Debug.Log("Save Weapon: " + weaponIndex + ", skin: " + data.skinIndex + ", " + data.showMaterial());
-    //    PlayerPrefs.SetString(weaponIndex.ToString(), json);
-    //    OnUserChangeWeapon?.Invoke(this, EventArgs.Empty);
-    //}
-    //public class SaveData {
-    //    public int skinIndex;
-    //    public int[] weaponMaterials = new int[3];
-
-    //    public string showMaterial() {
-    //        return weaponMaterials[0] + " " + weaponMaterials[1] + " " + weaponMaterials[2];
-    //    }
-    //}
 }

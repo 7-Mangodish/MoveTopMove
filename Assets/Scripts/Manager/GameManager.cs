@@ -120,6 +120,8 @@ public class GameManager : MonoBehaviour
         OnEnemyQuantityDown?.Invoke(this, this.activeEnemyQuantity);
         if (this.activeEnemyQuantity == 0) {
             OnPlayerWin?.Invoke(this, EventArgs.Empty);
+            SoundManager.Instance.PlaySound(SoundManager.SoundName.end_win);
+
             Debug.Log("Player Win");
             return;
         }
@@ -128,8 +130,8 @@ public class GameManager : MonoBehaviour
         this.activeEnemyQuantity -= 1;
         OnEnemyQuantityDown?.Invoke(this, this.activeEnemyQuantity);
         if(this.activeEnemyQuantity == 0) {
-            Debug.Log("Player Win");
             OnPlayerWin?.Invoke(this, EventArgs.Empty);
+            SoundManager.Instance.PlaySound(SoundManager.SoundName.end_win);
             return;
         }
         if (activeEnemyQuantity-enemyQuantityWhenStart >= 0) {
@@ -168,6 +170,8 @@ public class GameManager : MonoBehaviour
     public void PlayerLose() {
         Debug.Log("Player Lose");
         OnPlayerLose?.Invoke(this, EventArgs.Empty);
+        SoundManager.Instance.PlaySound(SoundManager.SoundName.end_lose);
+
         isPlayerLose = true;
     }
     public int GetMaxEnemyQuantity() {

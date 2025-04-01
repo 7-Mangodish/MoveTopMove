@@ -9,7 +9,7 @@ public class HatObjects : ScriptableObject
         if(currentHat != null)
             Destroy(currentHat);
         currentHat = Instantiate(listHats[hatIndex].hatPrefab, hatHolderTransform);
-        Debug.Log(hatHolderTransform.gameObject);
+        //Debug.Log(hatHolderTransform.gameObject);
     }
 
     public void DestroyHat() {

@@ -30,6 +30,7 @@ public class ThrowWeapon : MonoBehaviour
 
             //stateWeapon.ownerStateManager.AddScore();
             other.GetComponent<ZombieController>().ZombieTakeDame(stateWeapon.ownerStateManager);
+            SoundManager.Instance.PlaySound(SoundManager.SoundName.weapon_hit);
 
             if(!isPiering)
                 Destroy(this.gameObject);
@@ -37,6 +38,7 @@ public class ThrowWeapon : MonoBehaviour
         else if (other.gameObject.CompareTag("Enemy")) {
             if(stateWeapon.ownerStateManager.CompareTag("Enemy") && 
                 stateWeapon.ownerStateManager.transform.parent.name != other.transform.parent.name) {
+                SoundManager.Instance.PlaySound(SoundManager.SoundName.dead_2);
 
                 other.GetComponent<StateManager>().TriggerCharacterDead();
                 stateWeapon.ownerStateManager.AddScore();
@@ -45,7 +47,8 @@ public class ThrowWeapon : MonoBehaviour
                 Destroy(this.gameObject);
             }
             else if (stateWeapon.ownerStateManager.CompareTag("Player")) {
-
+                SoundManager.Instance.PlaySound(SoundManager.SoundName.weapon_hit);
+                SoundManager.Instance.PlaySound(SoundManager.SoundName.dead_1);
                 other.gameObject.GetComponent<StateManager>().TriggerCharacterDead();
                 GameManager.Instance.DoEnemyDead();
                 stateWeapon.ownerStateManager.AddScore();
@@ -57,6 +60,8 @@ public class ThrowWeapon : MonoBehaviour
         }
         else if (other.gameObject.CompareTag("Player")) {
             if (stateWeapon.ownerStateManager.CompareTag("Enemy")) {
+                SoundManager.Instance.PlaySound(SoundManager.SoundName.dead_2);
+
                 other.GetComponent<StateManager>().TriggerCharacterDead();
                 stateWeapon.ownerStateManager.AddScore();
 

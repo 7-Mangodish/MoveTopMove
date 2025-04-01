@@ -70,6 +70,10 @@ public class StartPanelManager : MonoBehaviour
     [SerializeField] private GameObject settingPanel;
     [SerializeField] private Button homeButton;
     [SerializeField] private Button continueButton;
+    [SerializeField] private Button soundOnButton;
+    [SerializeField] private Button soundOffButton;
+    [SerializeField] private Button vibrationOnButton;
+    [SerializeField] private Button vibrationOffButton;
 
     public event EventHandler<SkillObjects.TypeSkill> OnPlayerUpgradeSkill;
     public event EventHandler OnStartZombieMode;
@@ -99,6 +103,8 @@ public class StartPanelManager : MonoBehaviour
         SetUpSkillButton();
 
         refuseCenterButton.onClick.AddListener(() => {
+            SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
+
             centerPanel.SetActive(false);
             bottomPanel.SetActive(false);
             playerCoinPanel.gameObject.SetActive(false);
@@ -107,6 +113,8 @@ public class StartPanelManager : MonoBehaviour
             OnStartZombieMode?.Invoke(this, EventArgs.Empty);
         });
         selectAbilityButton.onClick.AddListener(() => {
+            SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
+
             centerPanel.SetActive(false);
             bottomPanel.SetActive(false);
 
@@ -122,13 +130,19 @@ public class StartPanelManager : MonoBehaviour
 
         // ending Panel
         homeEndPanelButton.onClick.AddListener(() => {
+            SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
+
             SceneManager.LoadScene(0);
         });
         claimCoinButton.onClick.AddListener(() => {
+            SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
+
             CoinManager.Instance.SaveCoin();
             SetUpPlayerCoinText();
             SceneManager.LoadScene(1);
         });
+
+        // Setting Panel
     }
 
     public void Start() {
@@ -136,6 +150,7 @@ public class StartPanelManager : MonoBehaviour
         GameManager.Instance.OnPlayerWin += StartPanelManager_OnPlayerWin;
         GameManager.Instance.OnPlayerLose += StartPanelManager_OnPlayerLose;
         SetUpUIWhenStart();
+        SetUpSettingPanel();
     }
 
     private void SetUpUIWhenStart() {
@@ -152,11 +167,15 @@ public class StartPanelManager : MonoBehaviour
         currentZombieDayText.text = "Day "+(PlayerPrefs.GetInt("ZombieDayVictory")+1).ToString();
         SetUpPlayerCoinText();
         settingButton.onClick.AddListener(() => {
+            SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
+
             settingPanel.gameObject.SetActive(true);
             Time.timeScale = 0;
             OnTurnOnSetting?.Invoke(this, EventArgs.Empty);
         });
         continueButton.onClick.AddListener(() => {
+            SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
+
             settingPanel.gameObject.SetActive(false);
             Time.timeScale = 1;
             OnTurnOffSetting?.Invoke(this, EventArgs.Empty);
@@ -176,6 +195,8 @@ public class StartPanelManager : MonoBehaviour
         abilityImage.sprite = abilitiesObjects.listAbilitySprite[listAbilitiesIndex[0]];
 
         changeAbilityButton.onClick.AddListener(() => {
+            SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
+
             currentAbility += 1;
             if (currentAbility >= listAbilitiesIndex.Count)
                 currentAbility = 0;
@@ -224,6 +245,8 @@ public class StartPanelManager : MonoBehaviour
         for (int i = 0; i < listSkillButtons.Length; i++) {
             int ind = i;
             listSkillButtons[i].onClick.AddListener(() => {
+                SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
+
                 if (!CoinManager.Instance.PurchaseItem(skillObjects.costUpdateSkill[ind])) {
                     Debug.Log("Khong du tien");
                     if(faildUpgradeText.gameObject.activeSelf)
@@ -234,6 +257,7 @@ public class StartPanelManager : MonoBehaviour
                 else {
                     SetUpPlayerCoinText();
                 }
+
                 switch (ind) {
                     case 0: {
                             if (skillObjects.UpgradeHp()) {
@@ -258,6 +282,7 @@ public class StartPanelManager : MonoBehaviour
                             break;
                         }
                 }
+                skillObjects.UpdateSkillCost();
                 SetUpSkillText();
             });
         }
@@ -271,11 +296,15 @@ public class StartPanelManager : MonoBehaviour
 
     private void SetUpRevivePanel() {
         reviveButton.onClick.AddListener(() => {
+            SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
+
             GameManager.Instance.DoPlayerRevive();
             revivePanel.gameObject.SetActive(false);    
         });
 
         exitRevivePanelButton.onClick.AddListener(() => {
+            SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
+
             endPanel.SetActive(true);
             revivePanel.SetActive(false);
         });
@@ -313,6 +342,33 @@ public class StartPanelManager : MonoBehaviour
             Debug.Log(listZombieDayImage[currentDay-1].sprite.name);
         }
 
+    }
+
+    private void SetUpSettingPanel() {
+        soundOnButton.gameObject.SetActive(true);
+        soundOffButton.gameObject.SetActive(false);
+
+        soundOnButton.onClick.AddListener(() => {
+            soundOnButton.gameObject.SetActive(false);
+            soundOffButton.gameObject.SetActive(true);
+            SoundManager.Instance.TurnOffSound();
+        });
+
+        soundOffButton.onClick.AddListener(() => {
+            soundOffButton.gameObject.SetActive(false);
+            soundOnButton.gameObject.SetActive(true);
+            SoundManager.Instance.TurnOnSound();
+        });
+
+        vibrationOnButton.onClick.AddListener(() => {
+            vibrationOnButton.gameObject.SetActive(false);
+            vibrationOffButton.gameObject.SetActive(true);
+        });
+
+        vibrationOffButton.onClick.AddListener(() => {
+            vibrationOffButton.gameObject.SetActive(false);
+            vibrationOnButton.gameObject.SetActive(true);
+        });
     }
     private void StartPanelManager_OnEnemyQuantityDown(object sender, int e) {
         zombieRemainingText.text = e.ToString();
