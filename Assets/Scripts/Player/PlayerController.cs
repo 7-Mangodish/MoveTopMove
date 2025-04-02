@@ -283,7 +283,7 @@ public class PlayerController : MonoBehaviour
     private void SetUpWeaponMaterial() {
         int curWeapon = PlayerPrefs.GetInt("CurWeapon");
         Debug.Log("Vu khi duoc chon: " + curWeapon);
-        WeaponDataManager.SaveData data = WeaponDataManager.Instance.GetWeaponData(curWeapon);
+        WeaponDataManager.WeaponData data = WeaponDataManager.Instance.GetWeaponData(curWeapon);
         Mesh mesh = weaponObjects.GetMeshWeapon(curWeapon, data.skinIndex);
         Material[] materials = weaponObjects.GetListMaterials(curWeapon, data.skinIndex);
 

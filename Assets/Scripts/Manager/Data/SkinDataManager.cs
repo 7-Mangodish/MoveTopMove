@@ -24,6 +24,7 @@ public class SkinDataManager : MonoBehaviour
         PlayerPrefs.SetString("PlayerSkin", json);
         Debug.Log("Save Skin: " + data.hatIndex + " " + data.pantIndex + " " + data.armorIndex + " " + data.setIndex);
     }
+    [System.Serializable]
     public class SkinData {
         public int hatIndex;
         public int pantIndex;

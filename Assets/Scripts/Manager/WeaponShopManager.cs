@@ -44,7 +44,7 @@ public class WeaponShopManager : MonoBehaviour
     private int partSelected;
     int materialCount;
 
-    private WeaponDataManager.SaveData data;
+    private WeaponDataManager.WeaponData data;
 
     //public event EventHandler OnUserChangeWeapon;
 
@@ -114,7 +114,7 @@ public class WeaponShopManager : MonoBehaviour
 
         // Them moi vao pref neu chua co
         if (!PlayerPrefs.HasKey(weaponIndexSelected.ToString())) {
-            WeaponDataManager.SaveData newData = new WeaponDataManager.SaveData {
+            WeaponDataManager.WeaponData newData = new WeaponDataManager.WeaponData {
                 skinIndex = 0,
             };
             WeaponDataManager.Instance.SaveWeaponData(weaponIndexSelected, newData);
@@ -293,7 +293,7 @@ public class WeaponShopManager : MonoBehaviour
 
         // Luu Data
         if (!PlayerPrefs.HasKey(weaponIndexSelected.ToString())){
-            WeaponDataManager.SaveData dataTemp = new WeaponDataManager.SaveData();
+            WeaponDataManager.WeaponData dataTemp = new WeaponDataManager.WeaponData();
             string jsonTemp = JsonUtility.ToJson(dataTemp);
             PlayerPrefs.SetString(weaponIndexSelected.ToString(), jsonTemp);
         }

@@ -16,20 +16,21 @@ public class WeaponDataManager : MonoBehaviour
         else
             Destroy(this.gameObject);
     }
-    public SaveData GetWeaponData(int weaponIndex) {
+    public WeaponData GetWeaponData(int weaponIndex) {
         string json = PlayerPrefs.GetString(weaponIndex.ToString());
-        SaveData data = JsonUtility.FromJson<SaveData>(json);
+        WeaponData data = JsonUtility.FromJson<WeaponData>(json);
         return data;
     }
 
-    public void SaveWeaponData(int weaponIndex, SaveData data) {
+    public void SaveWeaponData(int weaponIndex, WeaponData data) {
         string json = JsonUtility.ToJson(data);
         Debug.Log("Save Weapon: " + weaponIndex + ", skin: " + data.skinIndex + ", " + data.showMaterial());
         PlayerPrefs.SetString(weaponIndex.ToString(), json);
         OnUserChangeWeapon?.Invoke(this, EventArgs.Empty);
     }
 
-    public class SaveData {
+    [System.Serializable]
+    public class WeaponData {
         public int skinIndex;
         public int[] weaponMaterials = new int[3];
 
