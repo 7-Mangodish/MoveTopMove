@@ -1,9 +1,6 @@
 using System;
-using UnityEditor.SearchService;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
-using static ThrowWeapon;
 
 public class PlayerAbility : MonoBehaviour
 {

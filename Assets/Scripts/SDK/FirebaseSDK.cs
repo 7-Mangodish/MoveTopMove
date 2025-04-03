@@ -90,7 +90,7 @@ public class FirebaseSDK : MonoBehaviour
     #region Analytics
     public void HandlerClickAdEvent() {
         FirebaseAnalytics.LogEvent(
-            "ad_watched",
+            "mauu_test",
             new Parameter("ad_type", typeAd.ToString()),
             new Parameter("reward_amount", reward)
         );

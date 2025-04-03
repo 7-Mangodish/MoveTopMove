@@ -55,7 +55,6 @@ public class HomePageManager : MonoBehaviour
 
         playButton.onClick.AddListener(() => {
             SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
-
             leftPanel.SetActive(false);
             rightPanel.SetActive(false);
             joystick.gameObject.SetActive(true);

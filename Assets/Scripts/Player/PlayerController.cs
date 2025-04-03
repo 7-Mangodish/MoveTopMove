@@ -3,7 +3,6 @@ using System.Collections;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 using Unity.VisualScripting;
-using UnityEditor.SearchService;
 using UnityEngine;
 using UnityEngine.Animations;
 using UnityEngine.EventSystems;
@@ -97,7 +96,6 @@ public class PlayerController : MonoBehaviour
         GameManager.Instance.OnPlayerRevive += PlayerController_OnPlayerRevive;
         stateManager.OnCharacterDead += PlayerController_OnCharacterDead;
 
-        ReferenceToObject() ;
 
         timeAttackDuration = 3;
         stateWeapon = stateManager.GetStateWeapon();
@@ -107,9 +105,11 @@ public class PlayerController : MonoBehaviour
             HomePageManager.Instance.OnShopping += PlayerController_OnShopping;
             HomePageManager.Instance.OnOutShopping += PlayerController_OnOutShopping;
         }
-        else if(SceneManager.GetActiveScene().buildIndex == 1)
+        else if(SceneManager.GetActiveScene().buildIndex == 1) {
+            ReferenceToObject();
             StartPanelManager.Instance.OnPlayerUpgradeSkill += PlayerController_OnPlayerUpgradeSkill;
-            
+        }
+
     }
 
     void Update() {

@@ -1,12 +1,6 @@
-
-using System;
-using System.Data;
-using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
-using UnityEngine.InputSystem.Controls;
 using UnityEngine.UI;
-using static UnityEngine.InputManagerEntry;
 
 public class SkinShopManager : MonoBehaviour {
 
