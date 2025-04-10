@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -13,6 +14,7 @@ public class FloatingTextAboveCharacter : MonoBehaviour {
     [SerializeField] private TextMeshProUGUI characterScore;
     [SerializeField] private GameObject takeScorePrefab;
     [SerializeField] private Vector3 offset;
+    private RectTransform nameContainerRectTransform;
 
     private SkinnedMeshRenderer render;
     private Camera mainCam;
@@ -60,6 +62,7 @@ public class FloatingTextAboveCharacter : MonoBehaviour {
             StartPanelManager.Instance.OnStartZombieMode += FloatingText_OnStartZombieMode;
 
         }
+        nameContainerRectTransform = nameContainer. gameObject.GetComponent<RectTransform>();
     }
 
     private void FixedUpdate() {
@@ -69,8 +72,9 @@ public class FloatingTextAboveCharacter : MonoBehaviour {
             UpdateText();
     }
     private void UpdateText() {
-        
+
         Vector3 characterOnscreen = mainCam.WorldToScreenPoint(this.transform.position);
+
         if (characterOnscreen.x < 0 || characterOnscreen.x > Screen.width
             || characterOnscreen.y < 0 || characterOnscreen.y > Screen.height) {
             nameContainer.gameObject.SetActive(false);
@@ -83,10 +87,17 @@ public class FloatingTextAboveCharacter : MonoBehaviour {
         }
 
         characterOnscreen.z = 0;
-        nameContainer.GetComponent<RectTransform>().localPosition =
-            characterOnscreen - new Vector3(Screen.width / 2, Screen.height / 2) + offset;
+        //nameContainer.GetComponent<RectTransform>().localPosition =
+        //    characterOnscreen - new Vector3(Screen.width / 2, Screen.height / 2) + offset;
+
+        nameContainerRectTransform.position = characterOnscreen + offset;
     }
 
+    IEnumerator LogPosition(Vector3 playerPosition, Vector3 namePosition) {
+        Debug.LogWarning(playerPosition);
+        Debug.Log(namePosition);
+        yield return null;
+    }
     private void FloatingText_OnCharacterTakeScore(object sender, int e) {
         if (this.gameObject.CompareTag("Player")) {
             GameObject scorePrefab = Instantiate(takeScorePrefab, canvas.transform);
@@ -113,5 +124,6 @@ public class FloatingTextAboveCharacter : MonoBehaviour {
     }
     private void FloatingText_OnStartGame(object sender, System.EventArgs e) {
         isStart = true;
+        nameCharacterText.text = PlayerPrefs.GetString("PlayerName");
     }
 }

@@ -29,7 +29,7 @@ public class ZombieController : MonoBehaviour
     }
 
     void Update() {
-        if(targetTransform != null) {
+        if(targetTransform != null && targetTransform.gameObject.activeSelf) {
             agent.destination = targetTransform.position;
             agent.speed = 0.5f;
             animationControl.SetZombieRun();

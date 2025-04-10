@@ -26,11 +26,13 @@ public class WeaponShopManager : MonoBehaviour
     [SerializeField] private Button purchaseWeaponButton;
     [SerializeField] private TextMeshProUGUI purchaseWeaponText;
     [SerializeField] private TextMeshProUGUI weaponName;
-    [SerializeField] private Button useOneTimeButton;
+    [SerializeField] private Button purchaseWeaponByAdButton;
+    [SerializeField] private TextMeshProUGUI purchaseWeaponByAdText;
     [SerializeField] private TextMeshProUGUI weaponAttribute;
 
     [SerializeField] private Button purchaseSkinButton;
     [SerializeField] private TextMeshProUGUI purchaseSkinText;
+    [SerializeField] private Button purchaseSkinByAdButton;
 
     [Header("Color")]
     [SerializeField] Button[] listColorButtons = new Button[18];
@@ -40,7 +42,7 @@ public class WeaponShopManager : MonoBehaviour
     int materialCount;
 
     private WeaponDataManager.WeaponData data;
-
+    private bool isClickWeaponAd, isClickSkinAd;
     //public event EventHandler OnUserChangeWeapon;
 
     private void Awake() {
@@ -71,7 +73,9 @@ public class WeaponShopManager : MonoBehaviour
 
         selectButton.onClick.AddListener(SetUpSelectButton);
         purchaseSkinButton.onClick.AddListener(SetUpPurchaseSkinButton);
+        purchaseSkinByAdButton.onClick.AddListener(SetUpPurchaseSkinButtonByAd);
         purchaseWeaponButton.onClick.AddListener(SetUpPurchaseWeaponButton);
+        purchaseWeaponByAdButton.onClick.AddListener(SetUpPurchaseWeaponByAdButton);
 
         //Skin
         for(int i=0; i<listWeaponSkinButtons.Length; i++) {
@@ -100,7 +104,11 @@ public class WeaponShopManager : MonoBehaviour
 
     private void Start() {
         SetStart();
+
+        MaxManager.Instance.OnPlayerReceiveAward += WeaponShop_OnPlayerReceiveAward;
     }
+
+
 
     void SetStart() {
         //Lay vu khi hien tai dang duoc chon
@@ -147,7 +155,10 @@ public class WeaponShopManager : MonoBehaviour
         if (weaponObjects.listWeapon[weaponIndexSaved].isLock) {
             purchaseWeaponText.text = weaponObjects.listWeapon[weaponIndexSaved].cost.ToString();
             purchaseWeaponButton.gameObject.SetActive(true);
-            useOneTimeButton.gameObject.SetActive(true);
+            purchaseWeaponByAdButton.gameObject.SetActive(true);
+            purchaseWeaponByAdText.text = 
+                weaponObjects.listWeapon[weaponIndexSelected].adQuantity.ToString() + "/2";
+
             TurnOffUI();
             return;
 
@@ -194,6 +205,8 @@ public class WeaponShopManager : MonoBehaviour
 
         // Hien thi mau neu skin duoc chon = 0
         SetUpColorBoard(skinIndexSaved, materialCount);
+
+        WeaponDataManager.Instance.SaveWeaponData(weaponIndexSelected, data);
 
     }
 
@@ -318,10 +331,12 @@ public class WeaponShopManager : MonoBehaviour
         if (weaponObjects.listWeapon[weaponIndexSelected].weaponSkinCost[skinIndex] > 0) {
             purchaseSkinButton.gameObject.SetActive(true);
             purchaseSkinText.text = weaponObjects.listWeapon[weaponIndexSelected].weaponSkinCost[skinIndex].ToString();
+            purchaseSkinByAdButton.gameObject.SetActive(true);
             selectButton.gameObject.SetActive(false);
         }
         else {
-            purchaseSkinButton.gameObject.SetActive(false); 
+            purchaseSkinButton.gameObject.SetActive(false);
+            purchaseSkinByAdButton.gameObject.SetActive(false);
             selectButton.gameObject.SetActive(true);
         }
     }
@@ -337,6 +352,7 @@ public class WeaponShopManager : MonoBehaviour
         }
     }
 
+    #region PurchaseWeapon
     void SetUpPurchaseWeaponButton() {
         SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
 
@@ -351,12 +367,36 @@ public class WeaponShopManager : MonoBehaviour
         HomePageManager.Instance.SetCoinText();
 
         purchaseWeaponButton.gameObject.SetActive(false);
-        useOneTimeButton.gameObject.SetActive(false);
+        purchaseWeaponByAdButton.gameObject.SetActive(false);
         weaponObjects.listWeapon[weaponIndexSelected].isLock = false;
         TurnOnUI();
 
 
     }
+
+    void SetUpPurchaseWeaponByAdButton() {
+        if(MaxManager.Instance != null) {
+            MaxManager.Instance.ShowRewardAd();
+            MaxManager.Instance.SetTypeReward(MaxManager.TypeReward.weapon);
+        }
+
+    }
+
+    void HandlerPurchaseWeaponByAd() {
+        weaponObjects.listWeapon[weaponIndexSelected].adQuantity += 1;
+        purchaseWeaponByAdText.text =
+        weaponObjects.listWeapon[weaponIndexSelected].adQuantity.ToString() + "/2";
+
+        if (weaponObjects.listWeapon[weaponIndexSelected].adQuantity == 2) {
+            purchaseWeaponButton.gameObject.SetActive(false);
+            purchaseWeaponByAdButton.gameObject.SetActive(false);
+            weaponObjects.listWeapon[weaponIndexSelected].isLock = false;
+            TurnOnUI();
+        }
+    }
+    #endregion
+
+    #region PurchaseWeaponSkin
     void SetUpPurchaseSkinButton() {
         SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
 
@@ -388,6 +428,36 @@ public class WeaponShopManager : MonoBehaviour
         data.skinIndex = weaponSkinIndexSelected;
         WeaponDataManager.Instance.SaveWeaponData(weaponIndexSelected, data);
     }
+    void SetUpPurchaseSkinButtonByAd() {
+        if(MaxManager.Instance != null) {
+            MaxManager.Instance.ShowRewardAd();
+            MaxManager.Instance.SetTypeReward(MaxManager.TypeReward.weaponSkin);
+        }
+
+    }
+    void HandlerPurchaseSkinByAd() {
+        weaponObjects.listWeapon[weaponIndexSelected].weaponSkinCost[weaponSkinIndexSelected] = 0;
+
+        purchaseSkinButton.gameObject.SetActive(false);
+        purchaseSkinByAdButton.gameObject.SetActive(false);
+        equipedButton.gameObject.SetActive(true);
+
+        Transform lockIcon = null;
+        foreach (Transform child in listWeaponSkinButtons[weaponSkinIndexSelected].transform) {
+            if (child.gameObject.CompareTag("LockImage")) {
+                lockIcon = child; break;
+            }
+
+        }
+        if (lockIcon != null)
+            lockIcon.gameObject.SetActive(false);
+
+        data = WeaponDataManager.Instance.GetWeaponData(weaponIndexSelected);
+        data.skinIndex = weaponSkinIndexSelected;
+        WeaponDataManager.Instance.SaveWeaponData(weaponIndexSelected, data);
+    }
+
+    #endregion
     void SetUpSelectButton() {
         SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
 
@@ -400,7 +470,7 @@ public class WeaponShopManager : MonoBehaviour
 
     void TurnOnUI() {
         purchaseWeaponButton.gameObject.SetActive(false);
-        useOneTimeButton.gameObject.SetActive(false);
+        purchaseWeaponByAdButton.gameObject.SetActive(false);
         foreach (Button btn in listWeaponSkinButtons)
             btn.gameObject.SetActive(true);
         foreach (Button btn in listWeaponPartButtons)
@@ -421,4 +491,14 @@ public class WeaponShopManager : MonoBehaviour
             btn.gameObject.SetActive(false);
     }
 
+    private void WeaponShop_OnPlayerReceiveAward(object sender, MaxManager.TypeReward t) {
+        if(t == MaxManager.TypeReward.weapon) {
+            HandlerPurchaseWeaponByAd();
+        }
+        if(t == MaxManager.TypeReward.weaponSkin) {
+            HandlerPurchaseSkinByAd();
+
+        }
+
+    }
 }

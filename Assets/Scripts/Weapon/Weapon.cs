@@ -12,6 +12,8 @@ public class Weapon
     [SerializeField] public string name;
     [SerializeField] public int cost;
     [SerializeField] public bool isLock;
+    public int adQuantity = 0;
+
     [HideInInspector] public float standardScale = 4000;
     public enum WeaponAttribute {
         None,

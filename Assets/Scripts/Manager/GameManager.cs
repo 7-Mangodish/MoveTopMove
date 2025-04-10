@@ -177,6 +177,4 @@ public class GameManager : MonoBehaviour
     public int GetMaxEnemyQuantity() {
         return maxEnemyQuantity;
     }
-
-
 }

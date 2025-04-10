@@ -1,6 +1,8 @@
+using System.Security.Cryptography;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using static SkinDataManager;
 
 public class SkinShopManager : MonoBehaviour {
 
@@ -43,6 +45,7 @@ public class SkinShopManager : MonoBehaviour {
     [Header("Button")]
     [SerializeField] private Button selectButton;
     [SerializeField] private GameObject purchaseSystemButton;
+    [SerializeField] private Button purchaseByAdButton;
     [SerializeField] private Button purchaseButton;
     [SerializeField] private Button equipedButton;
     [SerializeField] private GameObject borderImagePref;
@@ -65,10 +68,6 @@ public class SkinShopManager : MonoBehaviour {
     private TypeSkin type;
     private SkinData data;
 
-    //private int hatEquippedIndex;
-    //private int pantEquippedIndex;
-    //private int armorEquippedIndex;
-    //private int setEquippedIndex;
     private void Awake() {
 
         SetUpShopButton();
@@ -80,6 +79,7 @@ public class SkinShopManager : MonoBehaviour {
         SetUpListSetButton();
 
         SetUpPurchaseButton();
+        SetUpPurchaseByAdButton();
         SetUpSelecButton();
 
     }
@@ -100,6 +100,8 @@ public class SkinShopManager : MonoBehaviour {
         else {
             listShopButton[0].onClick.Invoke();
         }
+
+        MaxManager.Instance.OnPlayerReceiveAward += SkinShop_OnPlayerReceiveAward;
     }
 
     void SetUpSelecButton() {
@@ -133,7 +135,6 @@ public class SkinShopManager : MonoBehaviour {
             equipedButton.gameObject.SetActive(true);
         });
     }
-
     void SetUpPurchaseButton() {
         purchaseButton.onClick.AddListener(() => {
             SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
@@ -143,6 +144,79 @@ public class SkinShopManager : MonoBehaviour {
             else {
                 purchaseSystemButton.gameObject.SetActive(false);
                 equipedButton.gameObject.SetActive(true);
+                switch (type) {
+                    case TypeSkin.hat: {
+                            SetUpEquippedImage(listHatButtons[hatIndexSelected].transform);
+                            break;
+                        }
+                    case TypeSkin.pant: {
+                            SetUpEquippedImage(listPantButtons[pantIndexSelected].transform);
+                            break;
+                        }
+                    case TypeSkin.armor: {
+                            SetUpEquippedImage(listArmorButtons[armorIndexSelected].transform);
+                            break;
+                        }
+                    case TypeSkin.set: {
+                            SetUpEquippedImage(listSetButtons[setIndexSelected].transform);
+                            break;
+                        }
+                }
+            }
+
+        });
+    }
+    void HandlerPurchaseByAdButton() {
+        Transform child = null;
+        data = GetSkinData();
+
+        purchaseSystemButton.gameObject.SetActive(false);
+        equipedButton.gameObject.SetActive(true);
+        switch (type) {
+            case TypeSkin.hat: {
+
+                    child = FindChildWithTag(listHatButtons[hatIndexSelected].transform);
+                    hatObjects.listHats[hatIndexSelected].isLock = false;
+                    SetUpEquippedImage(listHatButtons[hatIndexSelected].transform);
+                    data.hatIndex = hatIndexSelected;
+                    break;
+                }
+            case TypeSkin.pant: {
+
+                    child = FindChildWithTag(listPantButtons[pantIndexSelected].transform);
+                    pantObjects.listPants[pantIndexSelected].isLock = false;
+                    SetUpEquippedImage(listPantButtons[pantIndexSelected].transform);
+                    data.pantIndex = pantIndexSelected;
+                    break;
+                }
+            case TypeSkin.armor: {
+
+                    child = FindChildWithTag(listArmorButtons[armorIndexSelected].transform);
+                    armorObjects.listArmor[armorIndexSelected].isLock = false;
+                    SetUpEquippedImage(listArmorButtons[armorIndexSelected].transform);
+                    data.armorIndex = armorIndexSelected;
+                    break;
+                }
+            case TypeSkin.set: {
+
+                    child = FindChildWithTag(listSetButtons[setIndexSelected].transform);
+                    setObjects.listSets[setIndexSelected].isLock = false;
+                    SetUpEquippedImage(listSetButtons[setIndexSelected].transform);
+                    data.setIndex = setIndexSelected;
+                    break;
+                }
+        }
+
+        if (child != null) {
+            child.gameObject.SetActive(false);
+        }
+        SaveSkinData(data);
+    }
+    void SetUpPurchaseByAdButton() {
+        purchaseByAdButton.onClick.AddListener(() => {
+            if(MaxManager.Instance!= null) {
+                MaxManager.Instance.ShowRewardAd();
+                MaxManager.Instance.SetTypeReward(MaxManager.TypeReward.playerSkin);
             }
 
         });
@@ -274,27 +348,36 @@ public class SkinShopManager : MonoBehaviour {
             int ind = i;
             listShopButton[i].onClick.AddListener(() => {
                 SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
+                equipedButton.gameObject.SetActive(false);
+                purchaseSystemButton.gameObject.SetActive(false);
 
                 switch (ind) {
                     case 0: {
                             type = TypeSkin.hat;
+                            if(data.hatIndex >= 0)
+                                equipedButton.gameObject.SetActive(true);
                             break;
                         }
                     case 1: {
                             type = TypeSkin.pant;
+                            if (data.pantIndex >= 0)
+                                equipedButton.gameObject.SetActive(true);
                             break;
                         }
                     case 2: {
                             type = TypeSkin.armor;
+                            if (data.armorIndex >= 0)
+                                equipedButton.gameObject.SetActive(true);
                             break;
                         }
                     case 3: {
                             type = TypeSkin.set;
+                            if (data.setIndex >= 0)
+                                equipedButton.gameObject.SetActive(true);
                             break;
                         }
                 }
                 LoadSkin(type);
-                //SetUpBackGroundButtonColor();
 
                 listShopButton[ind].GetComponent<Image>().enabled = false;
                 listShopIcon[ind].color = Color.white;
@@ -373,8 +456,13 @@ public class SkinShopManager : MonoBehaviour {
 
     void SetUpExitButton() {
         exitSkinButton.onClick.AddListener(() => {
-            SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
+            if(SoundManager.Instance != null) 
+                SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
 
+            if (HomePageManager.Instance != null)
+                HomePageManager.Instance.ExitSkinShop();
+            else
+                Debug.LogError("HomePage is null");
             LoadSkin(type);
         });
     }
@@ -404,30 +492,39 @@ public class SkinShopManager : MonoBehaviour {
             data.isSet = false;
         }
 
+        if (currentBorderImage != null)
+            Destroy(currentBorderImage);
         switch (typeSkin) {
             case TypeSkin.hat: {
-                    SetUpBorderImage(listHatButtons[data.hatIndex].transform);
-                    SetUpEquippedImage(listHatButtons[data.hatIndex].transform);
+                    if (data.hatIndex >= 0) {
+                        SetUpBorderImage(listHatButtons[data.hatIndex].transform);
+                        SetUpEquippedImage(listHatButtons[data.hatIndex].transform);
+                    }
                     break;
                 }
             case TypeSkin.pant: {
-                    SetUpBorderImage(listPantButtons[data.pantIndex].transform);
-                    SetUpEquippedImage(listPantButtons[data.pantIndex].transform);
+                    if (data.pantIndex >= 0) {
+                        SetUpBorderImage(listPantButtons[data.pantIndex].transform);
+                        SetUpEquippedImage(listPantButtons[data.pantIndex].transform);
+                    }
                     break;
                 }
             case TypeSkin.armor: {
-                    SetUpBorderImage(listArmorButtons[data.armorIndex].transform);
-                    SetUpEquippedImage(listArmorButtons[data.armorIndex].transform);
+                    if (data.armorIndex >= 0) {
+                        SetUpBorderImage(listArmorButtons[data.armorIndex].transform);
+                        SetUpEquippedImage(listArmorButtons[data.armorIndex].transform);
+                    }
                     break;
                 }
             case TypeSkin.set: {
-                    SetUpBorderImage(listSetButtons[data.setIndex].transform);
-                    SetUpEquippedImage(listSetButtons[data.setIndex].transform);
+                    if (data.setIndex >= 0) {
+                        SetUpBorderImage(listSetButtons[data.setIndex].transform);
+                        SetUpEquippedImage(listSetButtons[data.setIndex].transform);
+                    }
                     break;
-
                 }
         }
-        
+
     }
     Transform FindChildWithTag(Transform parentTransform) {
         foreach(Transform trans in parentTransform) {
@@ -441,41 +538,45 @@ public class SkinShopManager : MonoBehaviour {
     bool PurchaseSkin() {
         Transform child = null;
         data = GetSkinData();
-        int playerCoin = PlayerPrefs.GetInt("PlayerCoin");
         switch (type) {
             case TypeSkin.hat: {
-                    if (playerCoin < hatObjects.listHats[hatIndexSelected].cost)
+                    if (!CoinManager.Instance.PurchaseItem(hatObjects.listHats[hatIndexSelected].cost))
                         return false;
+
                     child = FindChildWithTag(listHatButtons[hatIndexSelected].transform);
                     hatObjects.listHats[hatIndexSelected].isLock = false;
-                    playerCoin -= hatObjects.listHats[hatIndexSelected].cost;
+                    SetUpEquippedImage(listHatButtons[hatIndexSelected].transform);
+                    data.hatIndex = hatIndexSelected;
                     break;
                 }
             case TypeSkin.pant: {
-                    if (playerCoin < pantObjects.listPants[hatIndexSelected].cost)
+                    if (!CoinManager.Instance.PurchaseItem(pantObjects.listPants[pantIndexSelected].cost))
                         return false;
+
                     child = FindChildWithTag(listPantButtons[pantIndexSelected].transform);
                     pantObjects.listPants[pantIndexSelected].isLock = false;
-                    playerCoin -= pantObjects.listPants[hatIndexSelected].cost;
-
+                    SetUpEquippedImage(listPantButtons[pantIndexSelected].transform);
+                    data.pantIndex = pantIndexSelected;
                     break;
                 }
             case TypeSkin.armor: {
-                    if (playerCoin < armorObjects.listArmor[hatIndexSelected].cost)
+                    if (!CoinManager.Instance.PurchaseItem(armorObjects.listArmor[armorIndexSelected].cost))
                         return false;
 
                     child = FindChildWithTag(listArmorButtons[armorIndexSelected].transform);
                     armorObjects.listArmor[armorIndexSelected].isLock = false;
-                    playerCoin -= armorObjects.listArmor[hatIndexSelected].cost;
+                    SetUpEquippedImage(listArmorButtons[armorIndexSelected].transform);
+                    data.armorIndex = armorIndexSelected;
                     break;
                 }
             case TypeSkin.set: {
-                    if (playerCoin < setObjects.listSets[hatIndexSelected].cost)
+                    if (!CoinManager.Instance.PurchaseItem(setObjects.listSets[setIndexSelected].cost))
                         return false;
 
                     child = FindChildWithTag(listSetButtons[setIndexSelected].transform);
                     setObjects.listSets[setIndexSelected].isLock = false;
-                    playerCoin -= setObjects.listSets[hatIndexSelected].cost;
+                    SetUpEquippedImage(listSetButtons[setIndexSelected].transform);
+                    data.setIndex = setIndexSelected;
                     break;
                 }
         }
@@ -483,13 +584,27 @@ public class SkinShopManager : MonoBehaviour {
         if (child != null) {
             child.gameObject.SetActive(false);
         }
-        PlayerPrefs.SetInt("PlayerCoin", playerCoin);
         SaveSkinData(data);
         HomePageManager.Instance.SetCoinText();
         return true;
     }
 
+    private void SkinShop_OnPlayerReceiveAward(object sender, MaxManager.TypeReward t) {
+        if(t == MaxManager.TypeReward.playerSkin)
+            HandlerPurchaseByAdButton();
+    }
+
     SkinData GetSkinData() {
+        if (!PlayerPrefs.HasKey("PlayerSkin")) {
+            SkinData skinData = new SkinData();
+            skinData.isSet = false;
+            skinData.hatIndex = -1;
+            skinData.pantIndex = -1;
+            skinData.armorIndex = -1;
+            skinData.setIndex = -1;
+            SaveSkinData(skinData);
+        }
+
         string json = PlayerPrefs.GetString("PlayerSkin");
         SkinData data = JsonUtility.FromJson<SkinData>(json);
         return data;

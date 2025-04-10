@@ -7,6 +7,7 @@ public class CoinManager : MonoBehaviour
     public static CoinManager Instance { get => instance; }
     [SerializeField] private int beginPlayerCoin;
     [SerializeField] private int winPlayerCoin;
+    [SerializeField] private int losePlayerCoin;
 
     public bool isDoubleAward = false;
     private void Awake() {
@@ -22,16 +23,6 @@ public class CoinManager : MonoBehaviour
     void Start() {
         //GameManager.Instance.OnPlayerWin += CoinManager_OnPlayerWin;
     }
-    //private void CoinManager_OnPlayerWin(object sender, System.EventArgs e) {
-    //    int coin = PlayerPrefs.GetInt("PlayerCoin");
-    //    int tmpCoint = winPlayerCoin;
-
-    //    if (isDoubleAward)
-    //        tmpCoint = winPlayerCoin * 2;
-
-    //    PlayerPrefs.SetInt("PlayerCoin", coin + tmpCoint);
-    //    isDoubleAward = false;
-    //}
 
     public bool PurchaseItem(int itemCost) {
         int playerCoin = PlayerPrefs.GetInt("PlayerCoin");
@@ -42,17 +33,20 @@ public class CoinManager : MonoBehaviour
         return false;
     }
 
-    public void SaveCoin() {
+    public void SaveCoin(int coinCount) {
         int coin = PlayerPrefs.GetInt("PlayerCoin");
-        int tmpCoint = winPlayerCoin;
 
         if (isDoubleAward)
-            tmpCoint = winPlayerCoin * 2;
+            coinCount *= 2;
 
-        PlayerPrefs.SetInt("PlayerCoin", coin + tmpCoint);
+        PlayerPrefs.SetInt("PlayerCoin", coin + coinCount);
         isDoubleAward = false;
     }
     public int GetWinCoin() {
         return winPlayerCoin;
+    }
+
+    public int GetLoseCoin() {
+        return losePlayerCoin;
     }
 }

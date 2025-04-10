@@ -63,6 +63,7 @@ public class PlayerAbility : MonoBehaviour
             playerController.OnPlayerAttack += PlayerAbility_OnPlayerAttack;
             stateWeapon = stateManager.GetStateWeapon();
         }
+        Ability10();
     }
 
     private void PlayerAbility_OnPlayerChooseAbility(object sender, int abilityIndex) {

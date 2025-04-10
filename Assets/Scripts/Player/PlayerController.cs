@@ -281,12 +281,27 @@ public class PlayerController : MonoBehaviour
     }
 
     private void SetUpWeaponMaterial() {
+        if (!PlayerPrefs.HasKey("CurWeapon")) {
+            PlayerPrefs.SetInt("CurWeapon", 0);
+            Debug.LogWarning("Chua co key: CurWeapon");
+        }
         int curWeapon = PlayerPrefs.GetInt("CurWeapon");
-        Debug.Log("Vu khi duoc chon: " + curWeapon);
-        WeaponDataManager.WeaponData data = WeaponDataManager.Instance.GetWeaponData(curWeapon);
-        Mesh mesh = weaponObjects.GetMeshWeapon(curWeapon, data.skinIndex);
-        Material[] materials = weaponObjects.GetListMaterials(curWeapon, data.skinIndex);
 
+        if (WeaponDataManager.Instance == null)
+            Debug.LogError("WeaponDataManager is null");
+
+        WeaponDataManager.WeaponData data = WeaponDataManager.Instance.GetWeaponData(curWeapon);
+        if(data == null)
+            Debug.LogError("Data is null");
+
+        Mesh mesh = weaponObjects.GetMeshWeapon(curWeapon, data.skinIndex);
+        if (weaponObjects == null)
+            Debug.LogError("weaponObjects is null");
+
+        if (mesh == null)
+            Debug.LogError("Mesh is null");
+
+        Material[] materials = weaponObjects.GetListMaterials(curWeapon, data.skinIndex);
         weaponHold.GetComponent<MeshFilter>().mesh = mesh;
         weaponHold.GetComponent<MeshRenderer>().materials = materials;
 

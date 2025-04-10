@@ -24,7 +24,7 @@ MonoBehaviour:
   - cost: 100
     material: {fileID: 2100000, guid: 3fc5a98f60f73bb48aabecfce389fd23, type: 2}
     index: 3
-    isLock: 0
+    isLock: 1
   - cost: 100
     material: {fileID: 2100000, guid: d40eac1b70e5858449a0d88a7e52d7e7, type: 2}
     index: 4
@@ -41,3 +41,4 @@ MonoBehaviour:
     material: {fileID: 2100000, guid: d195ee3576e25794485806fc99e5bd68, type: 2}
     index: 7
     isLock: 1
+  defautlPantMaterial: {fileID: 2100000, guid: 76cd66da882cefb48ae1eaff34431981, type: 2}

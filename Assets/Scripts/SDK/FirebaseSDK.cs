@@ -3,11 +3,11 @@ using Firebase.Extensions;
 using Firebase;
 using Firebase.Database;
 using Firebase.Analytics;
-using System.Xml.Serialization;
-using System.Threading.Tasks;
 
 public class FirebaseSDK : MonoBehaviour
 {
+    private static FirebaseSDK instance;
+    public static FirebaseSDK Instance { get { return instance; } }
     private FirebaseApp app;
     private DatabaseReference databaseReference;
 
@@ -22,6 +22,13 @@ public class FirebaseSDK : MonoBehaviour
     [Header("Analytics")]
     [SerializeField] private TypeAd typeAd;
     [SerializeField] private int reward;
+
+    private void Awake() {
+        if (instance == null)
+            instance = this;
+        else
+            Destroy(this.gameObject);
+    }
     void Start()
     {
         CheckFirebase();
@@ -48,6 +55,7 @@ public class FirebaseSDK : MonoBehaviour
                   "Could not resolve all Firebase dependencies: {0}", dependencyStatus));
             }
         });
+
     }
 
     #region RealtimeDatabase

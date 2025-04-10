@@ -137,20 +137,17 @@ public class StateManager : MonoBehaviour
         animationControl.SetDead();
 
         // Event
-        if (this.gameObject.CompareTag("Player"))
+        if (this.gameObject.CompareTag("Player")) {
             GameManager.Instance.PlayerLose();
-
-        if (isCanRevive) {
+            Debug.Log("Player die");
             this.gameObject.SetActive(false);
             return;
         }
 
-        //Destroy Gameobject
+        //Destroy Enemy
         if (this.gameObject.CompareTag("Enemy")) {
             Destroy(this.transform.parent.gameObject, 2);
         }
-        else
-            Destroy(this.gameObject, 1);
 
     }
 

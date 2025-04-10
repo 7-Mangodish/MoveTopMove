@@ -24,6 +24,7 @@ MonoBehaviour:
     name: LolliPop
     cost: 0
     isLock: 0
+    adQuantity: 0
     standardScale: 4000
     attribute: 1
     index: 1
@@ -33,11 +34,12 @@ MonoBehaviour:
     - {fileID: 1228265344304733173, guid: b02a0d3b19ee5c541914743e25cbda6c, type: 3}
     - {fileID: 1228265344304733173, guid: a1f77dbfbd271f645a498f99b1ebdc33, type: 3}
     - {fileID: 1228265344304733173, guid: 8504deef9534f0a479205be38670bffd, type: 3}
-    weaponSkinCost: 0000000000000000000000003200000064000000
+    weaponSkinCost: 00000000000000000000000032000000c8000000
     scale: 4000
     name: Hammer
     cost: 0
     isLock: 1
+    adQuantity: 1
     standardScale: 4000
     attribute: 1
     index: 2
@@ -47,11 +49,12 @@ MonoBehaviour:
     - {fileID: 7718864798309270226, guid: 460a760e108bf6d4abf6c5ff570f7123, type: 3}
     - {fileID: 7718864798309270226, guid: 3abf204280d1cf547a62fb285baac64e, type: 3}
     - {fileID: 7718864798309270226, guid: 5f243b8e2af9ab345a845ba767faf3f7, type: 3}
-    weaponSkinCost: 0000000000000000000000000000000064000000
+    weaponSkinCost: 0000000000000000000000003200000064000000
     scale: 4000
     name: Rieu Cua
     cost: 200
     isLock: 1
+    adQuantity: 0
     standardScale: 4000
     attribute: 1
     index: 4
@@ -66,6 +69,7 @@ MonoBehaviour:
     name: Keo Deo
     cost: 500
     isLock: 1
+    adQuantity: 0
     standardScale: 4000
     attribute: 1
     index: 4

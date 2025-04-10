@@ -17,6 +17,13 @@ public class WeaponDataManager : MonoBehaviour
             Destroy(this.gameObject);
     }
     public WeaponData GetWeaponData(int weaponIndex) {
+        if (!PlayerPrefs.HasKey(weaponIndex.ToString())){
+            WeaponData weaponData = new WeaponData();
+            weaponData.skinIndex = 0;
+            SaveWeaponData(weaponIndex, weaponData);
+            return weaponData;
+        }
+
         string json = PlayerPrefs.GetString(weaponIndex.ToString());
         WeaponData data = JsonUtility.FromJson<WeaponData>(json);
         return data;

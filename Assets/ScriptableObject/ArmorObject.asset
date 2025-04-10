@@ -16,7 +16,7 @@ MonoBehaviour:
   - armorPrefab: {fileID: 865511459645595182, guid: 44ee0a648c14a56438d2b1de554610df, type: 3}
     cost: 200
     index: 2
-    isLock: 0
+    isLock: 1
   - armorPrefab: {fileID: 8760932476282283681, guid: 63b1eb4f36df2774e83711e5fbf7130a, type: 3}
     cost: 500
     index: 4

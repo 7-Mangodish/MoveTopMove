@@ -20,7 +20,7 @@ MonoBehaviour:
     tail: {fileID: 3090200777508558033, guid: 1cfa2e89c39da3b47a551a52136113c9, type: 3}
     cost: 1000
     index: 2
-    isLock: 0
+    isLock: 1
   - hat: {fileID: 564889987972136770, guid: 718a516a0f0cc8540854b85be45103a8, type: 3}
     armor: {fileID: 4808704080521188535, guid: 756eb137dc4fce34bb419daf2db894e5, type: 3}
     wing: {fileID: 4527622377431850777, guid: 7ca33fd4af0286b4ebcd998bb3549b6c, type: 3}

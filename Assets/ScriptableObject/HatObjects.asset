@@ -15,7 +15,7 @@ MonoBehaviour:
   listHats:
   - cost: 50
     hatPrefab: {fileID: 3719149157653502270, guid: 73c109b0b7a12b84c80e0a659bab2cb3, type: 3}
-    isLock: 0
+    isLock: 1
     index: 1
   - cost: 25
     hatPrefab: {fileID: 1897668126383923695, guid: aa8a319f8eb7b2047bf4ba3de6a96e10, type: 3}
@@ -23,7 +23,7 @@ MonoBehaviour:
     index: 2
   - cost: 25
     hatPrefab: {fileID: 4148348442653307279, guid: 41e9849df16563048980bd49cf860a2f, type: 3}
-    isLock: 0
+    isLock: 1
     index: 3
   - cost: 25
     hatPrefab: {fileID: 1773992973439010555, guid: 18f57505aa45dea47a9dbe9fb0e7e2ec, type: 3}

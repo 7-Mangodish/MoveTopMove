@@ -1,5 +1,7 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -28,8 +30,8 @@ public class StartPanelManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI abilityNameText;
     [SerializeField] private TextMeshProUGUI faildUpgradeText;
     private List<int> listAbilitiesIndex;
-
-    int currentAbility;
+    private int currentAbility;
+    private bool isClickSelectAbilityButton; 
 
     [Header("Top Panel")]
     [SerializeField] private GameObject topPanel;
@@ -44,15 +46,20 @@ public class StartPanelManager : MonoBehaviour
     [SerializeField] private GameObject endPanel;
     [SerializeField] private Button claimCoinButton;
     [SerializeField] private Button homeEndPanelButton;
+    [SerializeField] private Button x3CoinButton;
+    [SerializeField] private TextMeshProUGUI x3CoinText;
     [SerializeField] private TextMeshProUGUI x2Text;
     [SerializeField] private TextMeshProUGUI coinText;
     [SerializeField] private TextMeshProUGUI winTittle;
     [SerializeField] private TextMeshProUGUI loseTittle;
+    private int endGameCoin;
 
     [Header("Revive Panel")]
     [SerializeField] private Button reviveButton;
     [SerializeField] private Button exitRevivePanelButton;
     [SerializeField] private GameObject revivePanel;
+    private bool isRevived;
+    private bool isCLickRevive;
 
     [Header("Zombie Day")]
     [SerializeField] private Image[] listZombieDayImage;
@@ -75,9 +82,7 @@ public class StartPanelManager : MonoBehaviour
     public event EventHandler<int> OnPlayerChooseAbility;
     public event EventHandler OnTurnOnSetting;
     public event EventHandler OnTurnOffSetting;
-    //public event EventHandler<int> OnPlayerSelectAbility;
     private void Awake() {
-        Debug.Log(PlayerPrefs.GetInt("ZombieDayVictory"));
         if (instance == null)
             instance = this;
         else
@@ -109,15 +114,8 @@ public class StartPanelManager : MonoBehaviour
         });
         selectAbilityButton.onClick.AddListener(() => {
             SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
+            MaxManager.Instance.ShowRewardAd();
 
-            centerPanel.SetActive(false);
-            bottomPanel.SetActive(false);
-
-            playerCoinPanel.gameObject.SetActive(false);
-            settingButton.gameObject.SetActive(true);
-
-            OnStartZombieMode?.Invoke(this, EventArgs.Empty);
-            OnPlayerChooseAbility?.Invoke(this, listAbilitiesIndex[currentAbility]);
         });
 
         // Revive Panel
@@ -132,9 +130,17 @@ public class StartPanelManager : MonoBehaviour
         claimCoinButton.onClick.AddListener(() => {
             SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
 
-            CoinManager.Instance.SaveCoin();
+            CoinManager.Instance.SaveCoin(endGameCoin);
             SetUpPlayerCoinText();
             SceneManager.LoadScene(1);
+        });
+        x3CoinButton.onClick.AddListener(() => {
+            MaxManager.Instance.ShowRewardAd();
+            //endGameCoin *= 3;
+
+            //CoinManager.Instance.SaveCoin(endGameCoin);
+            //SetUpPlayerCoinText();
+            //SceneManager.LoadScene(1);
         });
 
         // Setting Panel
@@ -144,11 +150,16 @@ public class StartPanelManager : MonoBehaviour
         GameManager.Instance.OnEnemyQuantityDown += StartPanelManager_OnEnemyQuantityDown;
         GameManager.Instance.OnPlayerWin += StartPanelManager_OnPlayerWin;
         GameManager.Instance.OnPlayerLose += StartPanelManager_OnPlayerLose;
+
+        MaxManager.Instance.OnPlayerReceiveAward += StartPanelManager_OnPlayerReceiveAward;
         SetUpUIWhenStart();
         SetUpSettingPanel();
+        isCLickRevive = false;
+        isClickSelectAbilityButton = false;
     }
 
     private void SetUpUIWhenStart() {
+        Debug.Log("Start");
         bottomPanel.gameObject.SetActive(true);
         centerPanel.gameObject.SetActive(true);
         topPanel.gameObject.SetActive(true);
@@ -159,14 +170,24 @@ public class StartPanelManager : MonoBehaviour
 
     public void  SetUpTopPanel() {
         zombieRemainingText.text = GameManager.Instance.GetMaxEnemyQuantity().ToString();
+        if (!PlayerPrefs.HasKey("ZombieDayVictory"))
+            PlayerPrefs.SetInt("ZombieDayVictory", 0);
         currentZombieDayText.text = "Day "+(PlayerPrefs.GetInt("ZombieDayVictory")+1).ToString();
         SetUpPlayerCoinText();
         settingButton.onClick.AddListener(() => {
-            SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
+            if (SoundManager.Instance != null) 
+                SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
+            Debug.LogWarning("Click");
 
             settingPanel.gameObject.SetActive(true);
             Time.timeScale = 0;
             OnTurnOnSetting?.Invoke(this, EventArgs.Empty);
+        });
+
+        homeButton.onClick.AddListener(() => {
+            if(SoundManager.Instance != null)
+                SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
+            SceneManager.LoadScene(0);
         });
         continueButton.onClick.AddListener(() => {
             SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
@@ -293,8 +314,9 @@ public class StartPanelManager : MonoBehaviour
         reviveButton.onClick.AddListener(() => {
             SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
 
-            GameManager.Instance.DoPlayerRevive();
-            revivePanel.gameObject.SetActive(false);    
+            isCLickRevive = true;
+            // Show Quang cao
+            MaxManager.Instance.ShowRewardAd();   
         });
 
         exitRevivePanelButton.onClick.AddListener(() => {
@@ -365,37 +387,81 @@ public class StartPanelManager : MonoBehaviour
             vibrationOnButton.gameObject.SetActive(true);
         });
     }
+
     private void StartPanelManager_OnEnemyQuantityDown(object sender, int e) {
         zombieRemainingText.text = e.ToString();
     }
 
     private void StartPanelManager_OnPlayerWin(object sender, EventArgs e) {
-        endPanel.gameObject.SetActive(true);
+        if(endPanel != null)
+            endPanel.gameObject.SetActive(true);
         winTittle.gameObject.SetActive(true);
         loseTittle.gameObject.SetActive(false);
 
 
         int dayZombie = PlayerPrefs.GetInt("ZombieDayVictory");
-        SetUpZombieDay(dayZombie+1, true);
+        SetUpZombieDay(dayZombie + 1, true);
 
-        winTittle.text = "U suvived Day " +(dayZombie+1).ToString();
+        winTittle.text = "U suvived Day " + (dayZombie + 1).ToString();
 
-        coinText.text = CoinManager.Instance.GetWinCoin().ToString();
+        endGameCoin = CoinManager.Instance.GetWinCoin();
+        coinText.text = endGameCoin.ToString();
         if (CoinManager.Instance.isDoubleAward)
             x2Text.gameObject.SetActive(true);
-        else 
+        else
             x2Text.gameObject.SetActive(false);
     }
-
-    private void StartPanelManager_OnPlayerLose(object sender, EventArgs e) {
+    private async void StartPanelManager_OnPlayerLose(object sender, EventArgs e) {
         winTittle.gameObject.SetActive(false);
         loseTittle.gameObject.SetActive(true);
-        revivePanel.gameObject.SetActive(true);
+        if (!isRevived) {
+            revivePanel.gameObject.SetActive(true);
+            await Task.Delay(5200);
+            revivePanel.gameObject.SetActive(false);
+            if(!isCLickRevive)
+                endPanel.gameObject.SetActive(true);
+        }
+        else
+            endPanel.gameObject.SetActive(true);
 
         int dayZombie = PlayerPrefs.GetInt("ZombieDayVictory");
         SetUpZombieDay(dayZombie + 1, false);
+
+        endGameCoin = CoinManager.Instance.GetLoseCoin();
+        coinText.text = endGameCoin.ToString();
+        x3CoinText.text = (endGameCoin * 3).ToString();
+        if (CoinManager.Instance.isDoubleAward)
+            x2Text.gameObject.SetActive(true);
+        else
+            x2Text.gameObject.SetActive(false);
     }
 
+    private void StartPanelManager_OnPlayerReceiveAward(object sender, MaxManager.TypeReward t) {
+        if(!isRevived && isCLickRevive) {
+            GameManager.Instance.DoPlayerRevive();
+            isRevived = true;
+            revivePanel.gameObject.SetActive(false);
+        }
+        if (!isClickSelectAbilityButton) {
+            isClickSelectAbilityButton = true;
+            centerPanel.SetActive(false);
+            bottomPanel.SetActive(false);
+
+            playerCoinPanel.gameObject.SetActive(false);
+            settingButton.gameObject.SetActive(true);
+
+            OnStartZombieMode?.Invoke(this, EventArgs.Empty);
+            OnPlayerChooseAbility?.Invoke(this, listAbilitiesIndex[currentAbility]);
+        }
+        if(t == MaxManager.TypeReward.x3Coin) {
+            endGameCoin *= 3;
+
+            CoinManager.Instance.SaveCoin(endGameCoin);
+            SetUpPlayerCoinText();
+            SceneManager.LoadScene(1);
+        }
+
+    }
     public void TriggerOnPlayerUpgradeSkill() {
         OnPlayerUpgradeSkill?.Invoke(this, SkillObjects.TypeSkill.weaponCount);
     }

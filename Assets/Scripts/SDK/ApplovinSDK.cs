@@ -30,9 +30,6 @@ public class ApplovinSDK : MonoBehaviour {
         MaxSdk.LoadRewardedAd(rewardedAdUnitId);
         ShowRewardedAd();
 
-
-
-
     }
 
     public void ShowMrecAd() {
