@@ -48,7 +48,13 @@
         "com.unity.modules.vr": "1.0.0",
         "com.unity.modules.wind": "1.0.0",
         "com.unity.modules.xr": "1.0.0",
-        "com.applovin.mediation.ads": "8.2.0"
+        "com.applovin.mediation.ads": "8.2.0",
+        "com.applovin.mediation.adapters.facebook.ios": "6170100.0.0",
+        "com.applovin.mediation.adapters.facebook.android": "6190002.0.0",
+        "com.applovin.mediation.adapters.unityads.ios": "4140100.0.0",
+        "com.applovin.mediation.adapters.unityads.android": "4140100.0.0",
+        "com.applovin.mediation.adapters.ironsource.ios": "808000000.0.0",
+        "com.applovin.mediation.adapters.ironsource.android": "807000000.0.0"
     },
     "scopedRegistries": [
         {

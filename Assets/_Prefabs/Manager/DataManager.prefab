@@ -1,0 +1,69 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &4024948186967749544
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1006504926220204751}
+  - component: {fileID: 4383698806476504855}
+  m_Layer: 0
+  m_Name: DataManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1006504926220204751
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4024948186967749544}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4383698806476504855
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4024948186967749544}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99c9d758c19fe704d823676237123941, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  listMaterial:
+  - {fileID: 2100000, guid: 0b8a31d27f30ebd4b8986d90aaf6f8a9, type: 2}
+  - {fileID: 2100000, guid: 4258ab16c6c16fa449530a2b1c32c1fe, type: 2}
+  - {fileID: 2100000, guid: fa9732653ba6d984cb04701864855b18, type: 2}
+  - {fileID: 2100000, guid: 060c055b302048a4bbbf81743b73981c, type: 2}
+  - {fileID: 2100000, guid: 57f53afb76f0e3f469d4a8e2f24819da, type: 2}
+  - {fileID: 2100000, guid: ec11a9263a68b75468ab69c380448e5f, type: 2}
+  - {fileID: 2100000, guid: e8d099e1c457b9e4490da2bbe8656a76, type: 2}
+  - {fileID: 2100000, guid: edeac502a38f6e849a7276338d0a7bf8, type: 2}
+  - {fileID: 2100000, guid: 634e4d7e73817e34abe2ecdba87ff41f, type: 2}
+  - {fileID: 2100000, guid: b83501a22c77b1c4ab0e1f5da22a6e69, type: 2}
+  - {fileID: 2100000, guid: 04bb6035ac9b1a846939f031c033d262, type: 2}
+  - {fileID: 2100000, guid: e7ee28982c7e114419e3464d45efa086, type: 2}
+  - {fileID: 2100000, guid: 89e34d01acc717f4f833a0f0bd2faa0c, type: 2}
+  - {fileID: 2100000, guid: 82859911bd85b7540afbee85eafc57d3, type: 2}
+  - {fileID: 2100000, guid: e7f1e112cade097498a542e69c1d3c47, type: 2}
+  - {fileID: 2100000, guid: 5d5fa4b72a2dea644839e31309aad204, type: 2}
+  - {fileID: 2100000, guid: e757adc97ad9ab3479e5e86e4b95293a, type: 2}
+  - {fileID: 2100000, guid: 8d8bd06f68381e444855cad4128f0c60, type: 2}
+  hatObjects: {fileID: 11400000, guid: 1ac17890d7f81a7408ad01777321b6b7, type: 2}
+  pantObjects: {fileID: 11400000, guid: 450c8293c14cf2142b5ddc14d86984bf, type: 2}
+  armorObjects: {fileID: 11400000, guid: 55429d39b39f0cb4f8ba68a0a755068a, type: 2}
+  setObjects: {fileID: 11400000, guid: 42c250d1946742248a35ce8219891602, type: 2}

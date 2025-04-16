@@ -1,6 +1,10 @@
 <dependencies>
   <packages>
     <package>com.android.installreferrer:installreferrer:2.1</package>
+    <package>com.applovin.mediation:facebook-adapter:[6.19.0.2]</package>
+    <package>com.applovin.mediation:google-adapter:[24.2.0.0]</package>
+    <package>com.applovin.mediation:ironsource-adapter:8.7.0.0.0</package>
+    <package>com.applovin.mediation:unityads-adapter:4.14.1.0</package>
     <package>com.applovin:applovin-sdk:13.2.0</package>
     <package>com.appsflyer:af-android-sdk:6.16.2</package>
     <package>com.appsflyer:unity-wrapper:6.16.2</package>
