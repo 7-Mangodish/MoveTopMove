@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 using Unity.VisualScripting;
@@ -16,9 +17,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField] WeaponObjects weaponObjects;
     private SkillData skillData;
 
-    [Header("Skill")]
+    [Header("-----Skill-----")]
     [SerializeField] private float speed;
-    [SerializeField] private GameObject playerAttackArea;
+    public GameObject playerAttackArea;
     public SphereCollider playerAttackAreaCollider;
     private float shield;
     private float range;
@@ -26,17 +27,17 @@ public class PlayerController : MonoBehaviour
     private float bonusWeaponQuantity;
     private int weaponMultipleAbility;
 
-    [Header("Move")]
+    [Header("-----Move-----")]
     [SerializeField] private float deltaAngle;
     [SerializeField] private Joystick joystick;
     private Vector3 direct;
     private Rigidbody rb;
     private AnimationControl animationControl;
 
-    [Header("Attack")]
+    [Header("-----Attack-----")]
     [SerializeField] private GameObject weapon;
     [SerializeField] private Transform weaponHold;
-    [SerializeField] private Transform weaponSpawnPosition;
+    [SerializeField] private Transform weaponSpawnTransform;
     [SerializeField] private float speedWeapon;
     [SerializeField] private float timeAttack;
     [SerializeField] private float angleAttack;
@@ -44,31 +45,21 @@ public class PlayerController : MonoBehaviour
     private float timeAttackDuration;
     private Vector3 directEnemy;
     private bool canAttack;
+    private Vector3 weaponSpawnPosition;
     //public GameObject targetContainer;
     private Transform targetTransform;
 
-    [Header("Level Up")]
+    [Header("-----Level Up-----")]
     private StateManager stateManager;
     private ThrowWeapon.StateWeapon stateWeapon;
     private bool isDead;
     public bool startGame;
 
+    [Header("-----Player Ability-----")]
+    public GameObject weaponAbility1;
     /*Ability*/
-    public event EventHandler OnPlayerAttack;
-    private PlayerAbility playerAbility;
 
-    //Ability3
-    private bool isAbility3;
-
-    // Ability4
-    private bool isAbility4;
-
-    // Ability 8
-    private bool isAbility8;
-
-    // Ability 9
-    private bool isAbility9;
-
+    private int chosenAbility;
     private void Awake() {
         if (instance == null)
             instance = this;
@@ -78,40 +69,8 @@ public class PlayerController : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         animationControl = GetComponent<AnimationControl>();
         stateManager = GetComponent<StateManager>();
-        playerAbility = GetComponent<PlayerAbility>();
 
-        startGame = false;
-        isDead = false;
-        weaponQuantity = 1;
-        weaponMultipleAbility = 1;
-    }
 
-    private void Start() {
-        //if(SceneManager.GetActiveScene().name == GameVariable.zombieSceneName) {
-        //    playerAbility.OnPlayerChooseAbility2 += PlayerController_OnPlayerChooseAbility2;
-        //    playerAbility.OnPlayerChooseAbility3 += PlayerController_OnPlayerChooseAbility3;
-        //    playerAbility.OnplayerChooseAbility4 += PlayerController_OnplayerChooseAbility4;
-        //    playerAbility.OnPlayerChooseAbility8 += PlayerController_OnPlayerChooseAbility8;
-        //    playerAbility.OnPlayerChooseAbility9 += PlayerController_OnPlayerChooseAbility9;
-        //    playerAbility.OnPlayerChooseAbility10 += PlayerController_OnPlayerChooseAbility10;
-        //    playerAbility.OnPlayerChooseAbility11 += PlayerController_OnPlayerChooseAbility11;
-        //    playerAbility.OnPlayerChooseAbility12 += PlayerAbility_OnPlayerChooseAbility12;
-        //    playerAbility.OnPlayerChooseAbility13 += PlayerController_OnPlayerChooseAbility13;
-        //}
-
-        //GameController.Instance.OnPlayerRevive += PlayerController_OnPlayerRevive;
-        //stateManager.OnCharacterDead += PlayerController_OnCharacterDead;
-
-        //timeAttackDuration = 3;
-        //stateWeapon = stateManager.GetStateWeapon();
-
-        //if(SceneManager.GetActiveScene().name == GameVariable.normalSceneName) {
-        //    DataManager.Instance.OnUserChangeWeapon += PlayerController_OnUserChangeWeapon;
-        //}
-        //else if(SceneManager.GetActiveScene().name == GameVariable.zombieSceneName) {
-        //    ReferenceToObject();
-        //    StartPanelManager.Instance.OnPlayerUpgradeSkill += PlayerController_OnPlayerUpgradeSkill;
-        //}
     }
 
     private void OnDestroy() {
@@ -119,7 +78,11 @@ public class PlayerController : MonoBehaviour
     }
     public void SetUpPlayer() {
         timeAttackDuration = 3;
-        stateWeapon = stateManager.GetStateWeapon();
+        chosenAbility = -1;
+        startGame = false;
+        isDead = false;
+        weaponQuantity = 1;
+        weaponMultipleAbility = 1;
 
         if (SceneManager.GetActiveScene().name == GameVariable.normalSceneName) {
             DataManager.Instance.OnUserChangeWeapon += PlayerController_OnUserChangeWeapon;
@@ -163,7 +126,7 @@ public class PlayerController : MonoBehaviour
                 canAttack = false;
                 //Debug.Log("Attack");
 
-                if (!isAbility4) {
+                if (chosenAbility == 4) {
                     //directEnemy = targetPosition - this.transform.position;
                     directEnemy = targetTransform.position - this.transform.position;
                     directEnemy.y = 0;
@@ -210,11 +173,11 @@ public class PlayerController : MonoBehaviour
             stateWeapon = stateManager.GetStateWeapon();
             stateManager.IsLevelUp = false;
         }
+
         if (stateManager.isLevelUpZombieMode) {
             stateWeapon = stateManager.GetStateWeapon();
-            playerAttackArea.transform.localScale += new Vector3(.5f, .5f, .5f);
-
             stateManager.isLevelUpZombieMode = false;
+
             if (weaponQuantity < bonusWeaponQuantity + 1)
                 weaponQuantity +=1;
         }
@@ -225,33 +188,34 @@ public class PlayerController : MonoBehaviour
         // Tan cong va goi su kien
         angleSpread = angleAttack / weaponQuantity;
         int startIndexWeapon = (int) - weaponQuantity / 2;
-        OnPlayerAttack?.Invoke(this, EventArgs.Empty);
-      
+
+        // Xac dinh vi tri spawn va huong nem
+        weaponSpawnPosition = new Vector3(weaponSpawnTransform.position.x,
+            weaponSpawnTransform.position.y, weaponSpawnTransform.position.z);
+
+        // Nem vu khi
         for (int i = startIndexWeapon; i <= weaponQuantity /2; i++) {
             if (i == 0 && weaponQuantity % 2 == 0)
                 continue;
-            // Xac dinh vi tri spawn va huong nem
-            Vector3 positionSpawn = new Vector3(weaponSpawnPosition.position.x,
-                weaponSpawnPosition.position.y, weaponSpawnPosition.position.z);
 
             Vector3 directWeapon = Quaternion.AngleAxis(startIndexWeapon * angleSpread, Vector3.up) * directEnemy;   
 
             //Khoi tao vu khi
-            GameObject weaponSpawn = Instantiate(weapon, positionSpawn, Quaternion.Euler(new Vector3(90, 0, 0)));
+            GameObject weaponSpawn = Instantiate(weapon, weaponSpawnPosition, Quaternion.Euler(new Vector3(90, 0, 0)));
             weaponSpawn.transform.localScale = new Vector3(9, 9, 9);
 
             //Set trang thai(chu the, tam ban, scale, vi tri khoi tao)
-            stateWeapon.positionSpawn = positionSpawn;
+            stateWeapon.positionSpawn = weaponSpawnPosition;
             Rigidbody weaponRb = weaponSpawn.GetComponent<Rigidbody>();
             ThrowWeapon weaponThrow = weaponRb.GetComponent<ThrowWeapon>();
 
             // Kiem tra xem player co chon ability8 hay khong
-            if (isAbility8) {
+            if (chosenAbility == 8) {
                 weaponThrow.isGrowing = true;
                 stateWeapon.maxDistance += .5f;
             }
             // Kiem tra xem player co chon ability9 hay khong
-            if (isAbility9) {
+            if (chosenAbility == 9) {
                 weaponThrow.isPiering = true;
             }
 
@@ -263,6 +227,11 @@ public class PlayerController : MonoBehaviour
             }
             startIndexWeapon++;
         }
+
+        // Thuc hien ki nang dac biet
+        if (chosenAbility == 0 || chosenAbility == 5 || chosenAbility == 6)
+            DoAbility();
+
         await Task.Delay(800);
         weaponHold.gameObject.SetActive(true);
 
@@ -280,13 +249,16 @@ public class PlayerController : MonoBehaviour
     }
     
     // Duoc goi khi tham chieu den Skill de lay chi so
-    public void ReferenceToSkill() {
+    public void ReferenceToSkillAndAbility() {
         skillData = DataManager.Instance.GetSkillData();
         shield = skillData.shield;
         speed = skillData.speed;
         range = skillData.range;
         bonusWeaponQuantity = skillData.weaponBonus;
+
+        chosenAbility = ZombieUIController.choosenAbility;
     }
+    /*Duoc goi khi player update Range*/
     public void SetUpAttackRange() {
         skillData = DataManager.Instance.GetSkillData();
         range = skillData.range;
@@ -319,71 +291,206 @@ public class PlayerController : MonoBehaviour
         weapon.GetComponent<MeshRenderer>().materials = materials;
     }
 
+#region ----------Dance----------
     public void SetPlayerDance() {
         animationControl.SetDance();
     }
     public void SetPlayerStopDance() {
         animationControl.StopDance();
     }
+    public void SetPlayerWinDance() {
+        if (this == null)
+            return;
+        if (animationControl)
+            animationControl.SetDanceWin();
+        this.transform.rotation = Quaternion.Euler(0, 180, 0);
+        speed = 0;
+        canAttack = false;
+        joystick.gameObject.SetActive(false);
+    }
+    #endregion
 
-    private void PlayerController_OnUserChangeWeapon(object sender, DataManager.OnUserChangeWeaponArg e) {
-        //if(this == null) return;
-        SetUpWeaponMaterial(e);
+#region ----------Abilty---------
+    
+    private void DoAbility() {
+        switch (chosenAbility) {
+            case 0:
+                Ability0(); break;
+            case 1:
+                Ability1();break;
+            case 2: 
+                Ability2(); break;
+            case 3: 
+                Ability3(); break;
+            case 4: 
+                Ability4(); break;
+            case 5: 
+                Ability5(); break;
+            case 6:
+                Ability6(); break;
+            case 7:
+                Ability7(); break;
+            case 8:
+                Ability8(); break;
+            case 9:
+                Ability9(); break;
+            case 10:
+                Ability10(); break;
+            case 11:
+                Ability11(); break;
+            case 12:
+                Ability12(); break;
+            case 13:
+                Ability13(); break;
+        }
     }
 
-    // Ham xu li su kien khi player upgradeskill, tham chieu toi skill object 1 lan nua
-    //private void PlayerController_OnPlayerUpgradeSkill(object sender, StartPanelManager.TypeSkill type) {
-    //    ReferenceToObject();
-    //}
+    /*Backward Attack*/
+    private void Ability0() {
+        Vector3 spawnPosition = new Vector3(this.transform.position.x,
+            weaponSpawnPosition.y, this.transform.position.z);
+        GameObject weaponSpawn = Instantiate(weapon, weaponSpawnPosition, Quaternion.Euler(new Vector3(90, 0, 0)));
+        weaponSpawn.transform.localScale = new Vector3(9, 9, 9);
 
-    private void PlayerController_OnPlayerChooseAbility2(object sender, EventArgs e) {
+        // Kiem tra xem da len cap chua, neu co thi cap nhat trang thai cua vu khi
+        if (stateManager.IsLevelUp) {
+            stateWeapon = stateManager.GetStateWeapon();
+        }
+
+        //Set trang thai(chu the, tam ban, scale)
+        Rigidbody weaponRb = weaponSpawn.GetComponent<Rigidbody>();
+        stateWeapon.positionSpawn = this.transform.position;
+        weaponRb.GetComponent<ThrowWeapon>().SetStateWeapon(stateWeapon);
+
+        //Nem vu khi theo huong
+        if (weaponRb != null) {
+            weaponRb.linearVelocity = -1 * this.transform.forward * speedWeapon * Time.fixedDeltaTime;
+        }
+    }
+
+    /*Circle Weapon*/
+    private void Ability1() {
+        weaponAbility1.SetActive(true);
+    }
+
+    /*Add Weapon Count*/
+    private void Ability2() {
         weaponQuantity += 1;
     }
 
-    private void PlayerController_OnPlayerChooseAbility3(object sender, EventArgs e) {
-        //isAbility3 = true;
+    private void Ability3() {
+
     }
-    private void PlayerController_OnplayerChooseAbility4(object sender, EventArgs e) {
-        isAbility4 = true;
+
+    /*Duplicate Atact*/
+    private void Ability4() {
         animationControl.SetSpeedMultiplayer();
     }
-    private void PlayerController_OnPlayerChooseAbility8(object sender, EventArgs e) {
-        isAbility8 = true;
+
+    /*Cross Attack*/
+    private void Ability5() {
+        Vector3 positionSpawn = new Vector3(this.transform.position.x,
+            weaponSpawnPosition.y, this.transform.position.z);
+        for (int i = 0; i < 2; i++) {
+            GameObject weaponSpawn = Instantiate(weapon, positionSpawn, Quaternion.Euler(new Vector3(90, 0, 0)));
+            weaponSpawn.transform.localScale = new Vector3(9, 9, 9);
+
+            // Kiem tra xem da len cap chua, neu co thi cap nhat trang thai cua vu khi
+            if (stateManager.IsLevelUp) {
+                stateWeapon = stateManager.GetStateWeapon();
+            }
+
+            //Set trang thai(chu the, tam ban, scale)
+            Rigidbody weaponRb = weaponSpawn.GetComponent<Rigidbody>();
+            stateWeapon.positionSpawn = this.transform.position;
+            weaponRb.GetComponent<ThrowWeapon>().SetStateWeapon(stateWeapon);
+
+            //Nem vu khi theo huong
+            if (weaponRb != null) {
+                if (i == 0)
+                    weaponRb.linearVelocity = this.transform.right * speedWeapon * Time.fixedDeltaTime;
+                else
+                    weaponRb.linearVelocity = -1 * this.transform.right * speedWeapon * Time.fixedDeltaTime;
+            }
+        }
     }
-    private void PlayerController_OnPlayerChooseAbility9(object sender, EventArgs e) {
-        isAbility9 = true;
+
+    /*Diagonal Attack*/
+    private void Ability6() {
+        Vector3 positionSpawn = new Vector3(this.transform.position.x,
+            this.transform.position.y + 0.2f, this.transform.position.z);
+        for (int i = 0; i <= 1; i++) {
+            GameObject weaponSpawn = Instantiate(weapon, positionSpawn, Quaternion.Euler(new Vector3(90, 0, 0)));
+            weaponSpawn.transform.localScale = new Vector3(9, 9, 9);
+
+            // Kiem tra xem da len cap chua, neu co thi cap nhat trang thai cua vu khi
+            if (stateManager.IsLevelUp) {
+                stateWeapon = stateManager.GetStateWeapon();
+            }
+
+            //Set trang thai(chu the, tam ban, scale)
+            Rigidbody weaponRb = weaponSpawn.GetComponent<Rigidbody>();
+            stateWeapon.positionSpawn = this.transform.position;
+            weaponRb.GetComponent<ThrowWeapon>().SetStateWeapon(stateWeapon);
+
+            //Nem vu khi theo huong
+            if (weaponRb != null) {
+                if (i == 0) {
+                    Vector3 direct = Quaternion.AngleAxis(60, Vector3.up) * this.transform.forward;
+                    weaponRb.linearVelocity = speedWeapon * direct.normalized * Time.fixedDeltaTime;
+                }
+                else {
+                    Vector3 direct = Quaternion.AngleAxis(-60, Vector3.up) * this.transform.forward;
+                    weaponRb.linearVelocity = speedWeapon * direct.normalized * Time.fixedDeltaTime;
+                }
+            }
+        }
     }
-    private void PlayerController_OnPlayerChooseAbility10(object sender, EventArgs e) {
-        stateManager.isCanRevive = true;
+
+    /*Double Reward*/
+    private void Ability7() {
+        CoinManager.Instance.isDoubleAward = true;
     }
-    private void PlayerController_OnPlayerChooseAbility11(object sender, EventArgs e) {
+
+    /*Growing Weapon*/
+    private void Ability8() {
+
+    }
+    /*Piering Weapon*/
+    private void Ability9() {
+
+    }
+
+    /*Revive*/
+    private void Ability10() {
+        Vector3 newPosition = SpawnZombieController.Instance.GetValidPosition();
+        this.PlayerRevive(newPosition);
+    }
+
+    /*Start Bigger*/
+    private void Ability11() {
         this.transform.localScale += new Vector3(0.05f, 0.05f, 0.05f);
         CameraController.Instance.UpdateDistanceCamera(.75f);
         stateManager.DoUpdateStateWeapon();
     }
-    private void PlayerAbility_OnPlayerChooseAbility12(object sender, EventArgs e) {
+
+    /*X3 Weapon*/
+    private void Ability12() {
         weaponMultipleAbility = 3;
     }
-    private void PlayerController_OnPlayerChooseAbility13(object sender, EventArgs e) {
+
+    /*Speed*/
+    private void Ability13() {
         speed += 2;
     }
-    public void SetPlayerWinDance () {
-        if(this == null)
-            return;
-        if(animationControl)
-            animationControl.SetDanceWin();
-        this.transform.rotation = Quaternion.Euler(0, 180, 0);
-        speed = 0;  
-        canAttack = false;
-        joystick.gameObject.SetActive(false);
-    }
+    
     private IEnumerator AttackTwice() {
         animationControl.SetAttack();
         yield return new WaitForSeconds(.5f);
         animationControl.SetEndAttack();
         animationControl.SetAttack();
     }
-
+#endregion
     public void PlayerRevive(Vector3 newPosition) {
         canAttack = false;
         isDead = false;
@@ -393,5 +500,8 @@ public class PlayerController : MonoBehaviour
         this.gameObject.SetActive(true);
         this.gameObject.transform.localPosition = new Vector3(newPosition.x, 0, newPosition.z);
     }
-
+    private void PlayerController_OnUserChangeWeapon(object sender, DataManager.OnUserChangeWeaponArg e) {
+        //if(this == null) return;
+        SetUpWeaponMaterial(e);
+    }
 }

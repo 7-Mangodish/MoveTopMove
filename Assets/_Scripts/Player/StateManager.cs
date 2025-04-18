@@ -13,12 +13,13 @@ public class StateManager : MonoBehaviour
     
     private int currentScore;
     public int CurrentScore { get { return currentScore; } }
+
     private int addingScore;
     public bool IsLevelUp;
 
     [SerializeField] private SkillObjects skillObjects;
 
-    [Header("Weapon's State")]
+    [Header("-----Weapon's State-----")]
     [SerializeField] private float deltaScaleWeapon;
     [SerializeField] private GameObject maxDistancePoint;
     private ThrowWeapon.StateWeapon stateWeapon;
@@ -26,11 +27,11 @@ public class StateManager : MonoBehaviour
     [Header("Character's Animation Control")]
     private AnimationControl animationControl;
 
-    [Header("Player's Scale")]
+    [Header("-----Player's Scale-----")]
     [SerializeField] private TextMeshProUGUI playerScaleText;
     private int currentLevel;
 
-    [Header("Zombie Mode")]
+    [Header("-----Zombie Mode-----")]
     [SerializeField] private GameObject playerShield;
     public bool isLevelUpZombieMode;
 
@@ -40,11 +41,11 @@ public class StateManager : MonoBehaviour
     public bool isDead = false;
 
     // Player
-    public bool isCanRevive = false;
     private void Awake() {
         addingScore = 1;
         currentScore = 0;
         currentLevel = 1;
+
         if(maxDistancePoint != null) {
             stateWeapon.ownerStateManager = this;
             stateWeapon.maxDistance = Vector3.Distance(this.transform.position, maxDistancePoint.transform.position);
@@ -67,12 +68,12 @@ public class StateManager : MonoBehaviour
         if (currentScore%10 == 0 && currentScore !=0) {
             if (SceneManager.GetActiveScene().name == GameVariable.normalSceneName)
                 DoCharacterLevelUp();
-            else
+            else if(SceneManager.GetActiveScene().name == GameVariable.zombieSceneName)
                 DoCharaterLevelUpZombieMode();
         }
     }
 
-
+#region -----CHARACTER_LEVEL_UP-----
     public void DoCharacterLevelUp() {
         IsLevelUp = true;
         currentLevel++;
@@ -96,6 +97,10 @@ public class StateManager : MonoBehaviour
         isLevelUpZombieMode = true;
         DoUpdateStateWeaponZombieMode();
     }
+#endregion
+
+
+#region -----UPDATE_STATE_WEAPON-----
     public void DoUpdateStateWeapon() {
         stateWeapon.curScale += deltaScaleWeapon;
         stateWeapon.maxDistance = Vector3.Distance(this.transform.position, maxDistancePoint.transform.position);
@@ -106,8 +111,12 @@ public class StateManager : MonoBehaviour
         if (this.gameObject.CompareTag("Player")) {
             CameraController.Instance.UpdateDistanceCamera(.75f);
             SoundManager.Instance.PlaySound(SoundManager.SoundName.size_up);
+            PlayerController.Instance.playerAttackArea.transform.localScale += new Vector3(.5f, .5f, .5f);
+
         }
     }
+
+#endregion
     public ThrowWeapon.StateWeapon GetStateWeapon() {
         return stateWeapon;
     }

@@ -9608,11 +9608,12 @@ MonoBehaviour:
   joystick: {fileID: 1478099396}
   weapon: {fileID: 8927054480053354187, guid: 34bae78461d38d94b88a956b9ef73ec0, type: 3}
   weaponHold: {fileID: 2570551499662056730}
-  weaponSpawnPosition: {fileID: 1279656780}
+  weaponSpawnTransform: {fileID: 0}
   speedWeapon: 100
   timeAttack: 1
   angleAttack: 60
   startGame: 0
+  weaponAbility1: {fileID: 6196578945528617089}
 --- !u!114 &584122414
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9649,7 +9650,6 @@ MonoBehaviour:
   playerShield: {fileID: 2113870202}
   isLevelUpZombieMode: 0
   isDead: 0
-  isCanRevive: 0
 --- !u!1 &614178567
 GameObject:
   m_ObjectHideFlags: 0

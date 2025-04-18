@@ -73,7 +73,7 @@ public class ThrowWeapon : MonoBehaviour
 
     void  Throw() {
         if (isGrowing)
-            this.transform.localScale += new Vector3(.15f, .15f, .15f); 
+            this.transform.localScale += new Vector3(.1f, .1f, .1f); 
 
         if (Vector3.Distance(this.transform.position, stateWeapon.positionSpawn) > stateWeapon.maxDistance) {
             //Debug.Log("Out range");

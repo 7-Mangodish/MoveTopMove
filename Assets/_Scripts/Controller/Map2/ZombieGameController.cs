@@ -43,7 +43,8 @@ public class ZombieGameController : MonoBehaviour
     IEnumerator StartGame() {
         MaxManager.Instance.StopShowBannerAd();
         yield return new WaitUntil(() => ZombieUIController.Instance.isStartGame);
-        PlayerController.Instance.ReferenceToSkill(); // Lay cac chi so skill
+        PlayerController.Instance.ReferenceToSkillAndAbility(); // Lay cac chi so skill
+
     }
 
     private void DoSpawnZombie() {
