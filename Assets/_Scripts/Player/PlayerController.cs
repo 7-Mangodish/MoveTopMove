@@ -14,7 +14,7 @@ public class PlayerController : MonoBehaviour
     public static PlayerController Instance { get => instance; }
 
     [SerializeField] WeaponObjects weaponObjects;
-    private SkillDataManager.SkillData skillData;
+    private SkillData skillData;
 
     [Header("Skill")]
     [SerializeField] private float speed;
@@ -35,22 +35,23 @@ public class PlayerController : MonoBehaviour
 
     [Header("Attack")]
     [SerializeField] private GameObject weapon;
-    [SerializeField] private GameObject weaponHold;
+    [SerializeField] private Transform weaponHold;
     [SerializeField] private Transform weaponSpawnPosition;
     [SerializeField] private float speedWeapon;
     [SerializeField] private float timeAttack;
     [SerializeField] private float angleAttack;
     private float angleSpread;
     private float timeAttackDuration;
-    private Vector3 targetPosition;
     private Vector3 directEnemy;
     private bool canAttack;
+    //public GameObject targetContainer;
+    private Transform targetTransform;
 
     [Header("Level Up")]
     private StateManager stateManager;
     private ThrowWeapon.StateWeapon stateWeapon;
     private bool isDead;
-    private bool startGame;
+    public bool startGame;
 
     /*Ability*/
     public event EventHandler OnPlayerAttack;
@@ -86,42 +87,51 @@ public class PlayerController : MonoBehaviour
     }
 
     private void Start() {
+        //if(SceneManager.GetActiveScene().name == GameVariable.zombieSceneName) {
+        //    playerAbility.OnPlayerChooseAbility2 += PlayerController_OnPlayerChooseAbility2;
+        //    playerAbility.OnPlayerChooseAbility3 += PlayerController_OnPlayerChooseAbility3;
+        //    playerAbility.OnplayerChooseAbility4 += PlayerController_OnplayerChooseAbility4;
+        //    playerAbility.OnPlayerChooseAbility8 += PlayerController_OnPlayerChooseAbility8;
+        //    playerAbility.OnPlayerChooseAbility9 += PlayerController_OnPlayerChooseAbility9;
+        //    playerAbility.OnPlayerChooseAbility10 += PlayerController_OnPlayerChooseAbility10;
+        //    playerAbility.OnPlayerChooseAbility11 += PlayerController_OnPlayerChooseAbility11;
+        //    playerAbility.OnPlayerChooseAbility12 += PlayerAbility_OnPlayerChooseAbility12;
+        //    playerAbility.OnPlayerChooseAbility13 += PlayerController_OnPlayerChooseAbility13;
+        //}
 
-        if(SceneManager.GetActiveScene().name == GameVariable.zombieSceneName) {
-            playerAbility.OnPlayerChooseAbility2 += PlayerController_OnPlayerChooseAbility2;
-            playerAbility.OnPlayerChooseAbility3 += PlayerController_OnPlayerChooseAbility3;
-            playerAbility.OnplayerChooseAbility4 += PlayerController_OnplayerChooseAbility4;
-            playerAbility.OnPlayerChooseAbility8 += PlayerController_OnPlayerChooseAbility8;
-            playerAbility.OnPlayerChooseAbility9 += PlayerController_OnPlayerChooseAbility9;
-            playerAbility.OnPlayerChooseAbility10 += PlayerController_OnPlayerChooseAbility10;
-            playerAbility.OnPlayerChooseAbility11 += PlayerController_OnPlayerChooseAbility11;
-            playerAbility.OnPlayerChooseAbility12 += PlayerAbility_OnPlayerChooseAbility12;
-            playerAbility.OnPlayerChooseAbility13 += PlayerController_OnPlayerChooseAbility13;
-        }
-
-        GameController.Instance.OnPlayerRevive += PlayerController_OnPlayerRevive;
+        //GameController.Instance.OnPlayerRevive += PlayerController_OnPlayerRevive;
         //stateManager.OnCharacterDead += PlayerController_OnCharacterDead;
 
+        //timeAttackDuration = 3;
+        //stateWeapon = stateManager.GetStateWeapon();
 
+        //if(SceneManager.GetActiveScene().name == GameVariable.normalSceneName) {
+        //    DataManager.Instance.OnUserChangeWeapon += PlayerController_OnUserChangeWeapon;
+        //}
+        //else if(SceneManager.GetActiveScene().name == GameVariable.zombieSceneName) {
+        //    ReferenceToObject();
+        //    StartPanelManager.Instance.OnPlayerUpgradeSkill += PlayerController_OnPlayerUpgradeSkill;
+        //}
+    }
+
+    private void OnDestroy() {
+        DataManager.Instance.OnUserChangeWeapon -= PlayerController_OnUserChangeWeapon;
+    }
+    public void SetUpPlayer() {
         timeAttackDuration = 3;
         stateWeapon = stateManager.GetStateWeapon();
 
-        if(SceneManager.GetActiveScene().name == GameVariable.normalSceneName) {
+        if (SceneManager.GetActiveScene().name == GameVariable.normalSceneName) {
             DataManager.Instance.OnUserChangeWeapon += PlayerController_OnUserChangeWeapon;
-            HomePageController.Instance.OnShopping += PlayerController_OnShopping;
-            HomePageController.Instance.OnOutShopping += PlayerController_OnOutShopping;
         }
-        else if(SceneManager.GetActiveScene().name == GameVariable.zombieSceneName) {
-            ReferenceToObject();
-            StartPanelManager.Instance.OnPlayerUpgradeSkill += PlayerController_OnPlayerUpgradeSkill;
+        if(SceneManager.GetActiveScene().name == GameVariable.zombieSceneName) {
+            SetUpAttackRange();
         }
-
     }
 
     public void GetPlayerInput() {
         if (!startGame && joystick.Horizontal != 0) {
             startGame = true;
-            IntructionPanelManager.Instance.TurnOffPanel();
         }
         if (isDead)
             return;
@@ -151,17 +161,19 @@ public class PlayerController : MonoBehaviour
             if (DoCheckEnemyInside()) {
                 timeAttackDuration = 0;
                 canAttack = false;
-                Debug.Log("Attack");
+                //Debug.Log("Attack");
 
                 if (!isAbility4) {
-                    directEnemy = targetPosition - this.transform.position;
+                    //directEnemy = targetPosition - this.transform.position;
+                    directEnemy = targetTransform.position - this.transform.position;
                     directEnemy.y = 0;
                     RotateCharacter(directEnemy);
                     animationControl.SetAttack();
 
                 }
                 else {
-                    directEnemy = targetPosition - this.transform.position;
+                    //directEnemy = targetPosition - this.transform.position;
+                    directEnemy = targetTransform.position - this.transform.position;
                     directEnemy.y = 0;
                     RotateCharacter(directEnemy);
                     StartCoroutine(AttackTwice());
@@ -171,12 +183,15 @@ public class PlayerController : MonoBehaviour
     }
 
     private bool DoCheckEnemyInside() {
+        if (targetTransform != null && !targetTransform.gameObject.CompareTag("Untagged"))
+                return true;
+
         float radius = playerAttackAreaCollider.radius * playerAttackAreaCollider.transform.lossyScale.x;
         Collider[] hitCollider = Physics.OverlapSphere(this.transform.position, radius );
-        foreach(Collider hit in  hitCollider) {
-            if(hit.gameObject.CompareTag("Enemy") || hit.gameObject.CompareTag("Zombie")) {
-                targetPosition = hit.transform.position;
-                Debug.Log(hit.gameObject);
+        foreach (Collider hit in hitCollider) {
+            if (hit.gameObject.CompareTag("Enemy") || hit.gameObject.CompareTag("Zombie")) {
+                targetTransform = hit.transform;
+                //Debug.Log(targetTransform.position);
                 return true;
             }
         }
@@ -264,25 +279,27 @@ public class PlayerController : MonoBehaviour
         transform.rotation = Quaternion.RotateTowards(this.transform.rotation, rot, deltaAngle);
     }
     
-    // Duoc goi khi tham chieu den SkillObjects de lay chi so
-    private void ReferenceToObject() {
-        skillData = SkillDataManager.Instance.GetSkillData();
+    // Duoc goi khi tham chieu den Skill de lay chi so
+    public void ReferenceToSkill() {
+        skillData = DataManager.Instance.GetSkillData();
         shield = skillData.shield;
         speed = skillData.speed;
         range = skillData.range;
-        playerAttackArea.transform.localScale = new Vector3(range, range, range);
         bonusWeaponQuantity = skillData.weaponBonus;
+    }
+    public void SetUpAttackRange() {
+        skillData = DataManager.Instance.GetSkillData();
+        range = skillData.range;
+        playerAttackArea.transform.localScale = new Vector3(range, range, range);
+
     }
 
     private void SetUpWeaponMaterial(DataManager.OnUserChangeWeaponArg e) {
-        if (!PlayerPrefs.HasKey("CurWeapon")) {
-            PlayerPrefs.SetInt("CurWeapon", 0);
-            Debug.LogWarning("Chua co key: CurWeapon");
-        }
         int curWeapon = PlayerPrefs.GetInt("CurWeapon");
 
         WeaponData data = DataManager.Instance.GetWeaponData(curWeapon);
         Mesh mesh = weaponObjects.GetMeshWeapon(curWeapon, data.skinIndex);
+
         weaponHold.GetComponent<MeshFilter>().mesh = mesh;
         weapon.GetComponent<MeshFilter>().mesh = mesh;
 
@@ -302,24 +319,22 @@ public class PlayerController : MonoBehaviour
         weapon.GetComponent<MeshRenderer>().materials = materials;
     }
 
-    private void PlayerController_OnShopping(object sender, EventArgs e) {
+    public void SetPlayerDance() {
         animationControl.SetDance();
     }
-    private void PlayerController_OnOutShopping(object sender, EventArgs e) {
+    public void SetPlayerStopDance() {
         animationControl.StopDance();
     }
 
     private void PlayerController_OnUserChangeWeapon(object sender, DataManager.OnUserChangeWeaponArg e) {
-        //Debug.Log("Change Weapon");
-        //Debug.Log(e.skinIndex);
-        //Debug.Log(e.materials[0] + " " +  e.materials[1] + " " + e.materials[2]);
+        //if(this == null) return;
         SetUpWeaponMaterial(e);
     }
 
     // Ham xu li su kien khi player upgradeskill, tham chieu toi skill object 1 lan nua
-    private void PlayerController_OnPlayerUpgradeSkill(object sender, StartPanelManager.TypeSkill type) {
-        ReferenceToObject();
-    }
+    //private void PlayerController_OnPlayerUpgradeSkill(object sender, StartPanelManager.TypeSkill type) {
+    //    ReferenceToObject();
+    //}
 
     private void PlayerController_OnPlayerChooseAbility2(object sender, EventArgs e) {
         weaponQuantity += 1;
@@ -362,12 +377,6 @@ public class PlayerController : MonoBehaviour
         canAttack = false;
         joystick.gameObject.SetActive(false);
     }
-    private void PlayerController_OnPlayerRevive(object sender, Vector3 e) {
-        canAttack = false;
-        animationControl.SetIdle();
-        isDead = false;
-        ReferenceToObject();
-    }
     private IEnumerator AttackTwice() {
         animationControl.SetAttack();
         yield return new WaitForSeconds(.5f);
@@ -375,5 +384,14 @@ public class PlayerController : MonoBehaviour
         animationControl.SetAttack();
     }
 
+    public void PlayerRevive(Vector3 newPosition) {
+        canAttack = false;
+        isDead = false;
+        animationControl.SetIdle();
+        targetTransform = null;
+        //ReferenceToObject();
+        this.gameObject.SetActive(true);
+        this.gameObject.transform.localPosition = new Vector3(newPosition.x, 0, newPosition.z);
+    }
 
 }

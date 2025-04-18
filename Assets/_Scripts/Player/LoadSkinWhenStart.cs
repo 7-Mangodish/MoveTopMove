@@ -22,10 +22,10 @@ public class LoadSkinWhenStart : MonoBehaviour
     [SerializeField] private SkinnedMeshRenderer playerMesh;
     [SerializeField] private Material playerMaterial;
 
-    private SkinDataManager.SkinData data;
+    private SkinData data;
     void Start()
     {
-        data = SkinDataManager.Instance.GetSkinData();
+        data = DataManager.Instance.GetSkinData();
         LoadSkin();
     }
 

@@ -10,7 +10,7 @@ using Random = UnityEngine.Random;
 
 public class EnemyController : MonoBehaviour
 {
-    [SerializeField] private GameObject aimZone;
+    //[SerializeField] private GameObject aimZone;
 
     [Header("-----Enemy Move-----")]
     [SerializeField] private Transform targetPosition;
@@ -25,8 +25,8 @@ public class EnemyController : MonoBehaviour
 
     [Header("-----Enenmy Attack-----")]
     private GameObject enemyWeapon;
-    [SerializeField] private float speedWeapon;
-    [SerializeField] private float timeAttack;
+    public float speedWeapon;
+    public float timeAttack;
     private EnemyRamdomItem enemyRandomItem;
     private float timeAttackDuration;
     private bool canAttack;
@@ -56,28 +56,28 @@ public class EnemyController : MonoBehaviour
     public TextMeshProUGUI characterScore;
     public Vector3 offset;
     private RectTransform nameContainerRectTransform;
-    private bool isDead = false;
 
     private void Awake() {
         animationControl = GetComponent<AnimationControl>();
         agent = GetComponent<NavMeshAgent>();
         stateManager = GetComponent<StateManager>();
         enemyRandomItem = GetComponent<EnemyRamdomItem>();
-        aimZone.gameObject.SetActive(false);
+        //aimZone.gameObject.SetActive(false);
 
 
         /*Indicator*/
         targetCanvas = GameObject.FindGameObjectWithTag("Canvas");
         mainCamera = Camera.main;
 
-
+        enemyRandomItem.RandomEnemyItem();
+        enemyWeapon = enemyRandomItem.GetRandomEnemyWeapon();     
+        //SetUpEnemy();
     }
 
     private void OnTriggerEnter(Collider other) {
-        if (other.gameObject.CompareTag("PlayerZone"))
-        {
-            //Debug.Log("Inside Player Zone");
-            aimZone.gameObject.SetActive(true);
+        if (other.gameObject.CompareTag("PlayerZone") && this.gameObject.CompareTag("Enemy")) {
+            Debug.Log("Inside Player Zone");
+            //aimZone.gameObject.SetActive(true);
         }
         if (other.gameObject.CompareTag("Player") || other.gameObject.CompareTag("Enemy")) {
             //Debug.Log("Enemy Can Fire");
@@ -85,7 +85,6 @@ public class EnemyController : MonoBehaviour
             playerPosition = other.transform.position;
         }
     }
-
     private void OnTriggerStay(Collider other) {
         if (other.gameObject.CompareTag("Player") || other.gameObject.CompareTag("Enemy")) {
             //Debug.Log("Enemy is still in trigger");
@@ -94,25 +93,26 @@ public class EnemyController : MonoBehaviour
         }
     }
     private void OnTriggerExit(Collider other) {
-        if (other.gameObject.CompareTag("PlayerZone")) {
+        if (other.gameObject.CompareTag("PlayerZone") && this.gameObject.CompareTag("Enemy")) {
             //Debug.Log("Inside Player Zone");
-            aimZone.gameObject.SetActive(false);
+            //aimZone.gameObject.SetActive(false);
         }
         if (other.gameObject.CompareTag("Player") || other.gameObject.CompareTag("Enemy")) {
             canAttack = false;
         }
     }
 
-
-
-    private void OnDestroy() {
-        Debug.Log("Enemy Die");
+    //private void OnDestroy() {
+    //    //Debug.Log("Enemy Die");
+    //    Destroy(indicatorContainer);
+    //    Destroy(nameContainer);
+    //}
+    private void OnDisable() {
         Destroy(indicatorContainer);
         Destroy(nameContainer);
     }
     public void SetUpEnemy() {
         stateWeapon = stateManager.GetStateWeapon();
-        enemyWeapon = enemyRandomItem.GetRandomEnemyWeapon();
 
         targetPosition.position = this.transform.position;
         agent.destination = targetPosition.position;
@@ -122,6 +122,7 @@ public class EnemyController : MonoBehaviour
         indicatorScoreContainer.color = skinCharacter.material.color;
         indicatorContainer.transform.SetParent(targetCanvas.transform);
 
+        /*FloatingText*/
         backgroundImage.color = skinCharacter.material.color;
         nameCharacterText.color = skinCharacter.material.color;
 
@@ -136,8 +137,11 @@ public class EnemyController : MonoBehaviour
     public void EnemyBehaviour() {
         UpdateIndicator();
         UpdateFloatingText();
-        if (animationControl.currentState == AnimationControl.state.IsDead)
+        if (animationControl.currentState == AnimationControl.state.IsDead) {
+            agent.speed = 0;
+            this.gameObject.tag = "Untagged";
             return;
+        }
         if (CheckDistance() <= .1f) {
             animationControl.SetIdle();
             timeIdleDuration += Time.deltaTime;
@@ -158,6 +162,7 @@ public class EnemyController : MonoBehaviour
                 }
 
             }
+
         }
         else {
             agent.destination = targetPosition.position;

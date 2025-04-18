@@ -119,8 +119,8 @@ public class WeaponShopController : MonoBehaviour
 
         data = DataManager.Instance.GetWeaponData(weaponIndexSaved);
 
-        Debug.Log("Start, vu khi: " + weaponIndexSaved + " " + "skin: " +
-            data.skinIndex + ", " + data.showMaterial());
+        //Debug.Log("Start, vu khi: " + weaponIndexSaved + " " + "skin: " +
+        //    data.skinIndex + ", " + data.showMaterial());
 
         // SetUp cac skin cua vu khi
         int skinIndexSaved = data.skinIndex;
@@ -171,7 +171,7 @@ public class WeaponShopController : MonoBehaviour
 
         // Hien thi mau neu skin da luu = 0
         SetUpColorBoard(skinIndexSaved);
-
+        //Debug.Log(PlayerController.Instance.name);
         DataManager.Instance.SaveWeaponData(weaponIndexSelected, data);
 
     }

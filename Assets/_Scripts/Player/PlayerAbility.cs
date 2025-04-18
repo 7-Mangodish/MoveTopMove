@@ -57,18 +57,17 @@ public class PlayerAbility : MonoBehaviour
     void Start()
     {
         if(SceneManager.GetActiveScene().name == GameVariable.zombieSceneName) {
-            StartPanelManager.Instance.OnStartZombieMode += PlayerAbility_OnStartZombieMode;
-            StartPanelManager.Instance.OnPlayerChooseAbility += PlayerAbility_OnPlayerChooseAbility;
+            //StartPanelManager.Instance.OnStartZombieMode += PlayerAbility_OnStartZombieMode;
+            //StartPanelManager.Instance.OnPlayerChooseAbility += PlayerAbility_OnPlayerChooseAbility;
 
-            playerController.OnPlayerAttack += PlayerAbility_OnPlayerAttack;
+            //playerController.OnPlayerAttack += PlayerAbility_OnPlayerAttack;
             stateWeapon = stateManager.GetStateWeapon();
         }
         Ability10();
     }
 
-    private void PlayerAbility_OnPlayerChooseAbility(object sender, int abilityIndex) {
-        Debug.Log(abilityIndex);
-        currentAbility = abilityIndex;
+    private void PlayerAbility_OnPlayerChooseAbility() {
+        currentAbility = ZombieUIController.choosenAbility;
         switch (currentAbility) {
             case 1:
                 Ability1(); break;
@@ -95,11 +94,7 @@ public class PlayerAbility : MonoBehaviour
         }
     }
 
-    private void PlayerAbility_OnStartZombieMode(object sender, EventArgs e) {
-        currentAbility = -1;
-    }
-
-    private void PlayerAbility_OnPlayerAttack(object sender, System.EventArgs e) {
+    private void PlayerAbility_OnPlayerAttack() {
         switch (currentAbility) {
             case 0:
                 Ability0(); break;
@@ -236,15 +231,4 @@ public class PlayerAbility : MonoBehaviour
     private void Ability13() {
         OnPlayerChooseAbility13?.Invoke(this, EventArgs.Empty);
     }
-    //private void SetUpWeapon(GameObject weaponObject) {
-    //    int curWeapon = PlayerPrefs.GetInt("CurWeapon");
-    //    Debug.Log("Vu khi duoc chon: " + curWeapon);
-
-    //    WeaponShopManager.SaveData data = WeaponShopManager.Instance.GetWeaponData(curWeapon);
-    //    Mesh mesh = weaponObjects.GetMeshWeapon(curWeapon, data.skinIndex);
-    //    Material[] materials = weaponObjects.GetListMaterials(curWeapon, data.skinIndex);
-
-    //    weaponObject.GetComponent<MeshFilter>().mesh = mesh;
-    //    weaponObject.GetComponent<MeshRenderer>().materials = materials;
-    //}
 }

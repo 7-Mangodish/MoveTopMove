@@ -95,8 +95,8 @@ public class SkinShopController : MonoBehaviour {
 
         pantSkin = characterPant.GetComponent<SkinnedMeshRenderer>();
 
-        Debug.Log("Hat: " + data.hatIndex + ", Pant: " +
-            data.pantIndex + ", Armor: " + data.armorIndex + ", Set: " + data.setIndex + ", isSet:" + data.isSet);
+        //Debug.Log("Hat: " + data.hatIndex + ", Pant: " +
+        //    data.pantIndex + ", Armor: " + data.armorIndex + ", Set: " + data.setIndex + ", isSet:" + data.isSet);
         hatIndexSelected = data.hatIndex;
         pantIndexSelected = data.pantIndex;
         armorIndexSelected = data.armorIndex;

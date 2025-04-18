@@ -20,7 +20,6 @@ public class EnemyFloatingText : MonoBehaviour {
     private StateManager stateManager;
     private GameObject canvas;
     bool isStart = false;
-    bool isDead = false;
     private void Awake() {
         mainCam = Camera.main;
         stateManager = this.GetComponent<StateManager>();

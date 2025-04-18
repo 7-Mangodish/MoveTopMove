@@ -1881,6 +1881,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   aimZone: {fileID: 3394978890458740586}
   hp: 1
+  indicatorContainer: {fileID: 9152538874452774067}
+  indicatorIcon: {fileID: 8657207526881033068}
+  skinCharacter: {fileID: 1265801293054810378}
 --- !u!114 &8858489220783649861
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1896,6 +1899,7 @@ MonoBehaviour:
   deadPrefab: {fileID: 2500947325277361862, guid: a674974eddb64c34691564e99e3fd8b5, type: 3}
   levelUpPrefab: {fileID: 8686309048008485003, guid: 72d07716ca7f5a44081f7ce01d3b5dcd, type: 3}
   animator: {fileID: 0}
+  currentState: 0
 --- !u!114 &123202507661726965
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1916,14 +1920,11 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7557953557058427333}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a852c8e67b5c8154bbc10f2719d44ba7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  indicatorContainer: {fileID: 9152538874452774067}
-  indicatorIcon: {fileID: 8657207526881033068}
-  skinCharacter: {fileID: 1265801293054810378}
 --- !u!1 &7568058440066683818
 GameObject:
   m_ObjectHideFlags: 0

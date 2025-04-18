@@ -8,10 +8,10 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public class StartPanelManager : MonoBehaviour
+public class ZombieUIController : MonoBehaviour
 {
-    private static StartPanelManager instance;
-    public static StartPanelManager Instance { get => instance; }
+    private static ZombieUIController instance;
+    public static ZombieUIController Instance { get => instance; }
     [SerializeField] private SkillObjects skillObjects;
     [SerializeField] private AbilitiesObjects abilitiesObjects;
 
@@ -25,14 +25,16 @@ public class StartPanelManager : MonoBehaviour
     [Header("Center Panel")]
     [SerializeField] private GameObject centerPanel;
     [SerializeField] private Button refuseCenterButton;
-    [SerializeField] private Button changeAbilityButton;
+    [SerializeField] private Button changeAbilityButton_1;
+    [SerializeField] private Button changeAbilityButton_2;
     [SerializeField] private Button selectAbilityButton;
     [SerializeField] private Image abilityImage;
     [SerializeField] private TextMeshProUGUI abilityNameText;
     [SerializeField] private TextMeshProUGUI faildUpgradeText;
     private List<int> listAbilitiesIndex;
     private int currentAbility;
-    private bool isClickSelectAbilityButton; 
+    private bool isClickSelectAbilityButton;
+    public static int choosenAbility;
 
     [Header("Top Panel")]
     [SerializeField] private GameObject topPanel;
@@ -79,12 +81,13 @@ public class StartPanelManager : MonoBehaviour
     [SerializeField] private Button vibrationOffButton;
 
     public event EventHandler<TypeSkill> OnPlayerUpgradeSkill;
-    public event EventHandler OnStartZombieMode;
+    //public event EventHandler OnStartZombieMode;
     public event EventHandler<int> OnPlayerChooseAbility;
     public event EventHandler OnTurnOnSetting;
     public event EventHandler OnTurnOffSetting;
 
-    private SkillDataManager.SkillData skillData;
+    private SkillData skillData;
+    public bool isStartGame = false;
     public enum TypeSkill {
         none,
         hp,
@@ -100,13 +103,35 @@ public class StartPanelManager : MonoBehaviour
         else
             Destroy(this.gameObject);
 
+    }
 
-        // Player's Coin
+    private void OnDisable() {
+        MaxManager.Instance.OnPlayerReceiveAward -= ZombieUI_OnPlayerReceiveAward;
+    }
+    public void SetUpUIWhenStart() {
+        choosenAbility = -1;
+        skillData = DataManager.Instance.GetSkillData();
+
+        SetUpTopPanel();
+        SetUpSettingPanel();
+        SetUpListHpImage();
         SetUpPlayerCoinText();
 
-        //SetUpAbilityButton
+        SetUpSkillText();
+        SetUpSkillButton();
         SetUpAbilityButton();
 
+        SetUpRevivePanel();
+        SetUpEndPanel();
+
+        isCLickRevive = false;
+        isClickSelectAbilityButton = false;
+
+        bottomPanel.gameObject.SetActive(true);
+        centerPanel.gameObject.SetActive(true);
+        topPanel.gameObject.SetActive(true);
+        playerCoinPanel.gameObject.SetActive(true);
+        settingButton.gameObject.SetActive(false);
 
         refuseCenterButton.onClick.AddListener(() => {
             SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
@@ -115,8 +140,7 @@ public class StartPanelManager : MonoBehaviour
             bottomPanel.SetActive(false);
             playerCoinPanel.gameObject.SetActive(false);
             settingButton.gameObject.SetActive(true);
-
-            OnStartZombieMode?.Invoke(this, EventArgs.Empty);
+            isStartGame = true;
         });
         selectAbilityButton.onClick.AddListener(() => {
             SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
@@ -124,92 +148,28 @@ public class StartPanelManager : MonoBehaviour
 
         });
 
-        // Revive Panel
-        SetUpRevivePanel();
+        MaxManager.Instance.OnPlayerReceiveAward += ZombieUI_OnPlayerReceiveAward;
 
-        // ending Panel
-        homeEndPanelButton.onClick.AddListener(() => {
-            SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
-
-            SceneManager.LoadScene(0);
-        });
-        claimCoinButton.onClick.AddListener(() => {
-            SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
-
-            CoinManager.Instance.SaveCoin(endGameCoin);
-            SetUpPlayerCoinText();
-            SceneManager.LoadScene(1);
-        });
-        x3CoinButton.onClick.AddListener(() => {
-            MaxManager.Instance.ShowRewardAd();
-            //endGameCoin *= 3;
-
-            //CoinManager.Instance.SaveCoin(endGameCoin);
-            //SetUpPlayerCoinText();
-            //SceneManager.LoadScene(1);
-        });
-
-        // Setting Panel
     }
 
-    public void Start() {
-        skillData = SkillDataManager.Instance.GetSkillData();
-        //Debug.Log(skillData);
-        GameController.Instance.OnEnemyQuantityDown += StartPanelManager_OnEnemyQuantityDown;
-        GameController.Instance.OnPlayerWin += StartPanelManager_OnPlayerWin;
-        GameController.Instance.OnPlayerLose += StartPanelManager_OnPlayerLose;
-
-        MaxManager.Instance.OnPlayerReceiveAward += StartPanelManager_OnPlayerReceiveAward;
-        SetUpUIWhenStart();
-        SetUpSettingPanel();
-
-        SetUpListHpImage();
-        // Skill
-        SetUpSkillText();
-        SetUpSkillButton();
-
-        isCLickRevive = false;
-        isClickSelectAbilityButton = false;
-    }
-
-    private void SetUpUIWhenStart() {
-        Debug.Log("Start");
-        bottomPanel.gameObject.SetActive(true);
-        centerPanel.gameObject.SetActive(true);
-        topPanel.gameObject.SetActive(true);
-        playerCoinPanel.gameObject.SetActive(true);
-        settingButton.gameObject.SetActive(false);
-        SetUpTopPanel();
-    }
 
     public void  SetUpTopPanel() {
-        zombieRemainingText.text = GameController.Instance.GetMaxEnemyQuantity().ToString();
-        if (!PlayerPrefs.HasKey("ZombieDayVictory"))
-            PlayerPrefs.SetInt("ZombieDayVictory", 0);
-        currentZombieDayText.text = "Day "+(PlayerPrefs.GetInt("ZombieDayVictory")+1).ToString();
+        int day = DataManager.Instance.GetZombieDayVictory();
+        currentZombieDayText.text = "Day "+(day+1).ToString();
+
         SetUpPlayerCoinText();
+
         settingButton.onClick.AddListener(() => {
             if (SoundManager.Instance != null) 
                 SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
-            Debug.LogWarning("Click");
 
             settingPanel.gameObject.SetActive(true);
             Time.timeScale = 0;
             OnTurnOnSetting?.Invoke(this, EventArgs.Empty);
         });
-
-        homeButton.onClick.AddListener(() => {
-            if(SoundManager.Instance != null)
-                SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
-            SceneManager.LoadScene(0);
-        });
-        continueButton.onClick.AddListener(() => {
-            SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
-
-            settingPanel.gameObject.SetActive(false);
-            Time.timeScale = 1;
-            OnTurnOffSetting?.Invoke(this, EventArgs.Empty);
-        });
+    }
+    public void DisplayZombieCount(int zombieCount) {
+        zombieRemainingText.text = zombieCount.ToString();
     }
     public void  SetUpListHpImage() {
         for(int i=0; i<listHpImage.Length; i++) {
@@ -224,7 +184,7 @@ public class StartPanelManager : MonoBehaviour
         listAbilitiesIndex = abilitiesObjects.GetRandomAbilities();
         abilityImage.sprite = abilitiesObjects.listAbilitySprite[listAbilitiesIndex[0]];
 
-        changeAbilityButton.onClick.AddListener(() => {
+        changeAbilityButton_1.onClick.AddListener(() => {
             SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
 
             currentAbility += 1;
@@ -235,6 +195,14 @@ public class StartPanelManager : MonoBehaviour
             abilityNameText.text = abilitiesObjects.listAbilitySprite[abilityIndex].name;
         });
 
+        changeAbilityButton_2.onClick.AddListener(() => {
+            currentAbility += 1;
+            if (currentAbility >= listAbilitiesIndex.Count)
+                currentAbility = 0;
+            int abilityIndex = listAbilitiesIndex[currentAbility];
+            abilityImage.sprite = abilitiesObjects.listAbilitySprite[abilityIndex];
+            abilityNameText.text = abilitiesObjects.listAbilitySprite[abilityIndex].name;
+        });
     }
 
     #region -------------------Skill------------------------
@@ -275,7 +243,7 @@ public class StartPanelManager : MonoBehaviour
         for (int i = 0; i < listSkillButtons.Length; i++) {
             int ind = i;
             listSkillButtons[i].onClick.AddListener(() => {
-                skillData = SkillDataManager.Instance.GetSkillData();
+                skillData = DataManager.Instance.GetSkillData();
 
                 SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
 
@@ -293,29 +261,36 @@ public class StartPanelManager : MonoBehaviour
                 switch (ind) {
                     case 0: {
                             if (skillData.UpgradeHp()) {
-                                OnPlayerUpgradeSkill?.Invoke(this, TypeSkill.hp);
+                                //OnPlayerUpgradeSkill?.Invoke(this, TypeSkill.hp);
+                                DataManager.Instance.SetSkillData(skillData);
                                 SetUpListHpImage();
                             }
                             break;
                         }
                     case 1: {
                             if(skillData.UpgradeSpeed())
-                                OnPlayerUpgradeSkill?.Invoke(this, TypeSkill.speed);
+                                DataManager.Instance.SetSkillData(skillData);
+                                //OnPlayerUpgradeSkill?.Invoke(this, TypeSkill.speed);
                             break;
                         }
                     case 2: {
-                            if(skillData.UpgradeRange())
-                                OnPlayerUpgradeSkill?.Invoke(this, TypeSkill.range);
+                            if (skillData.UpgradeRange()) {
+                                DataManager.Instance.SetSkillData(skillData);
+                                CameraController.Instance.SetUpgradeSkillRangeCamera();
+                                PlayerController.Instance.SetUpAttackRange();
+                            }
+                                //OnPlayerUpgradeSkill?.Invoke(this, TypeSkill.range);
                             break;
                         }
                     case 3: {
                             if(skillData.UpgradeWeaponCount())
-                                OnPlayerUpgradeSkill?.Invoke(this, TypeSkill.weaponCount);
+                                DataManager.Instance.SetSkillData(skillData);
+
+                            //OnPlayerUpgradeSkill?.Invoke(this, TypeSkill.weaponCount);
                             break;
                         }
                 }
                 skillData.UpdateSkillCost();
-                SkillDataManager.Instance.SetSkillData(skillData);
                 SetUpSkillText();
             });
         }
@@ -323,17 +298,14 @@ public class StartPanelManager : MonoBehaviour
     }
     #endregion
 
-    private void SetUpPlayerCoinText() {
-        playerCoinText.text = PlayerPrefs.GetInt("PlayerCoin").ToString();
-    }
-
+    #region ------------------End_Game------------------------
     private void SetUpRevivePanel() {
         reviveButton.onClick.AddListener(() => {
             SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
 
             isCLickRevive = true;
             // Show Quang cao
-            MaxManager.Instance.ShowRewardAd();   
+            MaxManager.Instance.ShowRewardAd();
         });
 
         exitRevivePanelButton.onClick.AddListener(() => {
@@ -342,6 +314,29 @@ public class StartPanelManager : MonoBehaviour
             endPanel.SetActive(true);
             revivePanel.SetActive(false);
         });
+    }
+
+    private void SetUpEndPanel() {
+        homeEndPanelButton.onClick.AddListener(() => {
+            SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
+
+            SceneManager.LoadScene(0);
+        });
+        claimCoinButton.onClick.AddListener(() => {
+            SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
+
+            CoinManager.Instance.SaveCoin(endGameCoin);
+            SetUpPlayerCoinText();
+            SceneManager.LoadScene(1);
+        });
+        x3CoinButton.onClick.AddListener(() => {
+            MaxManager.Instance.ShowRewardAd();
+        });
+    }
+
+    #endregion
+    private void SetUpPlayerCoinText() {
+        playerCoinText.text = PlayerPrefs.GetInt(GameVariable.PLAYER_COIN).ToString();
     }
 
     private void SetUpZombieDay(int currentDay, bool isVictory) {
@@ -356,6 +351,7 @@ public class StartPanelManager : MonoBehaviour
             else
                 listZombieDayImage[i-1].sprite = dayVictory;
         }
+
         if(isVictory) { 
             if(currentDay == 1)
                 listZombieDayImage[0].sprite = dayVictoryStart;
@@ -363,9 +359,9 @@ public class StartPanelManager : MonoBehaviour
                 listZombieDayImage[4].sprite = dayVictoryStart;
             else
                 listZombieDayImage[currentDay - 1].sprite = dayVictory;
-            Debug.Log(currentDay + " " + listZombieDayImage[currentDay-1].sprite.name);
-            PlayerPrefs.SetInt("ZombieDayVictory", currentDay);
+            DataManager.Instance.SetZombieDayVictory(currentDay);
         }
+
         else {
             if (currentDay == 1)
                 listZombieDayImage[0].sprite = dayLoseStart;
@@ -373,7 +369,6 @@ public class StartPanelManager : MonoBehaviour
                 listZombieDayImage[4].sprite = dayLoseStart;
             else
                 listZombieDayImage[currentDay-1].sprite = dayLose;
-            Debug.Log(listZombieDayImage[currentDay-1].sprite.name);
         }
 
     }
@@ -403,10 +398,20 @@ public class StartPanelManager : MonoBehaviour
             vibrationOffButton.gameObject.SetActive(false);
             vibrationOnButton.gameObject.SetActive(true);
         });
-    }
 
-    private void StartPanelManager_OnEnemyQuantityDown(object sender, int e) {
-        zombieRemainingText.text = e.ToString();
+        homeButton.onClick.AddListener(() => {
+            if (SoundManager.Instance != null)
+                SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
+            SceneManager.LoadScene(0);
+        });
+
+        continueButton.onClick.AddListener(() => {
+            SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
+
+            settingPanel.gameObject.SetActive(false);
+            Time.timeScale = 1;
+            OnTurnOffSetting?.Invoke(this, EventArgs.Empty);
+        });
     }
 
     private void StartPanelManager_OnPlayerWin(object sender, EventArgs e) {
@@ -416,7 +421,7 @@ public class StartPanelManager : MonoBehaviour
         loseTittle.gameObject.SetActive(false);
 
 
-        int dayZombie = PlayerPrefs.GetInt("ZombieDayVictory");
+        int dayZombie = DataManager.Instance.GetZombieDayVictory();
         SetUpZombieDay(dayZombie + 1, true);
 
         winTittle.text = "U suvived Day " + (dayZombie + 1).ToString();
@@ -428,6 +433,7 @@ public class StartPanelManager : MonoBehaviour
         else
             x2Text.gameObject.SetActive(false);
     }
+
     private async void StartPanelManager_OnPlayerLose(object sender, EventArgs e) {
         winTittle.gameObject.SetActive(false);
         loseTittle.gameObject.SetActive(true);
@@ -441,7 +447,7 @@ public class StartPanelManager : MonoBehaviour
         else
             endPanel.gameObject.SetActive(true);
 
-        int dayZombie = PlayerPrefs.GetInt("ZombieDayVictory");
+        int dayZombie = DataManager.Instance.GetZombieDayVictory(); ;
         SetUpZombieDay(dayZombie + 1, false);
 
         endGameCoin = CoinManager.Instance.GetLoseCoin();
@@ -453,7 +459,7 @@ public class StartPanelManager : MonoBehaviour
             x2Text.gameObject.SetActive(false);
     }
 
-    private void StartPanelManager_OnPlayerReceiveAward(object sender, MaxManager.TypeReward t) {
+    private void ZombieUI_OnPlayerReceiveAward(object sender, MaxManager.TypeReward t) {
         if(!isRevived && isCLickRevive) {
             GameController.Instance.DoPlayerRevive();
             isRevived = true;
@@ -467,8 +473,9 @@ public class StartPanelManager : MonoBehaviour
             playerCoinPanel.gameObject.SetActive(false);
             settingButton.gameObject.SetActive(true);
 
-            OnStartZombieMode?.Invoke(this, EventArgs.Empty);
-            OnPlayerChooseAbility?.Invoke(this, listAbilitiesIndex[currentAbility]);
+            isStartGame = true;
+            choosenAbility = listAbilitiesIndex[currentAbility];
+            //OnPlayerChooseAbility?.Invoke(this, listAbilitiesIndex[currentAbility]);
         }
         if(t == MaxManager.TypeReward.x3Coin) {
             endGameCoin *= 3;
@@ -479,7 +486,5 @@ public class StartPanelManager : MonoBehaviour
         }
 
     }
-    //public void TriggerOnPlayerUpgradeSkill() {
-    //    OnPlayerUpgradeSkill?.Invoke(this, SkillObjects.TypeSkill.weaponCount);
-    //}
+
 }

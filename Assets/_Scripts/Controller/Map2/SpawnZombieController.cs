@@ -1,36 +1,28 @@
-using NUnit.Framework;
-using System;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
-using Random = UnityEngine.Random;
 
-public class SpawnEnemyController : MonoBehaviour
+public class SpawnZombieController : MonoBehaviour
 {
-    private static SpawnEnemyController instance;
-    public static SpawnEnemyController Instance { get => instance; }
+    private static SpawnZombieController instance;
+    public static SpawnZombieController Instance { get => instance; }
 
-    public GameObject enemyPrefab;
+    public GameObject zombiePrefab;
     public float validRadius;
     public LayerMask checkLayerMark;
 
-
-    public bool isPlayerWin = false;
-    void Awake()
-    {
+    private void Awake() {
         if (instance == null)
             instance = this;
         else
             Destroy(this.gameObject);
-
     }
 
-    public EnemyController SpawnEnemy() {
+    public ZombieController SpawnZombie() {
         Vector3 position = GetValidPosition();
-        GameObject enemyPref = Instantiate(enemyPrefab, position, Quaternion.identity);
-        EnemyController enemyContrl = enemyPref.GetComponentInChildren<EnemyController>();
-        enemyContrl.SetUpEnemy();
-        return enemyContrl;
+        GameObject zombiePref = Instantiate(zombiePrefab, position, Quaternion.identity);
+        ZombieController zombieContrl = zombiePref.GetComponent<ZombieController>();
+        zombieContrl.SetUpZombie();
+        return zombieContrl;
     }
 
     public Vector3 GetRandomPosition() {

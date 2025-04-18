@@ -27,7 +27,10 @@ public class PlayerFloatingText : MonoBehaviour
     }
 
     private void Start() {    
-        floatingText.enabled = false;
+        characterScoreBackground.color = characterSkinMesh.material.color;
+        characterNameText.color = characterSkinMesh.material.color;
+        characterNameText.text = PlayerPrefs.GetString("PlayerName");
+        characterCanvas.gameObject.SetActive(false);
 
     }
 
@@ -35,24 +38,13 @@ public class PlayerFloatingText : MonoBehaviour
     {
         characterCanvas.rotation = Quaternion.Euler(45, 0, 0);
     }
-    private void OnEnable() {
-        characterCanvas.gameObject.SetActive(true);
-        characterScoreBackground.color = characterSkinMesh.material.color;
-        characterNameText.color = characterSkinMesh.material.color;
-        characterNameText.text = PlayerPrefs.GetString("PlayerName");
-    }
 
-    private void OnDisable() {
-        characterCanvas.gameObject.SetActive(false);
-    }
+
     private async void FloatingText_OnCharacterTakeScore(object sender, int e) {
         characterScoreText.text = e.ToString();
         textScoreEff.gameObject.SetActive(true);
         await Task.Delay(500);
         textScoreEff.gameObject.SetActive(false);
-    }
-    private void FloatingText_OnStartGame(object sender, System.EventArgs e) {
-        floatingText.enabled = true;
     }
     
 }

@@ -43,8 +43,6 @@ public class ThrowWeapon : MonoBehaviour
                 other.GetComponent<StateManager>().TriggerCharacterDead();
                 stateWeapon.ownerStateManager.AddScore();
 
-                Map1GameController.Instance.maxEnemyCount -= 1;
-
                 Destroy(this.gameObject);
             }
             else if (stateWeapon.ownerStateManager.CompareTag("Player")) {
@@ -52,8 +50,6 @@ public class ThrowWeapon : MonoBehaviour
                 SoundManager.Instance.PlaySound(SoundManager.SoundName.dead_1);
 
                 other.gameObject.GetComponent<StateManager>().TriggerCharacterDead();
-
-                Map1GameController.Instance.maxEnemyCount -= 1;
 
                 stateWeapon.ownerStateManager.AddScore();
 

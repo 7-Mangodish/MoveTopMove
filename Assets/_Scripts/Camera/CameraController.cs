@@ -11,7 +11,7 @@ public class CameraController : MonoBehaviour
     public CinemachineCamera homePageCamera;
     public CinemachineCamera shopCamera;
     public CinemachineCamera winingCamera;
-    private SkillDataManager.SkillData skillData;
+    private SkillData skillData;
 
     private void Awake() {
         if (instance == null)
@@ -23,16 +23,15 @@ public class CameraController : MonoBehaviour
     public void SetUpCamera() {
         winingCamera.gameObject.SetActive(false);
         gamePlayCamera.gameObject.SetActive(false);
-        shopCamera.gameObject.SetActive(false);
-        HomePageController.Instance.OnShopping += Camera_OnShopping;
-        HomePageController.Instance.OnOutShopping += Camera_OnOutShopping;
+        shopCamera.gameObject.SetActive(false);       
     }
 
-    private void Camera_OnOutShopping(object sender, System.EventArgs e) {
+    #region ----------Normal_Mode----------
+    public void TurnOffPlayerShoppingCamera() {
         shopCamera.gameObject.SetActive(false);
     }
 
-    private void Camera_OnShopping(object sender, System.EventArgs e) {
+    public void TurnOnPlayerShoppingCamera() {
         shopCamera.gameObject.SetActive(true);
     }
 
@@ -42,22 +41,25 @@ public class CameraController : MonoBehaviour
             winingCamera.gameObject.SetActive(true);
     }
 
-    private void Camera_OnPlayerUpgradeSkill(object sender, StartPanelManager.TypeSkill e) {
-        if (e == StartPanelManager.TypeSkill.range)
+    public void TurnOnGamePlayCamera() {
+        gamePlayCamera.gameObject.SetActive(true);
+    }
+    #endregion
+
+    #region ----------Zombie_Mode-----------
+    public void SetUpgradeSkillRangeCamera() {
             UpdateDistanceCamera(.75f);
     }
 
-    private void SetUpCameraInZombieMode() {
-        skillData = SkillDataManager.Instance.GetSkillData();
+    public void SetUpCameraInZombieMode() {
+        skillData = DataManager.Instance.GetSkillData();
         float ind = skillData.range - skillData.BEGIN_RANGE;
         ind /= .5f;
         if (ind > 0)
             UpdateDistanceCamera(ind * .75f);
     }
 
-    public void TurnOnGamePlayCamera() {
-        gamePlayCamera.gameObject.SetActive(true);
-    }
+    #endregion
     public void UpdateDistanceCamera(float deltarange) {
         CinemachinePositionComposer cam = FindFirstObjectByType<CinemachinePositionComposer>();
         cam.CameraDistance += deltarange;

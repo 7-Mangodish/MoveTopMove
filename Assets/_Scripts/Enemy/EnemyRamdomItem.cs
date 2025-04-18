@@ -4,8 +4,8 @@ using UnityEngine;
 public class EnemyRamdomItem : MonoBehaviour {
 
     [Header("----Material----")]
-    [SerializeField] private MaterialObjects materialObjects;
-    private SkinnedMeshRenderer characterSkin;
+    public MaterialObjects materialObjects;
+    public SkinnedMeshRenderer characterSkin;
 
 
     [Header("----Hat-----")]
@@ -23,7 +23,8 @@ public class EnemyRamdomItem : MonoBehaviour {
     private Material[] listWeaponMaterials;
     private int randWeapon;
 
-    private void Awake() {
+
+    public void RandomEnemyItem() {
         randWeapon = Random.Range(0, listWeapons.Length);
         weaponMesh = listWeapons[randWeapon].GetComponent<MeshFilter>().sharedMesh;
         listWeaponMaterials = listWeapons[randWeapon].GetComponent<MeshRenderer>().sharedMaterials;
@@ -35,7 +36,7 @@ public class EnemyRamdomItem : MonoBehaviour {
     }
 
     void RandomEnemyMaterial() {
-        characterSkin = GetComponentInChildren<SkinnedMeshRenderer>();
+        //characterSkin = GetComponentInChildren<SkinnedMeshRenderer>();
         int randNumber = Random.Range(0, materialObjects.listMaterials.Length);
         characterSkin.material = materialObjects.listMaterials[randNumber];
     }

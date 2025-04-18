@@ -8,8 +8,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.Splines;
 using Random = UnityEngine.Random;
 
-public class GameController : MonoBehaviour
-{
+public class GameController : MonoBehaviour {
     private static GameController instance;
     public static GameController Instance { get { return instance; } }
 
@@ -38,7 +37,7 @@ public class GameController : MonoBehaviour
     private bool isStartZombieMode = false;
     private bool isPlayerLose;
     private void Awake() {
-        if(instance == null) {
+        if (instance == null) {
             instance = this;
         }
         else {
@@ -50,7 +49,7 @@ public class GameController : MonoBehaviour
         if (SceneManager.GetActiveScene().name == GameVariable.normalSceneName) {
         }
         else {
-            StartPanelManager.Instance.OnStartZombieMode += GameController_OnStartZombieMode;
+            //StartPanelManager.Instance.OnStartZombieMode += GameController_OnStartZombieMode;
         }
     }
 
@@ -109,7 +108,7 @@ public class GameController : MonoBehaviour
 
     }
 
-    public void DoPlayerRevive  () {
+    public void DoPlayerRevive() {
         Vector3 newPosition = GetValidPosition();
         OnPlayerRevive?.Invoke(this, newPosition);
         isPlayerLose = false;
@@ -128,12 +127,12 @@ public class GameController : MonoBehaviour
     public void DoEnemyDead() {
         this.activeEnemyQuantity -= 1;
         OnEnemyQuantityDown?.Invoke(this, this.activeEnemyQuantity);
-        if(this.activeEnemyQuantity == 0) {
+        if (this.activeEnemyQuantity == 0) {
             OnPlayerWin?.Invoke(this, EventArgs.Empty);
             SoundManager.Instance.PlaySound(SoundManager.SoundName.end_win);
             return;
         }
-        if (activeEnemyQuantity-enemyQuantityWhenStart >= 0) {
+        if (activeEnemyQuantity - enemyQuantityWhenStart >= 0) {
             SpawnEnemy();
         }
     }

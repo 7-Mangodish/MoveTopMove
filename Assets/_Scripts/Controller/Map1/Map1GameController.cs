@@ -13,10 +13,10 @@ public class Map1GameController : MonoBehaviour
     public int startEnemyCount;
     public int maxEnemyCount;
     public List<EnemyController> listEnemyController = new List<EnemyController>();
-    private GameObject[] listEnemyDisplay;
 
     private bool isPlayerWin = false;
     private bool isPlayerLose = false;
+    //private bool isPlayerRevive = false;
     private void Awake() {
         if (instance == null) {
             instance = this;
@@ -28,12 +28,14 @@ public class Map1GameController : MonoBehaviour
     private void Start() {
         CameraController.Instance.SetUpCamera();
         HomePageController.Instance.SetUpHomePage();
-        WeaponShopController.Instance.LoadWeapon();
         SkinShopController.Instance.SetUpSkinShop();
+        PlayerController.Instance.SetUpPlayer();
+        WeaponShopController.Instance.LoadWeapon();
 
         StartCoroutine(StartGame());
         StartCoroutine(WinGame());
         StartCoroutine(LoseGame());
+        StartCoroutine(Revive());
     }
 
     private void Update() {
@@ -44,7 +46,9 @@ public class Map1GameController : MonoBehaviour
 
         for (int i = 0; i < listEnemyController.Count; i++) {
             if (listEnemyController[i] == null) {
+                maxEnemyCount -= 1;
                 GameUIController.Instance.DisplayEnemyCount(maxEnemyCount);
+
                 if (maxEnemyCount >= startEnemyCount)
                     listEnemyController[i] = SpawnEnemyController.Instance.SpawnEnemy();
                 else
@@ -70,30 +74,23 @@ public class Map1GameController : MonoBehaviour
         PlayerController.Instance.PlayerBehaviour();
     }
 
-    // SetUp Start Game
     IEnumerator StartGame() {
         for (int i = 0; i < startEnemyCount; i++) {
             EnemyController enemyContrl = SpawnEnemyController.Instance.SpawnEnemy();
-            enemyContrl.SetUpEnemy();
             listEnemyController.Add(enemyContrl);
         }
-
-        listEnemyDisplay = GameObject.FindGameObjectsWithTag("EnemyDisplay");
-        foreach (GameObject obs in listEnemyDisplay) {
-            Debug.Log(obs);
-            obs.SetActive(false);
-        }
-
+        GameUIController.Instance.TurnOffFloatingText();
+        MaxManager.Instance.ShowBannerAd();
         yield return new WaitUntil(() => HomePageController.Instance.isStartGame);
 
-        foreach (GameObject obs in listEnemyDisplay) {
-            obs.SetActive(true);
-        }
         GameUIController.Instance.TurnOnInGameUI();
+        GameUIController.Instance.TurnOnFloatingText();
+        GameUIController.Instance.DisplayEnemyCount(maxEnemyCount);
         CameraController.Instance.TurnOnGamePlayCamera();
+        MaxManager.Instance.StopShowBannerAd();
     }
 
-    // SetUp khi Win Game
+    /*Set Up khi Win Game*/
     IEnumerator WinGame() {
         yield return new WaitUntil(() => (isPlayerWin && !isPlayerLose && HomePageController.Instance.isStartGame));
         GameUIController.Instance.TurnOnWinPanel();
@@ -101,12 +98,20 @@ public class Map1GameController : MonoBehaviour
         CameraController.Instance.TurnOnPlayerWinCamera();
         SoundManager.Instance.PlaySound(SoundManager.SoundName.end_win);
     }
-    //SetUp khi Lose Game
+
+    /*Set Up khi Lose Game*/
     IEnumerator LoseGame() {
         yield return new WaitUntil(() => (!isPlayerWin && isPlayerLose && HomePageController.Instance.isStartGame));
         GameUIController.Instance.TurnOnReviveUI();
         SoundManager.Instance.PlaySound(SoundManager.SoundName.end_lose);
-        Debug.Log("PlayerLose");
+    }
+
+    IEnumerator Revive() {
+        yield return new WaitUntil(() => GameUIController.Instance.isRevived);
+        Vector3 position = SpawnEnemyController.Instance.GetValidPosition();
+        PlayerController.Instance.PlayerRevive(position);
+        isPlayerLose = false;
+        StartCoroutine(LoseGame());
     }
 
 }

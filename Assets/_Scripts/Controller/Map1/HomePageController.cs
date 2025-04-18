@@ -50,8 +50,8 @@ public class HomePageController : MonoBehaviour
     [SerializeField] private GameObject turnOffObject;
     private bool isMute;
 
-    public event EventHandler OnShopping;
-    public event EventHandler OnOutShopping;
+    //public event EventHandler OnShopping;
+    //public event EventHandler OnOutShopping;
 
     public bool isStartGame;
 
@@ -150,8 +150,6 @@ public class HomePageController : MonoBehaviour
             leftPanel.SetActive(true);
             rightPanel.SetActive(true);
             playerNameInput.gameObject.SetActive(true);
-
-            OnOutShopping?.Invoke(this, EventArgs.Empty);
         });
     }
     private void SetUpSkinShopButton() {
@@ -161,7 +159,8 @@ public class HomePageController : MonoBehaviour
             skinShopPanel.gameObject.SetActive(true);
             playerNameInput.gameObject.SetActive(false);
 
-            OnShopping?.Invoke(this, EventArgs.Empty);
+            PlayerController.Instance.SetPlayerDance();
+            CameraController.Instance.TurnOnPlayerShoppingCamera();
             HomePageOut();
         });
 
@@ -171,17 +170,18 @@ public class HomePageController : MonoBehaviour
         zombieModeButton.onClick.AddListener(() => {
             SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
 
-            SceneManager.LoadScene(1);
+            SceneManager.LoadScene(GameVariable.zombieSplashSceneInName) ;
         });
-        int day = PlayerPrefs.GetInt("ZombieDayVictory");
+        int day = DataManager.Instance.GetZombieDayVictory();
         dayZombieModeText.text = (day + 1).ToString();
     }
 
     public void ExitSkinShop() {
         skinShopPanel.gameObject.SetActive(false);
         playerNameInput.gameObject.SetActive(true);
-
-        OnOutShopping?.Invoke(this, EventArgs.Empty);
+        
+        CameraController.Instance.TurnOffPlayerShoppingCamera();
+        PlayerController.Instance.SetPlayerStopDance();
         HomePageIn();
     }
 

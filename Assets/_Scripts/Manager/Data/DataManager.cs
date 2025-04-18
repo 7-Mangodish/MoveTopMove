@@ -45,7 +45,7 @@ public class DataManager : MonoBehaviour
 
     public void SaveWeaponData(int weaponIndex, WeaponData data) {
         string json = JsonUtility.ToJson(data);
-        Debug.Log("Save Weapon: " + weaponIndex + ", skin: " + data.skinIndex + ", " + data.showMaterial());
+        //Debug.Log("Save Weapon: " + weaponIndex + ", skin: " + data.skinIndex + ", " + data.showMaterial());
         PlayerPrefs.SetString(weaponIndex.ToString(), json);
 
         Material[] materialTemp = new Material[3];
@@ -54,16 +54,17 @@ public class DataManager : MonoBehaviour
         }
         OnUserChangeWeapon?.Invoke(this, new OnUserChangeWeaponArg {
             skinIndex = data.skinIndex,
-            materials = materialTemp
+            materials = materialTemp,
 
         });
+
     }
 
     #endregion
 
     #region ----------------SKIN_DATA--------------
     public SkinData GetSkinData() {
-        if (!PlayerPrefs.HasKey("PlayerSkin")) {
+        if (!PlayerPrefs.HasKey(GameVariable.PLAYER_SKIN)) {
             SkinData skinData = new SkinData(
                 hatObjects.listHats.Length,
                 pantObjects.listPants.Length,
@@ -79,15 +80,46 @@ public class DataManager : MonoBehaviour
             return skinData;
         }
 
-        string json = PlayerPrefs.GetString("PlayerSkin");
+        string json = PlayerPrefs.GetString(GameVariable.PLAYER_SKIN);
         SkinData data = JsonUtility.FromJson<SkinData>(json);
         return data;
     }
     public void SaveSkinData(SkinData data) {
         string json = JsonUtility.ToJson(data);
-        PlayerPrefs.SetString("PlayerSkin", json);
-        Debug.Log("Save Skin: " + data.hatIndex + " " + data.pantIndex + " " + data.armorIndex + " " + data.setIndex);
+        PlayerPrefs.SetString(GameVariable.PLAYER_SKIN, json);
+        //Debug.Log("Save Skin: " + data.hatIndex + " " + data.pantIndex + " " + data.armorIndex + " " + data.setIndex);
     }
 
+    #endregion
+
+    #region --------------SKILL_DATA---------------
+    public SkillData GetSkillData() {
+        if (!PlayerPrefs.HasKey(GameVariable.PLAYER_SKILL)) {
+            SkillData skillData = new SkillData();
+            string json = JsonUtility.ToJson(skillData);
+            PlayerPrefs.SetString(GameVariable.PLAYER_SKILL, json);
+        }
+        string jsonData = PlayerPrefs.GetString(GameVariable.PLAYER_SKILL);
+        SkillData data = JsonUtility.FromJson<SkillData>(jsonData);
+        return data;
+    }
+
+    public void SetSkillData(SkillData data) {
+        string json = JsonUtility.ToJson(data);
+        PlayerPrefs.SetString(GameVariable.PLAYER_SKILL, json);
+    }
+    #endregion
+
+    #region ------------ZOMBIE_MODE_DATA-----------
+    public int GetZombieDayVictory() {
+        if (!PlayerPrefs.HasKey(GameVariable.ZOMBIE_DAY_VICTORY))
+            PlayerPrefs.SetInt(GameVariable.ZOMBIE_DAY_VICTORY, 0);
+
+        return PlayerPrefs.GetInt(GameVariable.ZOMBIE_DAY_VICTORY);
+    }
+
+    public void SetZombieDayVictory(int currentDay) {
+        PlayerPrefs.SetInt("ZombieDayVictory", currentDay);
+    }
     #endregion
 }

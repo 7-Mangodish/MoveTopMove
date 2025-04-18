@@ -8,8 +8,6 @@ public class TransparentObstacle : MonoBehaviour
     [SerializeField] private LayerMask obstacleLayerMask;
     private List<MeshRenderer> listObstacleRenderer = new List<MeshRenderer>();
     private Dictionary<MeshRenderer, Material> dictOriginalMaterial = new Dictionary<MeshRenderer, Material>(); 
-
-    // Update is called once per frame
     void Update()
     {
         DoCameraBehindBuilding();

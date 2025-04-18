@@ -90,7 +90,7 @@ public class FirebaseSDK : MonoBehaviour
     public class PlayerData{
         public string name;
         public int coin;
-        public SkinDataManager.SkinData skinData;
+        public SkinData skinData;
     }
 
     #endregion

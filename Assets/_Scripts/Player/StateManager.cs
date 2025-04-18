@@ -58,11 +58,6 @@ public class StateManager : MonoBehaviour
         animationControl  = GetComponent<AnimationControl>();
     }
 
-    private void Start() {
-        if (this.gameObject.CompareTag("Player"))
-            GameController.Instance.OnPlayerRevive += StateManager_OnPlayerRevive;
-    }
-
     public void AddScore() {
         if (isDead) return;
 
@@ -122,7 +117,7 @@ public class StateManager : MonoBehaviour
         if(this.gameObject.CompareTag("Player") && SceneManager.GetActiveScene().name == GameVariable.zombieSceneName) {
             skillObjects.shield -= 1;
             if (skillObjects.shield >=0) {
-                StartPanelManager.Instance.SetUpListHpImage();
+                //StartPanelManager.Instance.SetUpListHpImage();
 
                 playerShield.gameObject.SetActive(true);
                 Physics.IgnoreLayerCollision(3, 7, true);
@@ -158,13 +153,5 @@ public class StateManager : MonoBehaviour
         playerScaleText.GetComponent<Animator>().Play("PlayerScaleText");
         await Task.Delay(1500);
         playerScaleText.gameObject.SetActive(false);
-    }
-
-    private void PlayerRevive(Vector3 newPosition) {
-        this.gameObject.SetActive(true);
-        this.gameObject.transform.localPosition = new Vector3(newPosition.x, 0, newPosition.z) ;
-    }
-    private void StateManager_OnPlayerRevive(object sender, Vector3 e) {
-        PlayerRevive(e);
     }
 }

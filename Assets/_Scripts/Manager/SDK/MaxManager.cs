@@ -34,6 +34,7 @@ public class MaxManager : MonoBehaviour
         DontDestroyOnLoad(this.gameObject);
         isInit = false;
     }
+
     public void InitMaxManager() {
         MaxSdkCallbacks.OnSdkInitializedEvent += (MaxSdkBase.SdkConfiguration obj) => {
             //Debug.Log("MaxSdk is inited");
@@ -55,11 +56,16 @@ public class MaxManager : MonoBehaviour
         MaxSdk.InitializeSdk();
     }
 
-    public void SetUpBannerAd() {
+    #region -------------BANNER_ADS-------------
+    public void ShowBannerAd() {
         MaxSdk.CreateBanner(bannerAdUnitId, MaxSdkBase.BannerPosition.BottomCenter);
         MaxSdk.ShowBanner(bannerAdUnitId);
     }
 
+    public void StopShowBannerAd() {
+        MaxSdk.HideBanner(bannerAdUnitId);
+    }
+    #endregion
     #region ---------------REWARD_ADS---------------
 
     private void Rewarded_OnAdDisplayEvent(string arg1, MaxSdkBase.AdInfo arg2) {
@@ -78,6 +84,7 @@ public class MaxManager : MonoBehaviour
     private void Rewarded_OnAdReceivedRewardEvent(string arg1, MaxSdkBase.Reward arg2, MaxSdkBase.AdInfo arg3) {
         Debug.Log("Receive Reward");
         Time.timeScale = 1;
+        Debug.Log(GameUIController.Instance.name);
         OnPlayerReceiveAward?.Invoke(this, typeReward);
     }
 
