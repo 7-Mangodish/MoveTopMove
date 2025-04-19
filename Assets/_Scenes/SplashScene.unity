@@ -982,6 +982,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 99c9d758c19fe704d823676237123941, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  weaponObjects: {fileID: 11400000, guid: 2862eb37f7bb1ef42a2d65fe4e13edac, type: 2}
   listMaterial:
   - {fileID: 2100000, guid: 0b8a31d27f30ebd4b8986d90aaf6f8a9, type: 2}
   - {fileID: 2100000, guid: 4258ab16c6c16fa449530a2b1c32c1fe, type: 2}

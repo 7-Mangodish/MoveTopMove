@@ -15,14 +15,14 @@ public class ZombieUIController : MonoBehaviour
     [SerializeField] private SkillObjects skillObjects;
     [SerializeField] private AbilitiesObjects abilitiesObjects;
 
-    [Header("Bottom Panel")]
+    [Header("-----Bottom Panel-----")]
     [SerializeField] private GameObject bottomPanel;
     [SerializeField] private Button[] listSkillButtons;
     [SerializeField] private TextMeshProUGUI[] listCostSkillText;
     [SerializeField] private TextMeshProUGUI[] listSkillInforText;
     [SerializeField] private TextMeshProUGUI[] listSkillLevelText;
 
-    [Header("Center Panel")]
+    [Header("-----Center Panel-----")]
     [SerializeField] private GameObject centerPanel;
     [SerializeField] private Button refuseCenterButton;
     [SerializeField] private Button changeAbilityButton_1;
@@ -36,7 +36,7 @@ public class ZombieUIController : MonoBehaviour
     private bool isClickSelectAbilityButton;
     public static int choosenAbility;
 
-    [Header("Top Panel")]
+    [Header("-----Top Panel-----")]
     [SerializeField] private GameObject topPanel;
     [SerializeField] private Image[] listHpImage;
     [SerializeField] private GameObject playerCoinPanel;
@@ -45,7 +45,7 @@ public class ZombieUIController : MonoBehaviour
     [SerializeField] private TextMeshProUGUI currentZombieDayText;
     [SerializeField] private Button settingButton;
 
-    [Header("End Panel")]
+    [Header("-----End Panel------")]
     [SerializeField] private GameObject endPanel;
     [SerializeField] private Button claimCoinButton;
     [SerializeField] private Button homeEndPanelButton;
@@ -57,21 +57,21 @@ public class ZombieUIController : MonoBehaviour
     [SerializeField] private TextMeshProUGUI loseTittle;
     private int endGameCoin;
 
-    [Header("Revive Panel")]
+    [Header("-----Revive Panel------")]
     [SerializeField] private Button reviveButton;
     [SerializeField] private Button exitRevivePanelButton;
     [SerializeField] private GameObject revivePanel;
-    private bool isRevived;
+    public bool isRevived;
     private bool isCLickRevive;
 
-    [Header("Zombie Day")]
+    [Header("-----Zombie Day-----")]
     [SerializeField] private Image[] listZombieDayImage;
     [SerializeField] private Sprite dayVictoryStart;
     [SerializeField] private Sprite dayVictory;
     [SerializeField] private Sprite dayLoseStart;
     [SerializeField] private Sprite dayLose;
 
-    [Header("Setting Panel")]
+    [Header("-----Setting Panel-----")]
     [SerializeField] private GameObject settingPanel;
     [SerializeField] private Button homeButton;
     [SerializeField] private Button continueButton;
@@ -80,11 +80,8 @@ public class ZombieUIController : MonoBehaviour
     [SerializeField] private Button vibrationOnButton;
     [SerializeField] private Button vibrationOffButton;
 
-    public event EventHandler<TypeSkill> OnPlayerUpgradeSkill;
-    //public event EventHandler OnStartZombieMode;
-    public event EventHandler<int> OnPlayerChooseAbility;
-    public event EventHandler OnTurnOnSetting;
-    public event EventHandler OnTurnOffSetting;
+    [Header("-----Instuction Panel-----")]
+    [SerializeField] private GameObject instructionPanel;
 
     private SkillData skillData;
     public bool isStartGame = false;
@@ -105,6 +102,10 @@ public class ZombieUIController : MonoBehaviour
 
     }
 
+    private void OnEnable() {
+        MaxManager.Instance.OnPlayerReceiveAward += ZombieUI_OnPlayerReceiveAward;
+    }
+
     private void OnDisable() {
         MaxManager.Instance.OnPlayerReceiveAward -= ZombieUI_OnPlayerReceiveAward;
     }
@@ -114,7 +115,7 @@ public class ZombieUIController : MonoBehaviour
 
         SetUpTopPanel();
         SetUpSettingPanel();
-        SetUpListHpImage();
+        SetUpListHpImage((int)skillData.shield);
         SetUpPlayerCoinText();
 
         SetUpSkillText();
@@ -148,10 +149,8 @@ public class ZombieUIController : MonoBehaviour
 
         });
 
-        MaxManager.Instance.OnPlayerReceiveAward += ZombieUI_OnPlayerReceiveAward;
 
     }
-
 
     public void  SetUpTopPanel() {
         int day = DataManager.Instance.GetZombieDayVictory();
@@ -165,15 +164,16 @@ public class ZombieUIController : MonoBehaviour
 
             settingPanel.gameObject.SetActive(true);
             Time.timeScale = 0;
-            OnTurnOnSetting?.Invoke(this, EventArgs.Empty);
         });
     }
+
     public void DisplayZombieCount(int zombieCount) {
         zombieRemainingText.text = zombieCount.ToString();
     }
-    public void  SetUpListHpImage() {
+
+    public void  SetUpListHpImage(int hpCount) {
         for(int i=0; i<listHpImage.Length; i++) {
-            if (i < skillData.skillLevel[0])
+            if (i < hpCount)
                 listHpImage[i].gameObject.SetActive(true);
             else
                 listHpImage[i].gameObject.SetActive(false);
@@ -183,6 +183,7 @@ public class ZombieUIController : MonoBehaviour
     void SetUpAbilityButton() {
         listAbilitiesIndex = abilitiesObjects.GetRandomAbilities();
         abilityImage.sprite = abilitiesObjects.listAbilitySprite[listAbilitiesIndex[0]];
+        abilityNameText.text = abilitiesObjects.listAbilitySprite[listAbilitiesIndex[0]].name; ;
 
         changeAbilityButton_1.onClick.AddListener(() => {
             SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
@@ -263,7 +264,7 @@ public class ZombieUIController : MonoBehaviour
                             if (skillData.UpgradeHp()) {
                                 //OnPlayerUpgradeSkill?.Invoke(this, TypeSkill.hp);
                                 DataManager.Instance.SetSkillData(skillData);
-                                SetUpListHpImage();
+                                SetUpListHpImage((int)skillData.shield);
                             }
                             break;
                         }
@@ -320,14 +321,14 @@ public class ZombieUIController : MonoBehaviour
         homeEndPanelButton.onClick.AddListener(() => {
             SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
 
-            SceneManager.LoadScene(0);
+            SceneManager.LoadScene(GameVariable.normalSceneName);
         });
         claimCoinButton.onClick.AddListener(() => {
             SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
 
             CoinManager.Instance.SaveCoin(endGameCoin);
             SetUpPlayerCoinText();
-            SceneManager.LoadScene(1);
+            SceneManager.LoadScene(GameVariable.zombieSceneName);
         });
         x3CoinButton.onClick.AddListener(() => {
             MaxManager.Instance.ShowRewardAd();
@@ -335,6 +336,7 @@ public class ZombieUIController : MonoBehaviour
     }
 
     #endregion
+
     private void SetUpPlayerCoinText() {
         playerCoinText.text = PlayerPrefs.GetInt(GameVariable.PLAYER_COIN).ToString();
     }
@@ -410,11 +412,11 @@ public class ZombieUIController : MonoBehaviour
 
             settingPanel.gameObject.SetActive(false);
             Time.timeScale = 1;
-            OnTurnOffSetting?.Invoke(this, EventArgs.Empty);
         });
     }
 
-    private void StartPanelManager_OnPlayerWin(object sender, EventArgs e) {
+    #region ---------------WIN_LOSE_UI----------------
+    public void TurnOnWinUI() {
         if(endPanel != null)
             endPanel.gameObject.SetActive(true);
         winTittle.gameObject.SetActive(true);
@@ -434,7 +436,7 @@ public class ZombieUIController : MonoBehaviour
             x2Text.gameObject.SetActive(false);
     }
 
-    private async void StartPanelManager_OnPlayerLose(object sender, EventArgs e) {
+    public async void TurnOnLoseUI() {
         winTittle.gameObject.SetActive(false);
         loseTittle.gameObject.SetActive(true);
         if (!isRevived) {
@@ -458,10 +460,10 @@ public class ZombieUIController : MonoBehaviour
         else
             x2Text.gameObject.SetActive(false);
     }
-
+    #endregion
     private void ZombieUI_OnPlayerReceiveAward(object sender, MaxManager.TypeReward t) {
         if(!isRevived && isCLickRevive) {
-            GameController.Instance.DoPlayerRevive();
+            //GameController.Instance.DoPlayerRevive();
             isRevived = true;
             revivePanel.gameObject.SetActive(false);
         }
@@ -482,9 +484,15 @@ public class ZombieUIController : MonoBehaviour
 
             CoinManager.Instance.SaveCoin(endGameCoin);
             SetUpPlayerCoinText();
-            SceneManager.LoadScene(1);
+            SceneManager.LoadScene(GameVariable.zombieSceneName);
         }
 
+    }
+
+    public IEnumerator ShowInstruction() {
+        instructionPanel.SetActive(true);
+        yield return new WaitUntil(() => PlayerController.Instance.startGame);
+        instructionPanel.SetActive(false);
     }
 
 }

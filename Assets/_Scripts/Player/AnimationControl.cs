@@ -26,9 +26,6 @@ public class AnimationControl : MonoBehaviour
             animator.SetFloat("AttackSpeed", 1.5f);
 
     }
-    void Start() {
-        characterColor = GetComponentInChildren<SkinnedMeshRenderer>().material.color;
-    }
 
     private void SetState(state state, bool val) {
         animator.SetBool(state.ToString(), val);    
@@ -71,6 +68,10 @@ public class AnimationControl : MonoBehaviour
         SetState(state.IsAttack, false);
     }
     public void PlayDeadEff() {
+        if(characterColor == null) 
+            characterColor = GetComponentInChildren<SkinnedMeshRenderer>().material.color;
+        Debug.LogWarning(characterColor);
+
         Vector3 positionSpawn = new Vector3(this.transform.position.x, this.transform.position.y + .2f, this.transform.position.z);
         Transform pref = Instantiate(deadPrefab, positionSpawn, Quaternion.identity);
         ParticleSystem myParticleSystem = pref.GetComponent<ParticleSystem>();

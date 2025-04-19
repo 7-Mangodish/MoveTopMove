@@ -3,7 +3,6 @@ using System.Security.Cryptography;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using static SkinDataManager;
 
 public class SkinShopController : MonoBehaviour {
     private static SkinShopController instance;
@@ -12,31 +11,31 @@ public class SkinShopController : MonoBehaviour {
 
     [SerializeField] private Material playerMaterial;
 
-    [Header("Top Panel")]
+    [Header("-----Top Panel-----")]
     [SerializeField] private Button[] listShopButton;
     [SerializeField] private Image[] listShopIcon;
     [SerializeField] private GameObject[] listShopPanel;
 
-    [Header("HatButton")]
+    [Header("-----HatButton-----")]
     [SerializeField] private HatObjects hatObjects;
     [SerializeField] private Button[] listHatButtons;
     [SerializeField] private Transform hatHolderTransform;
     private int hatIndexSelected;
 
-    [Header("PantButton")]
+    [Header("-----PantButton-----")]
     [SerializeField] private PantObjects pantObjects;
     [SerializeField] private Button[] listPantButtons;
     [SerializeField] private GameObject characterPant;
     private SkinnedMeshRenderer pantSkin;
     private int pantIndexSelected;
 
-    [Header("ArmorButton")]
+    [Header("-----ArmorButton-----")]
     [SerializeField] private ArmorObjects armorObjects;
     [SerializeField] private Button[] listArmorButtons;
     [SerializeField] private Transform armorHolderTransform;
     private int armorIndexSelected;
 
-    [Header("SetButton")]
+    [Header("-----SetButton-----")]
     [SerializeField] private SetObjects setObjects;
     [SerializeField] private Button[] listSetButtons;
     [SerializeField] private Transform wingHolderTransform;
@@ -56,7 +55,6 @@ public class SkinShopController : MonoBehaviour {
     [SerializeField] private GameObject equippedImagePref;
     private GameObject currentEquippedImage;
     [SerializeField] private Button exitSkinButton;
-
 
 
     [Header("Text")]

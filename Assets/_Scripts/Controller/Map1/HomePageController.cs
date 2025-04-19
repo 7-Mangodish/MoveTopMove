@@ -135,21 +135,24 @@ public class HomePageController : MonoBehaviour
         weaponShopButton.onClick.AddListener(() => {
             SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
 
-            leftPanel.SetActive(false);
-            rightPanel.SetActive(false);
+            //leftPanel.SetActive(false);
+            //rightPanel.SetActive(false);
+            PlayerController.Instance.gameObject.SetActive(false);
             playerNameInput.gameObject.SetActive(false);
-
             weaponShopPanel.gameObject.SetActive(true);
+            HomePageOut();
 
         });
 
         exitWeaponButton.onClick.AddListener(() => {
             SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
 
+            PlayerController.Instance.gameObject.SetActive(true);
             weaponShopPanel.gameObject.SetActive(false);
-            leftPanel.SetActive(true);
-            rightPanel.SetActive(true);
+            //leftPanel.SetActive(true);
+            //rightPanel.SetActive(true);
             playerNameInput.gameObject.SetActive(true);
+            HomePageIn();
         });
     }
     private void SetUpSkinShopButton() {

@@ -81,14 +81,14 @@ public class StateManager : MonoBehaviour
         animationControl.PlayLevelUpEff();
         //Cap nhat scale cua nhan vat, cap nhat tam danh va scale cua vu khi
         this.transform.localScale += new Vector3(0.05f, 0.05f, 0.05f);
-        if (this.gameObject.CompareTag("Player")) {
+        if (this.gameObject.CompareTag(GameVariable.PLAYER_TAG)) {
             DisplayPlayerScale(this.transform.localScale.x * 5f);
         }
 
         DoUpdateStateWeapon();
 
         // Cap nhat cammera
-        if (this.gameObject.CompareTag("Player")) {
+        if (this.gameObject.CompareTag(GameVariable.PLAYER_TAG)) {
             CameraController.Instance.UpdateDistanceCamera(.75f);
             SoundManager.Instance.PlaySound(SoundManager.SoundName.size_up);
         }
@@ -117,6 +117,8 @@ public class StateManager : MonoBehaviour
     }
 
 #endregion
+
+
     public ThrowWeapon.StateWeapon GetStateWeapon() {
         return stateWeapon;
     }
@@ -124,9 +126,9 @@ public class StateManager : MonoBehaviour
     public async void TriggerCharacterDead() {      
         
         if(this.gameObject.CompareTag("Player") && SceneManager.GetActiveScene().name == GameVariable.zombieSceneName) {
-            skillObjects.shield -= 1;
-            if (skillObjects.shield >=0) {
-                //StartPanelManager.Instance.SetUpListHpImage();
+            if (PlayerController.Instance.shield > 0) {
+                PlayerController.Instance.shield -= 1;
+                ZombieUIController.Instance.SetUpListHpImage((int)PlayerController.Instance.shield);
 
                 playerShield.gameObject.SetActive(true);
                 Physics.IgnoreLayerCollision(3, 7, true);
@@ -135,24 +137,24 @@ public class StateManager : MonoBehaviour
                 Physics.IgnoreLayerCollision(3,7, false);
                 return;
             }
-                
+            
         }
-
-        this.isDead = true;
 
         //Animation
         animationControl.SetDead();
 
         // Event
-        if (this.gameObject.CompareTag("Player")) {
+        if (this.gameObject.CompareTag(GameVariable.PLAYER_TAG)) {
+            this.gameObject.tag = GameVariable.DEAD_TAG;
+            await Task.Delay(2000);
             this.gameObject.SetActive(false);
-            return;
         }
 
         //Destroy Enemy
-        if (this.gameObject.CompareTag("Enemy")) {
+        if (this.gameObject.CompareTag(GameVariable.ENEMY_TAG)) {
             Destroy(this.transform.parent.gameObject, 2);
         }
+        this.isDead = true;
 
     }
 

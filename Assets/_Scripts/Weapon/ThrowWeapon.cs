@@ -59,6 +59,7 @@ public class ThrowWeapon : MonoBehaviour
             }
         }
         else if (other.gameObject.CompareTag("Player")) {
+            Debug.Log(stateWeapon.ownerStateManager.gameObject);
             if (stateWeapon.ownerStateManager.CompareTag("Enemy")) {
                 SoundManager.Instance.PlaySound(SoundManager.SoundName.dead_2);
 

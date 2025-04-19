@@ -20,13 +20,15 @@ public class CameraController : MonoBehaviour
             Destroy(this.gameObject);
     }
 
+
+
+    #region ----------Normal_Mode----------
     public void SetUpCamera() {
         winingCamera.gameObject.SetActive(false);
         gamePlayCamera.gameObject.SetActive(false);
-        shopCamera.gameObject.SetActive(false);       
+        shopCamera.gameObject.SetActive(false);
     }
 
-    #region ----------Normal_Mode----------
     public void TurnOffPlayerShoppingCamera() {
         shopCamera.gameObject.SetActive(false);
     }
@@ -57,8 +59,13 @@ public class CameraController : MonoBehaviour
         ind /= .5f;
         if (ind > 0)
             UpdateDistanceCamera(ind * .75f);
+
+        winingCamera.gameObject.SetActive(false);
     }
 
+    public void TurnOnZombieWinCamera() {
+        winingCamera.gameObject.SetActive(true);
+    }
     #endregion
     public void UpdateDistanceCamera(float deltarange) {
         CinemachinePositionComposer cam = FindFirstObjectByType<CinemachinePositionComposer>();

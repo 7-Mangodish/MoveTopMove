@@ -172,7 +172,7 @@ public class WeaponShopController : MonoBehaviour
         // Hien thi mau neu skin da luu = 0
         SetUpColorBoard(skinIndexSaved);
         //Debug.Log(PlayerController.Instance.name);
-        DataManager.Instance.SaveWeaponData(weaponIndexSelected, data);
+        //DataManager.Instance.SaveWeaponData(weaponIndexSelected, data);
 
     }
 

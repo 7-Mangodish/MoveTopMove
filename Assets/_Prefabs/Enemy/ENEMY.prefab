@@ -1804,9 +1804,6 @@ GameObject:
   - component: {fileID: 5144866848250573018}
   - component: {fileID: 442757016752850597}
   - component: {fileID: 1194230185890393596}
-  - component: {fileID: 8892302633194358598}
-  - component: {fileID: 2330159156204756691}
-  - component: {fileID: 7126536027601656303}
   m_Layer: 0
   m_Name: EnemyModel
   m_TagString: Enemy
@@ -2007,7 +2004,6 @@ MonoBehaviour:
   playerShield: {fileID: 0}
   isLevelUpZombieMode: 0
   isDead: 0
-  isCanRevive: 0
 --- !u!195 &1194230185890393596
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -2030,53 +2026,6 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
---- !u!114 &8892302633194358598
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4754203280322818649}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 85e34b3fb47a8be46afaf507c18b2a01, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  indicatorContainer: {fileID: 4003254000959017245}
-  indicatorIcon: {fileID: 2868840358909124819}
-  indicatorScoreContainer: {fileID: 2624312421341320648}
-  indicatorScoreText: {fileID: 7720108307178250277}
-  skinCharacter: {fileID: 5697718804505922782}
---- !u!114 &2330159156204756691
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4754203280322818649}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a7ad35b7a2af2804f9d9fea4e4184532, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  nameContainer: {fileID: 2039712640857491088}
-  backgroundImage: {fileID: 6829870843210417327}
-  nameCharacterText: {fileID: 5477300362427752222}
-  characterScore: {fileID: 3436620049109981213}
-  offset: {x: 0, y: 240, z: 0}
---- !u!114 &7126536027601656303
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4754203280322818649}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f978f4574abd2de45b31c40915197fe2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  materialObjects: {fileID: 11400000, guid: a296c8c3ea0e6b147b73a2e21e9fe497, type: 2}
 --- !u!1 &4801682748242497763
 GameObject:
   m_ObjectHideFlags: 0

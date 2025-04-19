@@ -6,7 +6,9 @@ public class DataManager : MonoBehaviour
     private static DataManager instance;
     public static DataManager Instance { get => instance; }
     [Header("-----WEAPON-----")]
+    public WeaponObjects weaponObjects;
     public Material[] listMaterial;
+
     public class OnUserChangeWeaponArg : EventArgs {
         public int skinIndex;
         public Material[] materials;
@@ -57,7 +59,20 @@ public class DataManager : MonoBehaviour
             materials = materialTemp,
 
         });
+    }
 
+    public Material[] GetWeaponMaterial(int weaponIndex) {
+        WeaponData data = GetWeaponData(weaponIndex);
+
+        Material[] materialTemp = new Material[3];
+        if(data.skinIndex == 0) {
+            for (int i = 0; i < 3; i++) {
+                materialTemp[i] = listMaterial[data.weaponMaterials[i]];
+            }
+        }
+        else
+            materialTemp = weaponObjects.GetListMaterials(weaponIndex, data.skinIndex);
+        return materialTemp;
     }
 
     #endregion

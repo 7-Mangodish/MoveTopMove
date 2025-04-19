@@ -84,7 +84,6 @@ public class MaxManager : MonoBehaviour
     private void Rewarded_OnAdReceivedRewardEvent(string arg1, MaxSdkBase.Reward arg2, MaxSdkBase.AdInfo arg3) {
         Debug.Log("Receive Reward");
         Time.timeScale = 1;
-        Debug.Log(GameUIController.Instance.name);
         OnPlayerReceiveAward?.Invoke(this, typeReward);
     }
 

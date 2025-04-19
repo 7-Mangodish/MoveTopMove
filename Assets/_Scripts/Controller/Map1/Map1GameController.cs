@@ -16,7 +16,6 @@ public class Map1GameController : MonoBehaviour
 
     private bool isPlayerWin = false;
     private bool isPlayerLose = false;
-    //private bool isPlayerRevive = false;
     private void Awake() {
         if (instance == null) {
             instance = this;

@@ -31,7 +31,7 @@ public class ZombieController : MonoBehaviour
     //}
 
     private void OnCollisionEnter(Collision other) {
-        if (other.gameObject.CompareTag("Player")) {
+        if (other.gameObject.CompareTag(GameVariable.PLAYER_TAG)) {
             //Debug.Log("Player Dead");
             StateManager playerStateManager = other.gameObject.GetComponent<StateManager>();
             if(playerStateManager != null ) {
@@ -58,12 +58,16 @@ public class ZombieController : MonoBehaviour
 
     public void SetUpZombie() {
         /*----------Move--------------*/
-        targetTransform = GameObject.FindGameObjectWithTag("Player").transform;
+        agent = GetComponent<NavMeshAgent>();
+        GameObject player = GameObject.FindGameObjectWithTag(GameVariable.PLAYER_TAG);
+
+        if (player != null) {
+            targetTransform = player.transform;
+            agent.destination = targetTransform.position;
+        }
+
         animationControl = GetComponent<AnimationControl>();
         aimZone.gameObject.SetActive(false);
-
-        agent = GetComponent<NavMeshAgent>();
-        agent.destination = targetTransform.position;
 
         /*-----------Indicator----------*/
         targetCanvas = GameObject.FindGameObjectWithTag("Canvas");
@@ -74,7 +78,8 @@ public class ZombieController : MonoBehaviour
         indicatorContainer.SetActive(false);
     }
     public void ZombieBehaviour() {
-        if (targetTransform != null && targetTransform.gameObject.activeSelf) {
+        if (targetTransform != null && targetTransform.gameObject.activeSelf 
+            && targetTransform.gameObject.tag == GameVariable.PLAYER_TAG) {
             agent.destination = targetTransform.position;
             agent.speed = 0.5f;
             animationControl.SetZombieRun();

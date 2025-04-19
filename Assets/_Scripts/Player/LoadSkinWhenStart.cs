@@ -3,24 +3,28 @@ using static SkillObjects;
 
 public class LoadSkinWhenStart : MonoBehaviour
 {
-    [Header("Hat")]
+    [Header("-----HAT-----")]
     [SerializeField] private HatObjects hatObjects;
     [SerializeField] private Transform hatHolderTransform;
 
-    [Header("Pant")]
+    [Header("-----PANT-----")]
     [SerializeField] private PantObjects pantObjects;
     [SerializeField] private GameObject characterPant;
 
-    [Header("Armor")]
+    [Header("-----ARMOR-----")]
     [SerializeField] private ArmorObjects armorObjects;
     [SerializeField] private Transform armorHolderTransform;
 
-    [Header("Set")]
+    [Header("-----SET-----")]
     [SerializeField] private SetObjects setObjects;
     [SerializeField] private Transform wingHolderTransform;
     [SerializeField] private Transform tailHolderTransform;
     [SerializeField] private SkinnedMeshRenderer playerMesh;
     [SerializeField] private Material playerMaterial;
+
+    [Header("-----WEAPON-----")]
+    [SerializeField] private WeaponObjects weaponObjects;
+    [SerializeField] private GameObject weaponHold;
 
     private SkinData data;
     void Start()
@@ -53,4 +57,5 @@ public class LoadSkinWhenStart : MonoBehaviour
             armorObjects.SetCharacterArmor(data.armorIndex, armorHolderTransform);
         }
     }
+
 }

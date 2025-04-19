@@ -56,7 +56,6 @@ public class EnemyController : MonoBehaviour
     public TextMeshProUGUI characterScore;
     public Vector3 offset;
     private RectTransform nameContainerRectTransform;
-
     private void Awake() {
         animationControl = GetComponent<AnimationControl>();
         agent = GetComponent<NavMeshAgent>();
@@ -102,11 +101,6 @@ public class EnemyController : MonoBehaviour
         }
     }
 
-    //private void OnDestroy() {
-    //    //Debug.Log("Enemy Die");
-    //    Destroy(indicatorContainer);
-    //    Destroy(nameContainer);
-    //}
     private void OnDisable() {
         Destroy(indicatorContainer);
         Destroy(nameContainer);
