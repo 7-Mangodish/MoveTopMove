@@ -7,8 +7,8 @@ public class MaxManager : MonoBehaviour
     public static MaxManager Instance { get { return instance; } }
     public bool isInit;
 
-    private string mrecAdUnitId = "163f6d1603f93b2a";
-    private string interAdUnitId = "a7641b2cd0514562";
+    //private string mrecAdUnitId = "163f6d1603f93b2a";
+    //private string interAdUnitId = "a7641b2cd0514562";
     private string rewardedAdUnitId = "b14b72eb2d1e8ff3";
     private string bannerAdUnitId = "8f70e8f9ea5541a0";
     private string appOpenAdUnitId = "ca-app-pub-6409857233709298/6124157663";
@@ -69,8 +69,6 @@ public class MaxManager : MonoBehaviour
     #region ---------------REWARD_ADS---------------
 
     private void Rewarded_OnAdDisplayEvent(string arg1, MaxSdkBase.AdInfo arg2) {
-        //Debug.Log("Ad load successfully");
-        MaxSdk.LoadRewardedAd(rewardedAdUnitId); // Load lai quang cao
         Time.timeScale = 0;
     }
     public void ShowRewardAd() {
@@ -79,10 +77,12 @@ public class MaxManager : MonoBehaviour
         }
     }
     private void Rewarded_OnAdHiddenEvent(string arg1, MaxSdkBase.AdInfo arg2) {
+        MaxSdk.LoadRewardedAd(rewardedAdUnitId); // Load lai quang cao
+        Debug.LogWarning("Ad Load successfully");
         Time.timeScale = 1;
     }
     private void Rewarded_OnAdReceivedRewardEvent(string arg1, MaxSdkBase.Reward arg2, MaxSdkBase.AdInfo arg3) {
-        Debug.Log("Receive Reward");
+        //Debug.Log("Receive Reward");
         Time.timeScale = 1;
         OnPlayerReceiveAward?.Invoke(this, typeReward);
     }

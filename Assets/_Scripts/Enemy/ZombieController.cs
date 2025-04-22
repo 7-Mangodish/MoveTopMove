@@ -1,13 +1,12 @@
 using System;
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.InputSystem.Android;
 using UnityEngine.UI;
+using Random = UnityEngine.Random;
 
 public class ZombieController : MonoBehaviour
 {
 
-    [SerializeField] private GameObject aimZone;
 
     [Header("-----Zombie_Move-----")]
     public int hp;
@@ -18,17 +17,10 @@ public class ZombieController : MonoBehaviour
     [Header("-----Zombie_Indicator-----")]
     private GameObject targetCanvas;
     private Camera mainCamera;
+    public MaterialObjects materialObjects;
     [SerializeField] private GameObject indicatorContainer;
     [SerializeField] private Image indicatorIcon;
     [SerializeField] private SkinnedMeshRenderer skinCharacter;
-
-    //private void Awake() {
-    //    targetTransform = GameObject.FindGameObjectWithTag("Player").transform;
-    //    animationControl = GetComponent<AnimationControl>();
-    //    aimZone.gameObject.SetActive(false);
-
-    //    agent = GetComponent<NavMeshAgent>();
-    //}
 
     private void OnCollisionEnter(Collision other) {
         if (other.gameObject.CompareTag(GameVariable.PLAYER_TAG)) {
@@ -42,21 +34,10 @@ public class ZombieController : MonoBehaviour
 
         }
     }
-    private void OnTriggerEnter(Collider other) {
-        if (other.gameObject.CompareTag("PlayerZone")) {
-            //Debug.Log("Inside Player Zone");
-            aimZone.gameObject.SetActive(true);
-        }
-    }
-
-    private void OnTriggerExit(Collider other) {
-        if (other.gameObject.CompareTag("PlayerZone")) {
-            //Debug.Log("Inside Player Zone");
-            aimZone.gameObject.SetActive(false);
-        }
-    }
 
     public void SetUpZombie() {
+        RandomZombieMaterial();
+
         /*----------Move--------------*/
         agent = GetComponent<NavMeshAgent>();
         GameObject player = GameObject.FindGameObjectWithTag(GameVariable.PLAYER_TAG);
@@ -67,7 +48,6 @@ public class ZombieController : MonoBehaviour
         }
 
         animationControl = GetComponent<AnimationControl>();
-        aimZone.gameObject.SetActive(false);
 
         /*-----------Indicator----------*/
         targetCanvas = GameObject.FindGameObjectWithTag("Canvas");
@@ -131,5 +111,9 @@ public class ZombieController : MonoBehaviour
         else {
             indicatorContainer.gameObject.SetActive(false);
         }
+    }
+    void RandomZombieMaterial() {
+        int randNumber = Random.Range(0, materialObjects.listMaterials.Length);
+        skinCharacter.material = materialObjects.listMaterials[randNumber];
     }
 }

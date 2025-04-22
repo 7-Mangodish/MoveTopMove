@@ -14,6 +14,7 @@ TagManager:
   - HatHolder
   - Zombie
   - NameCharacter
+  - AimArea
   layers:
   - Default
   - TransparentFX

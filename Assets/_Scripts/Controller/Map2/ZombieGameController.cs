@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class ZombieGameController : MonoBehaviour
@@ -18,8 +19,9 @@ public class ZombieGameController : MonoBehaviour
     {
         currentZombieCount = maxZombieCount;
         ZombieUIController.Instance.SetUpUIWhenStart();
-        PlayerController.Instance.SetUpPlayer();
         CameraController.Instance.SetUpCameraInZombieMode();
+        PlayerController.Instance.GetComponent<LoadSkinWhenStart>().LoadSkin();
+        PlayerController.Instance.SetUpPlayer();
 
         StartCoroutine(StartGame());
         StartCoroutine(WinGame());
@@ -55,6 +57,10 @@ public class ZombieGameController : MonoBehaviour
 
     private void FixedUpdate() {
         PlayerController.Instance.PlayerBehaviour();
+    }
+
+    private void LateUpdate() {
+        PlayerController.Instance.UpdatePlayerStatus();
     }
     IEnumerator StartGame() {
         MaxManager.Instance.StopShowBannerAd();

@@ -13,8 +13,6 @@ public class StateManager : MonoBehaviour
     
     private int currentScore;
     public int CurrentScore { get { return currentScore; } }
-
-    private int addingScore;
     public bool IsLevelUp;
 
     [SerializeField] private SkillObjects skillObjects;
@@ -34,17 +32,16 @@ public class StateManager : MonoBehaviour
     [Header("-----Zombie Mode-----")]
     [SerializeField] private GameObject playerShield;
     public bool isLevelUpZombieMode;
+    public int enemyCount;
 
     public event EventHandler<int> OnCharacterTakeScore;
-    //public event EventHandler OnCharacterDead;
-
     public bool isDead = false;
 
     // Player
     private void Awake() {
-        addingScore = 1;
         currentScore = 0;
         currentLevel = 1;
+        enemyCount = currentLevel * 10;
 
         if(maxDistancePoint != null) {
             stateWeapon.ownerStateManager = this;
@@ -62,21 +59,33 @@ public class StateManager : MonoBehaviour
     public void AddScore() {
         if (isDead) return;
 
-        this.currentScore += addingScore;
+        this.currentScore += 1;
         OnCharacterTakeScore?.Invoke(this, this.currentScore);
 
-        if (currentScore%10 == 0 && currentScore !=0) {
-            if (SceneManager.GetActiveScene().name == GameVariable.normalSceneName)
+        if (SceneManager.GetActiveScene().name == GameVariable.normalSceneName) {
+            if (currentScore % 10 == 0 && currentScore != 0)
                 DoCharacterLevelUp();
-            else if(SceneManager.GetActiveScene().name == GameVariable.zombieSceneName)
-                DoCharaterLevelUpZombieMode();
         }
+        else {
+            if(currentScore % 10 == 0 && currentScore != 0) {
+                if (currentScore % enemyCount == 0) {
+                    DoCharaterLevelUpZombieMode();
+                    currentLevel++;
+                    enemyCount += (currentLevel * 10);
+                }
+            }
+        }
+        //if (currentScore%(10*currentLevel + currentScore) == 0 && currentScore !=0) {
+        //    if (SceneManager.GetActiveScene().name == GameVariable.normalSceneName)
+        //        DoCharacterLevelUp();
+        //    else if(SceneManager.GetActiveScene().name == GameVariable.zombieSceneName)
+        //        DoCharaterLevelUpZombieMode();
+        //}
     }
 
 #region -----CHARACTER_LEVEL_UP-----
     public void DoCharacterLevelUp() {
         IsLevelUp = true;
-        currentLevel++;
 
         animationControl.PlayLevelUpEff();
         //Cap nhat scale cua nhan vat, cap nhat tam danh va scale cua vu khi

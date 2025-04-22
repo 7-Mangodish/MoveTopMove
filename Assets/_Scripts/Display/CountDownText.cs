@@ -13,7 +13,6 @@ public class CountDownText : MonoBehaviour
     }
 
     private async void CountDownRevive() {
-        Debug.Log("1");
         while (timeRevive >= 0) {
             reviveText.text = timeRevive.ToString();
             await Task.Delay(1000);

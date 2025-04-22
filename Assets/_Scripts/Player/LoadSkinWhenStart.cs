@@ -29,11 +29,11 @@ public class LoadSkinWhenStart : MonoBehaviour
     private SkinData data;
     void Start()
     {
-        data = DataManager.Instance.GetSkinData();
-        LoadSkin();
+        //LoadSkin();
     }
 
-    void LoadSkin() {
+    public void LoadSkin() {
+        data = DataManager.Instance.GetSkinData();
         if (data.isSet) {
             hatObjects.DestroyHat();
             characterPant.gameObject.SetActive(false);

@@ -37,31 +37,28 @@ public class EnemyController : MonoBehaviour
     private ThrowWeapon.StateWeapon stateWeapon;
 
     /*--------------------INDICATOR-------------------------*/
-    [Header("-----Canvas-----")]
+    [Header("-----INDICATOR-----")]
     public GameObject targetCanvas;
     public GameObject indicatorContainer;
-
-    [Header("-----Color-----")]
     public Image indicatorIcon;
     public Image indicatorScoreContainer;
     public TextMeshProUGUI indicatorScoreText;
     public SkinnedMeshRenderer skinCharacter;
     private Camera mainCamera;
 
-    /*--------------------FLOATING TEXT---------------------*/
-    [Header("-----Floating_Text-----")]
-    public GameObject nameContainer;
-    public Image backgroundImage;
-    public TextMeshProUGUI nameCharacterText;
-    public TextMeshProUGUI characterScore;
-    public Vector3 offset;
-    private RectTransform nameContainerRectTransform;
+    [Header("-----STATUS-----")]
+    public GameObject characterStatus;
+    public TextMeshPro characterName;
+    public TextMeshPro characterScore;
+    private Vector3 standardCharacterScale;
+    private Vector3 standardEulerRot;
+
+
     private void Awake() {
         animationControl = GetComponent<AnimationControl>();
         agent = GetComponent<NavMeshAgent>();
         stateManager = GetComponent<StateManager>();
         enemyRandomItem = GetComponent<EnemyRamdomItem>();
-        //aimZone.gameObject.SetActive(false);
 
 
         /*Indicator*/
@@ -69,15 +66,11 @@ public class EnemyController : MonoBehaviour
         mainCamera = Camera.main;
 
         enemyRandomItem.RandomEnemyItem();
-        enemyWeapon = enemyRandomItem.GetRandomEnemyWeapon();     
-        //SetUpEnemy();
+        enemyWeapon = enemyRandomItem.GetRandomEnemyWeapon();
+
     }
 
     private void OnTriggerEnter(Collider other) {
-        if (other.gameObject.CompareTag("PlayerZone") && this.gameObject.CompareTag("Enemy")) {
-            Debug.Log("Inside Player Zone");
-            //aimZone.gameObject.SetActive(true);
-        }
         if (other.gameObject.CompareTag("Player") || other.gameObject.CompareTag("Enemy")) {
             //Debug.Log("Enemy Can Fire");
             canAttack = true;
@@ -103,7 +96,6 @@ public class EnemyController : MonoBehaviour
 
     private void OnDisable() {
         Destroy(indicatorContainer);
-        Destroy(nameContainer);
     }
     public void SetUpEnemy() {
         stateWeapon = stateManager.GetStateWeapon();
@@ -116,24 +108,24 @@ public class EnemyController : MonoBehaviour
         indicatorScoreContainer.color = skinCharacter.material.color;
         indicatorContainer.transform.SetParent(targetCanvas.transform);
 
-        /*FloatingText*/
-        backgroundImage.color = skinCharacter.material.color;
-        nameCharacterText.color = skinCharacter.material.color;
+
+        /*STATUS*/
+        standardEulerRot = characterStatus.transform.rotation.eulerAngles;
+        standardCharacterScale = this.transform.localScale;
+
+        characterStatus.GetComponent<SpriteRenderer>().color = skinCharacter.material.color;
+        characterName.color = skinCharacter.material.color;
 
         int randomNum = (int)Random.Range(0, 100);
-        nameCharacterText.text = "Enemy" + randomNum.ToString();
-        this.gameObject.transform.parent.name = nameCharacterText.text;
-
-        nameContainer.transform.SetParent(targetCanvas.transform);
-        nameContainerRectTransform = nameContainer.gameObject.GetComponent<RectTransform>();
+        characterName.text = "Enemy" + randomNum.ToString();
+        this.gameObject.transform.parent.name = characterName.text;
     }
 
     public void EnemyBehaviour() {
         UpdateIndicator();
-        UpdateFloatingText();
         if (animationControl.currentState == AnimationControl.state.IsDead) {
             agent.speed = 0;
-            this.gameObject.tag = "Untagged";
+            this.gameObject.tag = GameVariable.DEAD_TAG;
             return;
         }
         if (CheckDistance() <= .1f) {
@@ -248,7 +240,7 @@ public class EnemyController : MonoBehaviour
             float angle = Mathf.Atan2(direct.y, direct.x) * Mathf.Rad2Deg;
             angle = (angle < 0) ? (angle + 360) : angle;
 
-            indicatorContainer.gameObject.SetActive(true);
+            //indicatorContainer.gameObject.SetActive(true);
             indicatorContainer.GetComponent<RectTransform>().position = enemyPositionOnScreen;
 
             indicatorIcon.rectTransform.rotation = Quaternion.Euler(0, 0, angle - 90);
@@ -261,26 +253,23 @@ public class EnemyController : MonoBehaviour
     }
     #endregion
 
-    #region ----------Floating_Text----------
-    void UpdateFloatingText() {
-        Vector3 characterOnscreen = mainCamera.WorldToScreenPoint(this.transform.position);
+    #region ------------Status------------
+    public void UpdateEnemyStatus() {
+        characterStatus.transform.rotation = Quaternion.Euler(standardEulerRot);
 
-        if (characterOnscreen.x < 0 || characterOnscreen.x > Screen.width
-            || characterOnscreen.y < 0 || characterOnscreen.y > Screen.height) {
-            nameContainer.gameObject.SetActive(false);
-            return;
+        Vector3 camToStatus = characterStatus.transform.position - Camera.main.transform.position;
+        float distanceOnCameraForward = Vector3.Dot(camToStatus, Camera.main.transform.forward);
+
+        float propotion = (distanceOnCameraForward / GameVariable.STD_DISTANCE);
+        Vector3 newScale = propotion * GameVariable.STD_SCALE;
+
+        if (standardCharacterScale != this.transform.localScale) {
+            float scaleFactor = this.transform.localScale.x / standardCharacterScale.x;
+            newScale /= scaleFactor;
         }
+        characterStatus.transform.localScale = newScale;
 
-        if (!nameContainer.gameObject.activeSelf) {
-            nameContainer.gameObject.SetActive(true);
-
-        }
-
-        characterOnscreen.z = 0;
-        //nameContainer.GetComponent<RectTransform>().localPosition =
-        //    characterOnscreen - new Vector3(Screen.width / 2, Screen.height / 2) + offset;
-        nameContainerRectTransform.position = characterOnscreen + offset;
+        characterScore.text = stateManager.CurrentScore.ToString();
     }
     #endregion
-
 }

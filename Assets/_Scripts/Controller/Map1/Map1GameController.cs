@@ -1,8 +1,5 @@
-using NUnit.Framework;
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
-using UnityEditor.ShaderGraph.Internal;
 using UnityEngine;
 
 public class Map1GameController : MonoBehaviour
@@ -73,6 +70,13 @@ public class Map1GameController : MonoBehaviour
         PlayerController.Instance.PlayerBehaviour();
     }
 
+    private void LateUpdate() {
+        for (int i = 0; i < listEnemyController.Count; i++) {
+            if (listEnemyController[i] != null)
+                listEnemyController[i].UpdateEnemyStatus();
+        }
+        PlayerController.Instance.UpdatePlayerStatus();
+    }
     IEnumerator StartGame() {
         for (int i = 0; i < startEnemyCount; i++) {
             EnemyController enemyContrl = SpawnEnemyController.Instance.SpawnEnemy();
@@ -85,8 +89,10 @@ public class Map1GameController : MonoBehaviour
         GameUIController.Instance.TurnOnInGameUI();
         GameUIController.Instance.TurnOnFloatingText();
         GameUIController.Instance.DisplayEnemyCount(maxEnemyCount);
+
         CameraController.Instance.TurnOnGamePlayCamera();
         MaxManager.Instance.StopShowBannerAd();
+        PlayerController.Instance.SetPlayerName();
     }
 
     /*Set Up khi Win Game*/
@@ -109,6 +115,8 @@ public class Map1GameController : MonoBehaviour
         yield return new WaitUntil(() => GameUIController.Instance.isRevived);
         Vector3 position = SpawnEnemyController.Instance.GetValidPosition();
         PlayerController.Instance.PlayerRevive(position);
+
+        GameUIController.Instance.TurnOnFloatingText();
         isPlayerLose = false;
         StartCoroutine(LoseGame());
     }

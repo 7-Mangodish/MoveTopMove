@@ -20,13 +20,12 @@ public class CameraController : MonoBehaviour
             Destroy(this.gameObject);
     }
 
-
-
     #region ----------Normal_Mode----------
     public void SetUpCamera() {
         winingCamera.gameObject.SetActive(false);
         gamePlayCamera.gameObject.SetActive(false);
         shopCamera.gameObject.SetActive(false);
+        homePageCamera.gameObject.SetActive(true);
     }
 
     public void TurnOffPlayerShoppingCamera() {

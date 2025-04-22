@@ -28,6 +28,7 @@ public class ZombieUIController : MonoBehaviour
     [SerializeField] private Button changeAbilityButton_1;
     [SerializeField] private Button changeAbilityButton_2;
     [SerializeField] private Button selectAbilityButton;
+    [SerializeField] private Button homeCenterButton;
     [SerializeField] private Image abilityImage;
     [SerializeField] private TextMeshProUGUI abilityNameText;
     [SerializeField] private TextMeshProUGUI faildUpgradeText;
@@ -114,6 +115,7 @@ public class ZombieUIController : MonoBehaviour
         skillData = DataManager.Instance.GetSkillData();
 
         SetUpTopPanel();
+        SetUpCenterPanelButton();
         SetUpSettingPanel();
         SetUpListHpImage((int)skillData.shield);
         SetUpPlayerCoinText();
@@ -134,6 +136,10 @@ public class ZombieUIController : MonoBehaviour
         playerCoinPanel.gameObject.SetActive(true);
         settingButton.gameObject.SetActive(false);
 
+
+    }
+
+    void SetUpCenterPanelButton() {
         refuseCenterButton.onClick.AddListener(() => {
             SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
 
@@ -149,9 +155,11 @@ public class ZombieUIController : MonoBehaviour
 
         });
 
-
+        homeCenterButton.onClick.AddListener(() => {
+            SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
+            SceneManager.LoadScene(GameVariable.normalSceneName);
+        });
     }
-
     public void  SetUpTopPanel() {
         int day = DataManager.Instance.GetZombieDayVictory();
         currentZombieDayText.text = "Day "+(day+1).ToString();

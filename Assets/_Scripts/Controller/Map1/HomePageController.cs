@@ -36,6 +36,7 @@ public class HomePageController : MonoBehaviour
     [SerializeField] private TextMeshProUGUI coinText;
 
     [Header("Player's Name")]
+    PlayerPersonalData playerPersonalData;
     [SerializeField] private TMP_InputField playerNameInput;
 
     [Header("Options Button")]
@@ -49,9 +50,6 @@ public class HomePageController : MonoBehaviour
     [SerializeField] private GameObject turnOnObject;
     [SerializeField] private GameObject turnOffObject;
     private bool isMute;
-
-    //public event EventHandler OnShopping;
-    //public event EventHandler OnOutShopping;
 
     public bool isStartGame;
 
@@ -82,9 +80,8 @@ public class HomePageController : MonoBehaviour
             playerNameInput.gameObject.SetActive(false);
             exp.SetActive(false);
 
-            Debug.Log("Play");
+            //Debug.Log("Play");
             joystick.gameObject.SetActive(true);
-            //OnStartGame?.Invoke(this, EventArgs.Empty);
             isStartGame = true;
         });
         SetCoinText();
@@ -124,19 +121,18 @@ public class HomePageController : MonoBehaviour
     }
 
     private void SetUpPlayerNameInput() {
-        if (!PlayerPrefs.HasKey("PlayerName"))
-            PlayerPrefs.SetString("PlayerName", "You");
-        playerNameInput.text = PlayerPrefs.GetString("PlayerName");
+        playerPersonalData = DataManager.Instance.GetPlayerPersonalData();
+        playerNameInput.text = playerPersonalData.playerName;
+
         playerNameInput.onValueChanged.AddListener((string name) => {
-            PlayerPrefs.SetString("PlayerName", name);
+            playerPersonalData.playerName = name;
+            DataManager.Instance.SavePlayerPersonalData(playerPersonalData);
         });
     }
     private void SetUpWeaponShop() {
         weaponShopButton.onClick.AddListener(() => {
             SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
 
-            //leftPanel.SetActive(false);
-            //rightPanel.SetActive(false);
             PlayerController.Instance.gameObject.SetActive(false);
             playerNameInput.gameObject.SetActive(false);
             weaponShopPanel.gameObject.SetActive(true);
@@ -147,10 +143,10 @@ public class HomePageController : MonoBehaviour
         exitWeaponButton.onClick.AddListener(() => {
             SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
 
+            GameObject[] enemyObjects = GameObject.FindGameObjectsWithTag(GameVariable.ENEMY_TAG);
+
             PlayerController.Instance.gameObject.SetActive(true);
             weaponShopPanel.gameObject.SetActive(false);
-            //leftPanel.SetActive(true);
-            //rightPanel.SetActive(true);
             playerNameInput.gameObject.SetActive(true);
             HomePageIn();
         });
@@ -199,4 +195,5 @@ public class HomePageController : MonoBehaviour
     public void HomePageIn() {
         homePageAnimator.Play("HomePage_Anim_In");
     }
+
 }

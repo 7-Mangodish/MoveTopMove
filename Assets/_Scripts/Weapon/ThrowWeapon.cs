@@ -54,12 +54,9 @@ public class ThrowWeapon : MonoBehaviour
                 stateWeapon.ownerStateManager.AddScore();
 
                 Destroy(this.gameObject);
-
-                Debug.Log("Enemy Take Dame");
             }
         }
         else if (other.gameObject.CompareTag("Player")) {
-            Debug.Log(stateWeapon.ownerStateManager.gameObject);
             if (stateWeapon.ownerStateManager.CompareTag("Enemy")) {
                 SoundManager.Instance.PlaySound(SoundManager.SoundName.dead_2);
 

@@ -30,6 +30,24 @@ public class DataManager : MonoBehaviour
         DontDestroyOnLoad(this.gameObject);
     }
 
+    #region -----------------PLAYER_DATA---------------
+    public PlayerPersonalData GetPlayerPersonalData() {
+        if (!PlayerPrefs.HasKey(GameVariable.PLAYER_PERSONAL_DATA))
+        {
+            PlayerPersonalData newData = new PlayerPersonalData();
+            SavePlayerPersonalData(newData);
+            
+        }
+        string json = PlayerPrefs.GetString(GameVariable.PLAYER_PERSONAL_DATA);
+        PlayerPersonalData data = JsonUtility.FromJson<PlayerPersonalData>(json);
+        return data;
+    }
+    public void SavePlayerPersonalData(PlayerPersonalData data) {
+        string json = JsonUtility.ToJson(data);
+        PlayerPrefs.SetString(GameVariable.PLAYER_PERSONAL_DATA, json);
+    }
+    #endregion
+
     #region ----------------WEAPON_DATA------------
     public WeaponData GetWeaponData(int weaponIndex) {
         if (!PlayerPrefs.HasKey(weaponIndex.ToString())) {

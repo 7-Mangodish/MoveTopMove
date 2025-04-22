@@ -70,7 +70,10 @@ public class GameUIController : MonoBehaviour
     }
 
     private void OnDisable() {
-        MaxManager.Instance.OnPlayerReceiveAward -= GameUI_OnPlayerReceiveAward;
+        if(MaxManager.Instance != null)
+            MaxManager.Instance.OnPlayerReceiveAward -= GameUI_OnPlayerReceiveAward;
+        else
+            Debug.LogError("Max is: "+MaxManager.Instance);
     }
     private void SetSetUpPanel() {
         settingButton.onClick.AddListener(() => {
@@ -96,7 +99,7 @@ public class GameUIController : MonoBehaviour
             deadPanel.gameObject.SetActive(true);
         });
         reviveByAdButton.onClick.AddListener(() => {
-            Debug.Log(this.name);
+            //Debug.Log(this.name);
             MaxManager.Instance.ShowRewardAd();
             isClickedRevive = true;
         });
@@ -126,14 +129,15 @@ public class GameUIController : MonoBehaviour
 
             winPanel.gameObject.SetActive(false);
             if (isClickedx3Reward)
-                CoinManager.Instance.SaveCoin(deadCoin * 3);
+                CoinManager.Instance.SaveCoin(winCoin * 3);
             else
-                CoinManager.Instance.SaveCoin(deadCoin);
+                CoinManager.Instance.SaveCoin(winCoin);
         });
         winx3RewardButton.onClick.AddListener(() => {
             MaxManager.Instance.ShowRewardAd();
             isClickedx3Reward = true;
         });
+        winCoinText.text = winCoin.ToString();
     }
     public void DisplayEnemyCount(int e) {
         enemyQuantityText.text = "Alive: " +  e.ToString();
@@ -150,7 +154,9 @@ public class GameUIController : MonoBehaviour
         if (!isRevived) {
             revivePanel.gameObject.SetActive(true);
             await Task.Delay(5200);
-            revivePanel.gameObject.SetActive(false);
+
+            if(revivePanel.gameObject!= null)
+                revivePanel.gameObject.SetActive(false);
             if (!isClickedRevive)
                 deadPanel.gameObject.SetActive(true);
         }
@@ -169,22 +175,26 @@ public class GameUIController : MonoBehaviour
             //GameController.Instance.DoPlayerRevive();
             revivePanel.gameObject.SetActive(false);
             isRevived = true;
+            Debug.LogWarning("isRevived: " + isRevived);
         }
+
     }
 
     public void TurnOffFloatingText() {
-        GameObject[] listName = GameObject.FindGameObjectsWithTag("NameCharacter");
-
+        GameObject[] listName = GameObject.FindGameObjectsWithTag(GameVariable.CHARACTER_STATUS_TAG);
         listCharacterDisplay.Clear();
         listCharacterDisplay.AddRange(listName);
         foreach (GameObject obs in listCharacterDisplay) {
-            obs.SetActive(false);
+            //Debug.Log(obs);
+            if(obs != null) 
+                obs.SetActive(false);
         }
     }
 
     public void TurnOnFloatingText() {
         foreach (GameObject obs in listCharacterDisplay) {
-            obs.SetActive(true);
+            if(obs != null) 
+                obs.SetActive(true);
         }
     }
     IEnumerator TurnOffInstructPanel() {

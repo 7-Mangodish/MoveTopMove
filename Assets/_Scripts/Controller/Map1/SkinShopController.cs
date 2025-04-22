@@ -110,6 +110,15 @@ public class SkinShopController : MonoBehaviour {
         MaxManager.Instance.OnPlayerReceiveAward += SkinShop_OnPlayerReceiveAward;
     }
 
+    private void OnDisable() {
+        //Debug.LogWarning(MaxManager.Instance);
+        if (MaxManager.Instance != null)
+            MaxManager.Instance.OnPlayerReceiveAward -= SkinShop_OnPlayerReceiveAward;
+        else
+            Debug.LogError("Max is null");
+
+    }
+
     void SetUpSelecButton() {
         selectButton.onClick.AddListener(() => {
             //data = GetSkinData();

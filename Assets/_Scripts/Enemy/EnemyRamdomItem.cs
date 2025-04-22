@@ -36,7 +36,6 @@ public class EnemyRamdomItem : MonoBehaviour {
     }
 
     void RandomEnemyMaterial() {
-        //characterSkin = GetComponentInChildren<SkinnedMeshRenderer>();
         int randNumber = Random.Range(0, materialObjects.listMaterials.Length);
         characterSkin.material = materialObjects.listMaterials[randNumber];
     }

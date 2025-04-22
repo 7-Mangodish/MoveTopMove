@@ -107,7 +107,13 @@ public class WeaponShopController : MonoBehaviour
         MaxManager.Instance.OnPlayerReceiveAward += WeaponShop_OnPlayerReceiveAward;
     }
 
+    private void OnDisable() {
+        if (MaxManager.Instance != null)
+            MaxManager.Instance.OnPlayerReceiveAward -= WeaponShop_OnPlayerReceiveAward;
+        else
+            Debug.LogError("Max is: null");
 
+    }
 
     public void LoadWeapon() {
         //Lay vu khi hien tai dang duoc chon

@@ -2,11 +2,9 @@ using System;
 using System.Collections;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using System.Xml.Serialization;
+using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.Animations;
-using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 
 public class PlayerController : MonoBehaviour
@@ -46,20 +44,28 @@ public class PlayerController : MonoBehaviour
     private Vector3 directEnemy;
     private bool canAttack;
     private Vector3 weaponSpawnPosition;
-    //public GameObject targetContainer;
-    private Transform targetTransform;
+    public Transform aimArea;
+    private GameObject aimEnemy;
 
     [Header("-----Level Up-----")]
     private StateManager stateManager;
     private ThrowWeapon.StateWeapon stateWeapon;
-    //private bool isDead;
     public bool startGame;
 
     [Header("-----Player Ability-----")]
     public GameObject weaponAbility1;
-    /*Ability*/
-
     private int chosenAbility;
+
+    [Header("-----Status-----")]
+    public GameObject playerStatus;
+    public TextMeshPro playerName;
+    public TextMeshPro playerScore;
+    public SkinnedMeshRenderer playerSkin;
+    public GameObject textScoreEffect;
+    private Vector3 standardCharacterScale;
+    private Vector3 standardEulerRot;
+
+
     private void Awake() {
         if (instance == null)
             instance = this;
@@ -69,13 +75,28 @@ public class PlayerController : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         animationControl = GetComponent<AnimationControl>();
         stateManager = GetComponent<StateManager>();
-
-
+        stateManager.OnCharacterTakeScore += StateManager_OnCharacterTakeScore;
     }
 
     private void OnDestroy() {
         if(SceneManager.GetActiveScene().name == GameVariable.normalSceneName && DataManager.Instance != null)
             DataManager.Instance.OnUserChangeWeapon -= PlayerController_OnUserChangeWeapon;
+    }
+
+    private void OnTriggerEnter(Collider other) {
+        if(other.gameObject.CompareTag(GameVariable.ENEMY_TAG) ||
+            other.gameObject.CompareTag(GameVariable.ZOMBIE_TAG)) {
+            aimEnemy = other.gameObject;
+            aimArea.gameObject.SetActive(true);
+        }
+    }
+
+    private void OnTriggerExit(Collider other) {
+        if (other.gameObject.CompareTag(GameVariable.AIM_AREA)) { 
+            aimArea.position = Vector3.zero;
+            aimEnemy = null;
+            aimArea.gameObject.SetActive(false);
+        }
     }
     public void SetUpPlayer() {
         timeAttackDuration = 3;
@@ -92,6 +113,13 @@ public class PlayerController : MonoBehaviour
         if(SceneManager.GetActiveScene().name == GameVariable.zombieSceneName) {
             SetUpAttackRange();
         }
+
+        /*Status*/
+        standardEulerRot = playerStatus.transform.rotation.eulerAngles;
+        standardCharacterScale = this.transform.localScale;
+
+        playerStatus.GetComponent<SpriteRenderer>().color = playerSkin.material.color;
+        playerName.color = playerSkin.material.color;
     }
 
     public void GetPlayerInput() {
@@ -106,6 +134,13 @@ public class PlayerController : MonoBehaviour
     }
 
     public void PlayerBehaviour() {
+        if (aimEnemy != null)
+            aimArea.position = aimEnemy.transform.position;
+        else {
+            aimArea.position = Vector3.zero;
+            aimArea.gameObject.SetActive(false);
+        }
+
         if (this.gameObject.tag == GameVariable.DEAD_TAG)
             return;
 
@@ -120,8 +155,8 @@ public class PlayerController : MonoBehaviour
         if (direct.normalized != Vector3.zero) {
             animationControl.SetRun();
             rb.MovePosition(rb.position + direct.normalized * speed * Time.fixedDeltaTime);
-            if (!canAttack)
-                canAttack = true;
+            //if (!canAttack)
+            //    canAttack = true;
         }
         else {
             animationControl.SetIdle();
@@ -134,19 +169,18 @@ public class PlayerController : MonoBehaviour
             if (DoCheckEnemyInside()) {
                 timeAttackDuration = 0;
                 canAttack = false;
-                //Debug.Log("Attack");
 
                 if (chosenAbility != 4) {
-                    //directEnemy = targetPosition - this.transform.position;
-                    directEnemy = targetTransform.position - this.transform.position;
+
+                    directEnemy = aimArea.position - this.transform.position;
                     directEnemy.y = 0;
                     RotateCharacter(directEnemy);
                     animationControl.SetAttack();
 
                 }
                 else {
-                    //directEnemy = targetPosition - this.transform.position;
-                    directEnemy = targetTransform.position - this.transform.position;
+
+                    directEnemy = aimArea.position - this.transform.position;
                     directEnemy.y = 0;
                     RotateCharacter(directEnemy);
                     StartCoroutine(AttackTwice());
@@ -156,18 +190,24 @@ public class PlayerController : MonoBehaviour
     }
 
     private bool DoCheckEnemyInside() {
-        if (targetTransform != null && !targetTransform.gameObject.CompareTag(GameVariable.DEAD_TAG))
-                return true;
+        //if (aimArea.gameObject.activeSelf && !aimEnemy.CompareTag(GameVariable.DEAD_TAG))
+        //    return true;
 
         float radius = playerAttackAreaCollider.radius * playerAttackAreaCollider.transform.lossyScale.x;
         Collider[] hitCollider = Physics.OverlapSphere(this.transform.position, radius );
         foreach (Collider hit in hitCollider) {
-            if (hit.gameObject.CompareTag(GameVariable.ENEMY_TAG) || hit.gameObject.CompareTag(GameVariable.ZOMBIE_TAG)) {
-                targetTransform = hit.transform;
-                //Debug.Log(targetTransform.position);
+            if(hit.gameObject.CompareTag(GameVariable.AIM_AREA)  && hit.gameObject.activeSelf && !aimEnemy.CompareTag(GameVariable.DEAD_TAG)) {
+                return true;
+            }
+            else if (hit.gameObject.CompareTag(GameVariable.ENEMY_TAG) || hit.gameObject.CompareTag(GameVariable.ZOMBIE_TAG)) {
+                aimEnemy = hit.gameObject;
+                aimArea.gameObject.SetActive(true);
                 return true;
             }
         }
+
+        aimArea.gameObject.SetActive(false);
+        aimEnemy = null;
         return false;
     }
     private async void Attack() {
@@ -218,7 +258,6 @@ public class PlayerController : MonoBehaviour
             stateWeapon.positionSpawn = weaponSpawnPosition;
             Rigidbody weaponRb = weaponSpawn.GetComponent<Rigidbody>();
 
-            Debug.Log(weaponRb + " " + this.gameObject.name) ;
             ThrowWeapon weaponThrow = weaponRb.GetComponent<ThrowWeapon>();
 
             // Kiem tra xem player co chon ability8 hay khong
@@ -279,6 +318,8 @@ public class PlayerController : MonoBehaviour
         playerAttackArea.transform.localScale = new Vector3(range, range, range);
 
     }
+
+    #region ----------WEAPON_MATERIALS----------
     private void LoadWeaponSkin() {
         int curWeapon = PlayerPrefs.GetInt(GameVariable.PLAYER_CURRENT_WEAPON);
 
@@ -298,7 +339,6 @@ public class PlayerController : MonoBehaviour
         weapon.GetComponent<MeshRenderer>().materials = materials;
     }
 
-#region ----------WEAPON_MATERIALS----------
     //private void SetUpWeaponMaterial(DataManager.OnUserChangeWeaponArg e) {
     //    int curWeapon = PlayerPrefs.GetInt("CurWeapon");
 
@@ -331,7 +371,7 @@ public class PlayerController : MonoBehaviour
     }
 #endregion
 
-#region ----------Dance----------
+    #region ----------Dance----------
     public void SetPlayerDance() {
         animationControl.SetDance();
     }
@@ -350,7 +390,7 @@ public class PlayerController : MonoBehaviour
     }
 #endregion
 
-#region ----------Abilty---------
+    #region ----------Abilty---------
     
     private void DoAbility() {
         switch (chosenAbility) {
@@ -532,10 +572,12 @@ public class PlayerController : MonoBehaviour
     }
 #endregion
     public void PlayerRevive(Vector3 newPosition) {
+        Debug.Log("PlayerRevive");
         canAttack = false;
         stateManager.isDead = false;
         animationControl.SetIdle();
-        targetTransform = null;
+        aimArea.gameObject.SetActive(false);
+        aimEnemy = null;
         this.gameObject.tag = "Player";
 
         //ReferenceToObject();
@@ -543,4 +585,34 @@ public class PlayerController : MonoBehaviour
         this.gameObject.transform.localPosition = new Vector3(newPosition.x, 0, newPosition.z);
     }
 
+    #region ------------Status------------
+
+    public void SetPlayerName() {
+        PlayerPersonalData data = DataManager.Instance.GetPlayerPersonalData();
+        playerName.text = data.playerName;
+    }
+    public void UpdatePlayerStatus() {
+        playerStatus.transform.rotation = Quaternion.Euler(standardEulerRot);
+
+        Vector3 camToStatus = playerStatus.transform.position - Camera.main.transform.position;
+        float distanceOnCameraForward = Vector3.Dot(camToStatus, Camera.main.transform.forward);
+
+        float propotion = (distanceOnCameraForward / GameVariable.STD_DISTANCE);
+        Vector3 newScale = propotion * GameVariable.STD_SCALE;
+
+        if (standardCharacterScale != this.transform.localScale) {
+            float scaleFactor = this.transform.localScale.x / standardCharacterScale.x;
+            newScale /= scaleFactor;
+        }
+        playerStatus.transform.localScale = newScale;
+
+    }
+
+    private async void StateManager_OnCharacterTakeScore(object sender, int e) {
+        playerScore.text = stateManager.CurrentScore.ToString();
+        textScoreEffect.gameObject.SetActive(true);
+        await Task.Delay(500);
+        textScoreEffect.gameObject.SetActive(false);
+    }
+    #endregion
 }

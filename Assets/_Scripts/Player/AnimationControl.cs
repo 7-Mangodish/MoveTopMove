@@ -68,9 +68,7 @@ public class AnimationControl : MonoBehaviour
         SetState(state.IsAttack, false);
     }
     public void PlayDeadEff() {
-        if(characterColor == null) 
-            characterColor = GetComponentInChildren<SkinnedMeshRenderer>().material.color;
-        Debug.LogWarning(characterColor);
+        characterColor = GetComponentInChildren<SkinnedMeshRenderer>().material.color;
 
         Vector3 positionSpawn = new Vector3(this.transform.position.x, this.transform.position.y + .2f, this.transform.position.z);
         Transform pref = Instantiate(deadPrefab, positionSpawn, Quaternion.identity);
