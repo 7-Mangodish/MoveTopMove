@@ -157,7 +157,7 @@ public class ZombieUIController : MonoBehaviour
 
         homeCenterButton.onClick.AddListener(() => {
             SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
-            SceneManager.LoadScene(GameVariable.normalSceneName);
+            SceneManager.LoadScene(GameVariable.zombieSplashSceneOutName);
         });
     }
     public void  SetUpTopPanel() {
@@ -329,7 +329,7 @@ public class ZombieUIController : MonoBehaviour
         homeEndPanelButton.onClick.AddListener(() => {
             SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
 
-            SceneManager.LoadScene(GameVariable.normalSceneName);
+            SceneManager.LoadScene(GameVariable.zombieSplashSceneOutName);
         });
         claimCoinButton.onClick.AddListener(() => {
             SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
@@ -412,7 +412,7 @@ public class ZombieUIController : MonoBehaviour
         homeButton.onClick.AddListener(() => {
             if (SoundManager.Instance != null)
                 SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
-            SceneManager.LoadScene(0);
+            SceneManager.LoadScene(GameVariable.zombieSplashSceneOutName);
         });
 
         continueButton.onClick.AddListener(() => {
@@ -450,7 +450,9 @@ public class ZombieUIController : MonoBehaviour
         if (!isRevived) {
             revivePanel.gameObject.SetActive(true);
             await Task.Delay(5200);
-            revivePanel.gameObject.SetActive(false);
+            
+            if(reviveButton != null)
+                revivePanel.gameObject.SetActive(false);
             if(!isCLickRevive)
                 endPanel.gameObject.SetActive(true);
         }
@@ -474,6 +476,7 @@ public class ZombieUIController : MonoBehaviour
             //GameController.Instance.DoPlayerRevive();
             isRevived = true;
             revivePanel.gameObject.SetActive(false);
+            FirebaseManager.Instance.HandlerClickAdEvent(FirebaseManager.TypeEvent.clickReviveAd, FirebaseManager.TypeAd.reward);
         }
         if (!isClickSelectAbilityButton) {
             isClickSelectAbilityButton = true;
@@ -485,14 +488,17 @@ public class ZombieUIController : MonoBehaviour
 
             isStartGame = true;
             choosenAbility = listAbilitiesIndex[currentAbility];
-            //OnPlayerChooseAbility?.Invoke(this, listAbilitiesIndex[currentAbility]);
+
+            FirebaseManager.Instance.HandlerClickAdEvent(FirebaseManager.TypeEvent.clickAbilityAd, FirebaseManager.TypeAd.reward);
         }
-        if(t == MaxManager.TypeReward.x3Coin) {
+        if (t == MaxManager.TypeReward.x3Coin) {
             endGameCoin *= 3;
 
             CoinManager.Instance.SaveCoin(endGameCoin);
             SetUpPlayerCoinText();
             SceneManager.LoadScene(GameVariable.zombieSceneName);
+
+            FirebaseManager.Instance.HandlerClickAdEvent(FirebaseManager.TypeEvent.clickX3CoinAd, FirebaseManager.TypeAd.reward);
         }
 
     }

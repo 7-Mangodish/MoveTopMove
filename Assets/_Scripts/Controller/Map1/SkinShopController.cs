@@ -620,7 +620,9 @@ public class SkinShopController : MonoBehaviour {
     }
 
     private void SkinShop_OnPlayerReceiveAward(object sender, MaxManager.TypeReward t) {
-        if(t == MaxManager.TypeReward.playerSkin)
+        if(t == MaxManager.TypeReward.playerSkin) {
             HandlerPurchaseByAdButton();
+            FirebaseManager.Instance.HandlerClickAdEvent(FirebaseManager.TypeEvent.clickSkinShopAd, FirebaseManager.TypeAd.reward);
+        }
     }
 }

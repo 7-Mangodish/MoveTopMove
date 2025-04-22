@@ -3,6 +3,8 @@ using Firebase.Analytics;
 using Firebase.Database;
 using System.Threading.Tasks;
 using UnityEngine;
+using static FirebaseSDK;
+using static MaxSdkBase;
 
 public class FirebaseManager : MonoBehaviour
 {
@@ -12,6 +14,16 @@ public class FirebaseManager : MonoBehaviour
     private DatabaseReference databaseReference;
     private FirebaseApp app;
 
+    public enum TypeAd {
+        reward
+    }
+    public enum TypeEvent {
+        clickSkinShopAd,
+        clickWeaponShopAd,
+        clickReviveAd,
+        clickAbilityAd,
+        clickX3CoinAd
+    }
     public bool isInit;
     private void Awake() {
         if (instance == null) {
@@ -47,8 +59,17 @@ public class FirebaseManager : MonoBehaviour
     }
 
 
-    // Save and Load Data
-    public async void SavePlayerData(string playerId, PlayerData data) {
+    #region -----REALTIME_DATABASE-----
+    public async Task<string> CreateNewPlayer(PlayerPersonalData data) {
+        DatabaseReference newPlayerRef = databaseReference.Child("players").Push();
+        string playerId = newPlayerRef.Key;
+
+        string json = JsonUtility.ToJson(data);
+        await newPlayerRef.SetRawJsonValueAsync(json);
+
+        return playerId;
+    }
+    public async void SavePlayerData(string playerId, PlayerPersonalData data) {
         DataSnapshot dataSnapshot = await databaseReference.Child("players").Child(playerId).GetValueAsync();
         if (!dataSnapshot.Exists) {
             Debug.Log(playerId + " not exists");
@@ -60,20 +81,20 @@ public class FirebaseManager : MonoBehaviour
         Debug.Log("PlayerData is saved");
     }
 
-    public async Task<PlayerData> LoadPlayerData(string playerId) {
-        DataSnapshot dataSnapshot = await databaseReference.Child("players").Child(playerId).GetValueAsync();
-        if (!dataSnapshot.Exists) {
-            Debug.Log(playerId + " not exists");
-            return null;
-        }
-        string json = dataSnapshot.GetRawJsonValue();
-        PlayerData data = JsonUtility.FromJson<PlayerData>(json);
-        return data;
+    //public async Task<PlayerData> LoadPlayerData(string playerId) {
+    //    DataSnapshot dataSnapshot = await databaseReference.Child("players").Child(playerId).GetValueAsync();
+    //    if (!dataSnapshot.Exists) {
+    //        Debug.Log(playerId + " not exists");
+    //        return null;
+    //    }
+    //    string json = dataSnapshot.GetRawJsonValue();
+    //    PlayerData data = JsonUtility.FromJson<PlayerData>(json);
+    //    return data;
+    #endregion
 
+    #region -----REALTIME_ANALYSIS-----
+    public void HandlerClickAdEvent(TypeEvent typeEvent,TypeAd typeAd) {
+        FirebaseAnalytics.LogEvent(typeEvent.ToString(),new Parameter("ad_type", typeAd.ToString()));
     }
-    public class PlayerData {
-        public string name;
-        public int coin;
-        public SkinData skinData;
-    }
+    #endregion
 }

@@ -28,12 +28,13 @@ public class ThrowWeapon : MonoBehaviour
     private void OnTriggerEnter(Collider other) {
         if (other.gameObject.CompareTag("Zombie")) {
 
-            //stateWeapon.ownerStateManager.AddScore();
             other.GetComponent<ZombieController>().ZombieTakeDame(stateWeapon.ownerStateManager);
             SoundManager.Instance.PlaySound(SoundManager.SoundName.weapon_hit);
-
             if(!isPiering)
                 Destroy(this.gameObject);
+            else
+                this.gameObject.GetComponent<BoxCollider>().enabled = false;
+
         }
         else if (other.gameObject.CompareTag("Enemy")) {
             if(stateWeapon.ownerStateManager.CompareTag("Enemy") && 

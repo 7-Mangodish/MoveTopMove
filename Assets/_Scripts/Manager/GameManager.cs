@@ -15,6 +15,11 @@ public class GameManager : MonoBehaviour
         yield return new WaitUntil(() => FirebaseManager.Instance.isInit == true);
 
         AppsFlyermanager.Instance.InitAppsFlyer();
+
+        DataManager.Instance.InitDataManager();
+        yield return new WaitUntil(() => DataManager.Instance.isInit == true);
+
         SceneManager.LoadScene(GameVariable.normalSceneName);
+
     }
 }

@@ -9758,6 +9758,7 @@ MonoBehaviour:
   playerScaleText: {fileID: 1528199201}
   playerShield: {fileID: 2113870202}
   isLevelUpZombieMode: 0
+  enemyCount: 0
   isDead: 0
 --- !u!1 &614178567
 GameObject:
@@ -26994,7 +26995,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1593323170}
   m_LocalRotation: {x: -0, y: -0, z: 0.7071068, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0.01}
   m_LocalScale: {x: -1.6666663, y: 1.333333, z: 1.3333334}
   m_ConstrainProportionsScale: 0
   m_Children: []

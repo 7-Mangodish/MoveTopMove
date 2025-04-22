@@ -525,8 +525,8 @@ public class WeaponShopController : MonoBehaviour
         }
         if(t == MaxManager.TypeReward.weaponSkin) {
             HandlerPurchaseSkinByAd();
-
         }
+        FirebaseManager.Instance.HandlerClickAdEvent(FirebaseManager.TypeEvent.clickWeaponShopAd, FirebaseManager.TypeAd.reward);
 
     }
 }

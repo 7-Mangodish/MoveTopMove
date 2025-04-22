@@ -75,12 +75,6 @@ public class StateManager : MonoBehaviour
                 }
             }
         }
-        //if (currentScore%(10*currentLevel + currentScore) == 0 && currentScore !=0) {
-        //    if (SceneManager.GetActiveScene().name == GameVariable.normalSceneName)
-        //        DoCharacterLevelUp();
-        //    else if(SceneManager.GetActiveScene().name == GameVariable.zombieSceneName)
-        //        DoCharaterLevelUpZombieMode();
-        //}
     }
 
 #region -----CHARACTER_LEVEL_UP-----

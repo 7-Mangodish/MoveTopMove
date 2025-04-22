@@ -103,7 +103,6 @@ public class FirebaseSDK : MonoBehaviour
             new Parameter("reward_amount", reward)
         );
 
-        Debug.Log($"Type AD: {typeAd}, Take {reward} coin!");
     }
     #endregion
 

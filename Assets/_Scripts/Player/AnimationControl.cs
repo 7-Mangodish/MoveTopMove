@@ -22,7 +22,7 @@ public class AnimationControl : MonoBehaviour
 
     private void Awake() {
         animator = GetComponent<Animator>();
-        if(this.gameObject.CompareTag("Player"))
+        if(this.gameObject.CompareTag(GameVariable.PLAYER_TAG))
             animator.SetFloat("AttackSpeed", 1.5f);
 
     }

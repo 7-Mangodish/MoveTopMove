@@ -20,6 +20,10 @@ public class GameUIController : MonoBehaviour
     [SerializeField] private GameObject settingUIPanel;
     [SerializeField] private Button settingHomeButton;
     [SerializeField] private Button settingContinueButton;
+    [SerializeField] private Button soundOnButton;
+    [SerializeField] private Button soundOffButton;
+    [SerializeField] private Button vibrationOnButton;
+    [SerializeField] private Button vibrationOffButton;
 
     [Header("-----InGame-----")]
     [SerializeField] private TextMeshProUGUI enemyQuantityText;
@@ -58,7 +62,7 @@ public class GameUIController : MonoBehaviour
 
         SetUpRevivePanel();
         SetUpDeadPanel();
-        SetSetUpPanel();
+        SetSettingPanel();
         SetUpWinPanel();
         StartCoroutine(TurnOffInstructPanel());
     }
@@ -75,7 +79,7 @@ public class GameUIController : MonoBehaviour
         else
             Debug.LogError("Max is: "+MaxManager.Instance);
     }
-    private void SetSetUpPanel() {
+    private void SetSettingPanel() {
         settingButton.onClick.AddListener(() => {
             settingUIPanel.gameObject.SetActive(true);
             TurnOffFloatingText();
@@ -91,6 +95,28 @@ public class GameUIController : MonoBehaviour
             settingUIPanel.SetActive(false);
             Time.timeScale = 1f;
             TurnOnFloatingText();
+        });
+
+        soundOnButton.onClick.AddListener(() => {
+            soundOnButton.gameObject.SetActive(false);
+            soundOffButton.gameObject.SetActive(true);
+            SoundManager.Instance.TurnOffSound();
+        });
+
+        soundOffButton.onClick.AddListener(() => {
+            soundOffButton.gameObject.SetActive(false);
+            soundOnButton.gameObject.SetActive(true);
+            SoundManager.Instance.TurnOnSound();
+        });
+
+        vibrationOnButton.onClick.AddListener(() => {
+            vibrationOnButton.gameObject.SetActive(false);
+            vibrationOffButton.gameObject.SetActive(true);
+        });
+
+        vibrationOffButton.onClick.AddListener(() => {
+            vibrationOffButton.gameObject.SetActive(false);
+            vibrationOnButton.gameObject.SetActive(true);
         });
     }
     private void SetUpRevivePanel() {
@@ -175,6 +201,7 @@ public class GameUIController : MonoBehaviour
             //GameController.Instance.DoPlayerRevive();
             revivePanel.gameObject.SetActive(false);
             isRevived = true;
+            FirebaseManager.Instance.HandlerClickAdEvent(FirebaseManager.TypeEvent.clickReviveAd, FirebaseManager.TypeAd.reward);
             Debug.LogWarning("isRevived: " + isRevived);
         }
 

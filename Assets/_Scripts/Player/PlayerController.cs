@@ -86,8 +86,11 @@ public class PlayerController : MonoBehaviour
     private void OnTriggerEnter(Collider other) {
         if(other.gameObject.CompareTag(GameVariable.ENEMY_TAG) ||
             other.gameObject.CompareTag(GameVariable.ZOMBIE_TAG)) {
-            aimEnemy = other.gameObject;
-            aimArea.gameObject.SetActive(true);
+            if(!aimArea.gameObject.activeSelf && aimEnemy== null) {
+                //aimEnemy = other.gameObject;
+                //aimArea.gameObject.SetActive(true);
+                DoCheckEnemyInside();
+            }
         }
     }
 
@@ -106,7 +109,9 @@ public class PlayerController : MonoBehaviour
         weaponMultipleAbility = 1;
 
         stateWeapon = stateManager.GetStateWeapon();
-        LoadWeaponSkin();
+        LoadWeaponSkin(weapon);
+        LoadWeaponSkin(weaponHold.gameObject);
+
         if (SceneManager.GetActiveScene().name == GameVariable.normalSceneName) {
             DataManager.Instance.OnUserChangeWeapon += PlayerController_OnUserChangeWeapon;
         }
@@ -179,7 +184,7 @@ public class PlayerController : MonoBehaviour
 
                 }
                 else {
-
+                    Debug.LogWarning("Twice");
                     directEnemy = aimArea.position - this.transform.position;
                     directEnemy.y = 0;
                     RotateCharacter(directEnemy);
@@ -189,25 +194,34 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    #region -----------ATTACK-----------
     private bool DoCheckEnemyInside() {
-        //if (aimArea.gameObject.activeSelf && !aimEnemy.CompareTag(GameVariable.DEAD_TAG))
-        //    return true;
+        if (aimArea.gameObject.activeSelf && aimEnemy != null && !aimEnemy.CompareTag(GameVariable.DEAD_TAG))
+            return true;
 
         float radius = playerAttackAreaCollider.radius * playerAttackAreaCollider.transform.lossyScale.x;
         Collider[] hitCollider = Physics.OverlapSphere(this.transform.position, radius );
+
+        float minDisTance = float.MaxValue;
         foreach (Collider hit in hitCollider) {
-            if(hit.gameObject.CompareTag(GameVariable.AIM_AREA)  && hit.gameObject.activeSelf && !aimEnemy.CompareTag(GameVariable.DEAD_TAG)) {
-                return true;
-            }
-            else if (hit.gameObject.CompareTag(GameVariable.ENEMY_TAG) || hit.gameObject.CompareTag(GameVariable.ZOMBIE_TAG)) {
-                aimEnemy = hit.gameObject;
-                aimArea.gameObject.SetActive(true);
-                return true;
+            if (hit.gameObject.CompareTag(GameVariable.ENEMY_TAG) || hit.gameObject.CompareTag(GameVariable.ZOMBIE_TAG)) {
+
+                float distance = Vector2.Distance(this.gameObject.transform.position, hit.gameObject.transform.position);
+                if ( distance < minDisTance ) {
+                    minDisTance = distance;
+                    aimEnemy = hit.gameObject;
+                }
+                //aimEnemy = hit.gameObject;
+                //aimArea.gameObject.SetActive(true);
             }
         }
 
-        aimArea.gameObject.SetActive(false);
-        aimEnemy = null;
+        if (aimEnemy != null)
+            aimArea.gameObject.SetActive(true);
+        else
+            aimArea.gameObject.SetActive(false);
+
+        //aimEnemy = null;
         return false;
     }
     private async void Attack() {
@@ -291,6 +305,8 @@ public class PlayerController : MonoBehaviour
     private void EndAttack() {
         animationControl.SetEndAttack();
     }
+    #endregion
+
     private void RotateCharacter(Vector3 direct) {
         if (direct == Vector3.zero)
             return;
@@ -298,7 +314,7 @@ public class PlayerController : MonoBehaviour
         Quaternion rot = Quaternion.LookRotation(direct.normalized, Vector3.up);
         transform.rotation = Quaternion.RotateTowards(this.transform.rotation, rot, deltaAngle);
     }
-    
+
     // Duoc goi khi tham chieu den Skill de lay chi so
     public void ReferenceToSkillAndAbility(SkillData skillData) {
         shield = skillData.shield;
@@ -307,7 +323,7 @@ public class PlayerController : MonoBehaviour
         bonusWeaponQuantity = skillData.weaponBonus;
 
         chosenAbility = ZombieUIController.choosenAbility;
-        if (chosenAbility == 1 || chosenAbility == 2 || 
+        if (chosenAbility == 1 || chosenAbility == 2 || chosenAbility == 4 ||
             chosenAbility == 7 || chosenAbility == 11 || chosenAbility == 12 || chosenAbility == 13)
             DoAbility();
     }
@@ -320,14 +336,15 @@ public class PlayerController : MonoBehaviour
     }
 
     #region ----------WEAPON_MATERIALS----------
-    private void LoadWeaponSkin() {
+    private void LoadWeaponSkin(GameObject wp) {
         int curWeapon = PlayerPrefs.GetInt(GameVariable.PLAYER_CURRENT_WEAPON);
 
         WeaponData data = DataManager.Instance.GetWeaponData(curWeapon);
         Mesh mesh = weaponObjects.GetMeshWeapon(curWeapon, 2);
 
-        weaponHold.GetComponent<MeshFilter>().mesh = mesh;
-        weapon.GetComponent<MeshFilter>().mesh = mesh;
+        //weaponHold.GetComponent<MeshFilter>().mesh = mesh;
+        //weapon.GetComponent<MeshFilter>().mesh = mesh;
+        wp.GetComponent<MeshFilter>().mesh = mesh;
 
         Material[] weaponMaterial = DataManager.Instance.GetWeaponMaterial(curWeapon);
         int materialCount = weaponObjects.GetListMaterials(curWeapon, 2).Length;
@@ -335,39 +352,17 @@ public class PlayerController : MonoBehaviour
         for (int i = 0; i < materialCount; i++) {
             materials[i] = weaponMaterial[i];
         }
-        weaponHold.GetComponent<MeshRenderer>().materials = materials;
-        weapon.GetComponent<MeshRenderer>().materials = materials;
+        //weaponHold.GetComponent<MeshRenderer>().materials = materials;
+        //weapon.GetComponent<MeshRenderer>().materials = materials;
+        wp.GetComponent<MeshRenderer>().materials = materials;
     }
 
-    //private void SetUpWeaponMaterial(DataManager.OnUserChangeWeaponArg e) {
-    //    int curWeapon = PlayerPrefs.GetInt("CurWeapon");
-
-    //    WeaponData data = DataManager.Instance.GetWeaponData(curWeapon);
-    //    Mesh mesh = weaponObjects.GetMeshWeapon(curWeapon, 2);
-
-    //    weaponHold.GetComponent<MeshFilter>().mesh = mesh;
-    //    weapon.GetComponent<MeshFilter>().mesh = mesh;
-
-    //    int materialCount = weaponObjects.GetListMaterials(curWeapon, 2).Length;
-    //    Debug.LogWarning(materialCount);
-    //    Material[] materials = new Material[materialCount];
-
-    //    if (e.skinIndex != 0) {
-    //        materials = weaponObjects.GetListMaterials(curWeapon, data.skinIndex);
-    //    }
-    //    else {
-    //        for (int i = 0; i < materialCount; i++)
-    //            materials[i] = e.materials[i];
-    //    }
-
-    //    weaponHold.GetComponent<MeshRenderer>().materials = materials;
-    //    weapon.GetComponent<MeshRenderer>().materials = materials;
-    //}
 
     private void PlayerController_OnUserChangeWeapon(object sender, DataManager.OnUserChangeWeaponArg e) {
         //if(this == null) return;
         //SetUpWeaponMaterial(e);
-        LoadWeaponSkin();
+        LoadWeaponSkin(weapon);
+        LoadWeaponSkin(weaponHold.gameObject);
     }
 #endregion
 
@@ -450,6 +445,8 @@ public class PlayerController : MonoBehaviour
 
     /*Circle Weapon*/
     private void Ability1() {
+
+        LoadWeaponSkin(weaponAbility1);
         weaponAbility1.SetActive(true);
     }
 
@@ -565,6 +562,7 @@ public class PlayerController : MonoBehaviour
     }
     
     private IEnumerator AttackTwice() {
+        Debug.Log("AttackTwice");
         animationControl.SetAttack();
         yield return new WaitForSeconds(.5f);
         animationControl.SetEndAttack();

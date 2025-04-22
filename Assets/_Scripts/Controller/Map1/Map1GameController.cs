@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.AI.Navigation;
 using UnityEngine;
 
 public class Map1GameController : MonoBehaviour
@@ -7,10 +8,14 @@ public class Map1GameController : MonoBehaviour
     private static Map1GameController instance;
     public static Map1GameController Instance { get => instance; }
 
+    [Header("Zone")]
+    public GameObject zone1;
+    public GameObject zone2;
+
+    [Header("-----GAME_PLAY-----")]
     public int startEnemyCount;
     public int maxEnemyCount;
     public List<EnemyController> listEnemyController = new List<EnemyController>();
-
     private bool isPlayerWin = false;
     private bool isPlayerLose = false;
     private void Awake() {
@@ -78,10 +83,21 @@ public class Map1GameController : MonoBehaviour
         PlayerController.Instance.UpdatePlayerStatus();
     }
     IEnumerator StartGame() {
+        PlayerPersonalData data = DataManager.Instance.GetPlayerPersonalData();
+        if (data.zone == 1) {
+            zone1.gameObject.SetActive(true);
+            zone2.gameObject.SetActive(false);
+        }
+        else {
+            zone1.gameObject.SetActive(false);
+            zone2.gameObject.SetActive(true);
+        }
+
         for (int i = 0; i < startEnemyCount; i++) {
             EnemyController enemyContrl = SpawnEnemyController.Instance.SpawnEnemy();
             listEnemyController.Add(enemyContrl);
         }
+
         GameUIController.Instance.TurnOffFloatingText();
         MaxManager.Instance.ShowBannerAd();
         yield return new WaitUntil(() => HomePageController.Instance.isStartGame);

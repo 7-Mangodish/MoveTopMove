@@ -5,10 +5,14 @@ public class DataManager : MonoBehaviour
 {
     private static DataManager instance;
     public static DataManager Instance { get => instance; }
+
+    public static string PLAYER_ID;
+    public bool isInit = false;
+
+
     [Header("-----WEAPON-----")]
     public WeaponObjects weaponObjects;
     public Material[] listMaterial;
-
     public class OnUserChangeWeaponArg : EventArgs {
         public int skinIndex;
         public Material[] materials;
@@ -30,11 +34,39 @@ public class DataManager : MonoBehaviour
         DontDestroyOnLoad(this.gameObject);
     }
 
+    private void OnApplicationQuit() {
+        SaveData();
+    }
+
+    /*
+     Lay Player ID, Neu khong co, tao moi thong qua Firebase va luu duoi PlayerPref
+     */
+    public async void InitDataManager() {
+        if (!PlayerPrefs.HasKey(GameVariable.PLAYER_ID)) {
+            string deviceModel = SystemInfo.deviceModel;
+
+            PlayerPersonalData playerData = new PlayerPersonalData(deviceModel);
+            PLAYER_ID = await FirebaseManager.Instance.CreateNewPlayer(playerData);
+
+            PlayerPrefs.SetString(GameVariable.PLAYER_ID, PLAYER_ID);
+        }
+        else
+            PLAYER_ID = PlayerPrefs.GetString(GameVariable.PLAYER_ID);
+        isInit = true;
+    }
+    
+    // Luu Data khi Out App
+    private void SaveData() {
+        PlayerPersonalData data = GetPlayerPersonalData();
+        FirebaseManager.Instance.SavePlayerData(PLAYER_ID, data);
+    }
+
     #region -----------------PLAYER_DATA---------------
     public PlayerPersonalData GetPlayerPersonalData() {
         if (!PlayerPrefs.HasKey(GameVariable.PLAYER_PERSONAL_DATA))
         {
-            PlayerPersonalData newData = new PlayerPersonalData();
+            string deviceModel = SystemInfo.deviceModel;
+            PlayerPersonalData newData = new PlayerPersonalData(deviceModel);
             SavePlayerPersonalData(newData);
             
         }

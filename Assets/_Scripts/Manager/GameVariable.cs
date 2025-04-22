@@ -15,6 +15,7 @@ public class GameVariable : MonoBehaviour
     public static string zombieSplashSceneOutName = "ZombieSplashScene_Out";
 
     public static string ZOMBIE_DAY_VICTORY = "ZombieDayVictory";
+    public static string PLAYER_ID = "PlayerId";
     public static string PLAYER_COIN = "PlayerCoin";
     public static string PLAYER_SKIN = "PlayerSkin";
     public static string PLAYER_SKILL = "PlayerSkill";
