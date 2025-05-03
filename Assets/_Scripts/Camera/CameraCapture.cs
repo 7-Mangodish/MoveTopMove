@@ -30,10 +30,4 @@ public class CameraCapture : MonoBehaviour {
 
         Debug.Log("Screenshot saved to: " + filePath);
     }
-
-    private void Update() {
-        if (Input.GetKeyDown(KeyCode.Q)) {
-            StartCoroutine(TakeScreenShotAndShow());
-        }
-    }
 }

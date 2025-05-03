@@ -12,6 +12,7 @@ public class ZombieGameController : MonoBehaviour
     public int currentZombieCount;
     public int maxZombieCount;
     public List<ZombieController> listZombieController = new List<ZombieController>();
+    private SoundController soundController;
 
     private bool isPlayerLose = false;
     private bool isPlayerWin = false;
@@ -75,13 +76,13 @@ public class ZombieGameController : MonoBehaviour
         yield return new WaitUntil(() => (!isPlayerLose && isPlayerWin && ZombieUIController.Instance.isStartGame));
         ZombieUIController.Instance.TurnOnWinUI();
         PlayerController.Instance.SetPlayerWinDance();
-        SoundManager.Instance.PlaySound(SoundManager.SoundName.end_win);
+        soundController.PlaySound(SoundData.SoundName.end_win);
         CameraController.Instance.TurnOnZombieWinCamera();
     }
     IEnumerator LoseGame() {
         yield return new WaitUntil(() => (isPlayerLose && !isPlayerWin && ZombieUIController.Instance.isStartGame));
         ZombieUIController.Instance.TurnOnLoseUI();
-        SoundManager.Instance.PlaySound(SoundManager.SoundName.end_lose);
+        AudioManager.Instance.PlaySoundClickButton();
 
     }
 

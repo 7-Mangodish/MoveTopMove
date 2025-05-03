@@ -74,6 +74,7 @@ public class ZombieController : MonoBehaviour
 
     public void ZombieTakeDame(StateManager playerState) {
         hp -= 1;
+        this.gameObject.tag = GameVariable.DEAD_TAG;
         animationControl.PlayDeadEff();
         if (hp == 6 || hp == 3) {
             this.transform.localScale -= new Vector3(.25f, .25f, .25f);

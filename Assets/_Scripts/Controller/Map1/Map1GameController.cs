@@ -8,7 +8,9 @@ public class Map1GameController : MonoBehaviour
     private static Map1GameController instance;
     public static Map1GameController Instance { get => instance; }
 
-    [Header("Zone")]
+
+    private SoundController soundController;
+    [Header("-----ZONE-----")]
     public GameObject zone1;
     public GameObject zone2;
 
@@ -18,12 +20,18 @@ public class Map1GameController : MonoBehaviour
     public List<EnemyController> listEnemyController = new List<EnemyController>();
     private bool isPlayerWin = false;
     private bool isPlayerLose = false;
+
+    [Header("-----ENEMY_STATUS-----")]
+    public List<GameObject> listEnemyStatus = new List<GameObject>();
+    public List<GameObject> listEnemyIndicator = new List<GameObject>();
     private void Awake() {
         if (instance == null) {
             instance = this;
         }
         else
             Destroy(this.gameObject);
+
+        soundController = GetComponent<SoundController>();
     }
 
     private void Start() {
@@ -31,7 +39,7 @@ public class Map1GameController : MonoBehaviour
         HomePageController.Instance.SetUpHomePage();
         SkinShopController.Instance.SetUpSkinShop();
         PlayerController.Instance.SetUpPlayer();
-        WeaponShopController.Instance.LoadWeapon();
+        //WeaponShopController.Instance.LoadWeapon();
 
         StartCoroutine(StartGame());
         StartCoroutine(WinGame());
@@ -39,28 +47,29 @@ public class Map1GameController : MonoBehaviour
         StartCoroutine(Revive());
     }
 
-    private void Update() {
-        if (!HomePageController.Instance.isStartGame)
-            return;
-
+    private void Update() {           
+        if (!HomePageController.Instance.isStartGame) return;
+        //
         PlayerController.Instance.GetPlayerInput();
-
+        //
         for (int i = 0; i < listEnemyController.Count; i++) {
             if (listEnemyController[i] == null) {
                 maxEnemyCount -= 1;
-                GameUIController.Instance.DisplayEnemyCount(maxEnemyCount);
-
-                if (maxEnemyCount >= startEnemyCount)
-                    listEnemyController[i] = SpawnEnemyController.Instance.SpawnEnemy();
+                GameUIController.Instance.DisplayEnemyCount(maxEnemyCount + 1);
+                //
+                if (maxEnemyCount >= startEnemyCount) {
+                    EnemyController enemyCtrl = SpawnController.Instance.SpawnEnemy();
+                    listEnemyController[i] = enemyCtrl;
+                    listEnemyIndicator.Add(enemyCtrl.indicatorContainer);
+                    listEnemyStatus.Add(enemyCtrl.characterStatus);
+                }
                 else
                     listEnemyController.RemoveAt(i);
-
             }
             else
                 listEnemyController[i].EnemyBehaviour();
         }
-
-
+        //
         if (listEnemyController.Count == 0  && PlayerController.Instance.gameObject.activeSelf) {
             isPlayerWin = true;
             return;
@@ -77,14 +86,22 @@ public class Map1GameController : MonoBehaviour
 
     private void LateUpdate() {
         for (int i = 0; i < listEnemyController.Count; i++) {
-            if (listEnemyController[i] != null)
+            if (listEnemyController[i] != null) {
                 listEnemyController[i].UpdateEnemyStatus();
+                listEnemyController[i].UpdateIndicator();
+                //if (listEnemyController[i].isOutScreen) {
+                //    TurnOnEnemyStatus();
+                //    listEnemyController[i].UpdateIndicator();
+                //}
+                //else {
+                //    TurnOffEnemyStatus();
+                //}
+            }
         }
         PlayerController.Instance.UpdatePlayerStatus();
     }
     IEnumerator StartGame() {
-        PlayerPersonalData data = DataManager.Instance.GetPlayerPersonalData();
-        if (data.zone == 1) {
+        if (DataManager.Instance.playerData.zone == 1) {
             zone1.gameObject.SetActive(true);
             zone2.gameObject.SetActive(false);
         }
@@ -92,49 +109,82 @@ public class Map1GameController : MonoBehaviour
             zone1.gameObject.SetActive(false);
             zone2.gameObject.SetActive(true);
         }
-
+        //Spawn Enemy
         for (int i = 0; i < startEnemyCount; i++) {
-            EnemyController enemyContrl = SpawnEnemyController.Instance.SpawnEnemy();
+            EnemyController enemyContrl = SpawnController.Instance.SpawnEnemy();
             listEnemyController.Add(enemyContrl);
+            listEnemyIndicator.Add(enemyContrl.indicatorContainer);
+            listEnemyStatus.Add(enemyContrl.characterStatus);
         }
-
-        GameUIController.Instance.TurnOffFloatingText();
+        // Tat Status
+        TurnOffEnemyStatus();
+        PlayerController.Instance.playerStatus.gameObject.SetActive(false);
+        //Show Banner
         MaxManager.Instance.ShowBannerAd();
+        //
         yield return new WaitUntil(() => HomePageController.Instance.isStartGame);
-
+        //
         GameUIController.Instance.TurnOnInGameUI();
-        GameUIController.Instance.TurnOnFloatingText();
-        GameUIController.Instance.DisplayEnemyCount(maxEnemyCount);
-
+        // Bat Status
+        TurnOnEnemyStatus();
+        PlayerController.Instance.playerStatus.gameObject.SetActive(true);
+        //
+        GameUIController.Instance.DisplayEnemyCount(maxEnemyCount + 1);
         CameraController.Instance.TurnOnGamePlayCamera();
         MaxManager.Instance.StopShowBannerAd();
         PlayerController.Instance.SetPlayerName();
+        if (DataManager.Instance.playerData.zone == 2)  SpawnController.Instance.DoSpawnGift();
     }
 
     /*Set Up khi Win Game*/
     IEnumerator WinGame() {
         yield return new WaitUntil(() => (isPlayerWin && !isPlayerLose && HomePageController.Instance.isStartGame));
+        TurnOffEnemyStatus() ;
+        //
         GameUIController.Instance.TurnOnWinPanel();
         PlayerController.Instance.SetPlayerWinDance();
         CameraController.Instance.TurnOnPlayerWinCamera();
-        SoundManager.Instance.PlaySound(SoundManager.SoundName.end_win);
+        //
+        DataManager.Instance.playerData.zone += 1;
+        //
+        soundController.PlaySound(SoundData.SoundName.end_win);
     }
-
     /*Set Up khi Lose Game*/
     IEnumerator LoseGame() {
         yield return new WaitUntil(() => (!isPlayerWin && isPlayerLose && HomePageController.Instance.isStartGame));
         GameUIController.Instance.TurnOnReviveUI();
-        SoundManager.Instance.PlaySound(SoundManager.SoundName.end_lose);
+        GameUIController.Instance.SetUpPlayerRank(maxEnemyCount + 1);
+        soundController.PlaySound(SoundData.SoundName.end_lose);
+        TurnOffEnemyStatus();
     }
-
+    /*Set Up khi Revive*/
     IEnumerator Revive() {
         yield return new WaitUntil(() => GameUIController.Instance.isRevived);
-        Vector3 position = SpawnEnemyController.Instance.GetValidPosition();
+        Vector3 position = SpawnController.Instance.GetValidPosition();
         PlayerController.Instance.PlayerRevive(position);
 
-        GameUIController.Instance.TurnOnFloatingText();
+        TurnOnEnemyStatus();
         isPlayerLose = false;
         StartCoroutine(LoseGame());
     }
-
+    public void TurnOnEnemyStatus() {
+        for (int i= listEnemyStatus.Count -1; i >= 0; i--) {
+            if (listEnemyStatus[i] != null) listEnemyStatus[i].SetActive(true);
+            else listEnemyStatus.Remove(listEnemyStatus[i]);
+        }
+        for (int i = listEnemyIndicator.Count - 1; i >= 0; i--) {
+            if (listEnemyIndicator[i] != null) listEnemyIndicator[i].SetActive(true);
+            else listEnemyIndicator.Remove(listEnemyIndicator[i]);
+        }
+    }
+    public void TurnOffEnemyStatus() {
+        for (int i = listEnemyStatus.Count - 1; i >= 0; i--) {
+            if (listEnemyStatus[i] != null) listEnemyStatus[i].SetActive(false);
+            else listEnemyStatus.Remove(listEnemyStatus[i]);
+        }
+        for (int i = listEnemyIndicator.Count - 1; i >= 0; i--) {
+            if (listEnemyIndicator[i] != null) listEnemyIndicator[i].SetActive(false);
+            else listEnemyIndicator.Remove(listEnemyIndicator[i]);
+        }
+    }
 }

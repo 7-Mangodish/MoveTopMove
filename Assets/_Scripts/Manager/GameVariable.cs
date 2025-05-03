@@ -19,7 +19,7 @@ public class GameVariable : MonoBehaviour
     public static string PLAYER_COIN = "PlayerCoin";
     public static string PLAYER_SKIN = "PlayerSkin";
     public static string PLAYER_SKILL = "PlayerSkill";
-    public static string PLAYER_PERSONAL_DATA = "PlayerPersonalData";
+    public static string PLAYER_PERSONAL_DATA = "PlayerData";
 
 
     public static string DEAD_TAG = "Untagged";

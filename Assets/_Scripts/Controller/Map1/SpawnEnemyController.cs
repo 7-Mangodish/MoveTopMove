@@ -1,21 +1,26 @@
 using NUnit.Framework;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 using Random = UnityEngine.Random;
 
-public class SpawnEnemyController : MonoBehaviour
+public class SpawnController : MonoBehaviour
 {
-    private static SpawnEnemyController instance;
-    public static SpawnEnemyController Instance { get => instance; }
+    private static SpawnController instance;
+    public static SpawnController Instance { get => instance; }
 
+    [Header("-----ENEMY-----")]
     public GameObject enemyPrefab;
     public float validRadius;
     public LayerMask checkLayerMark;
 
+    [Header("-----GIFT-----")]
+    public GameObject giftPrefab;
+    public float timeSpawnGift;
+    private List<GameObject> giftList;
 
-    public bool isPlayerWin = false;
     void Awake()
     {
         if (instance == null)
@@ -25,6 +30,7 @@ public class SpawnEnemyController : MonoBehaviour
 
     }
 
+    #region ----------ENEMY----------
     public EnemyController SpawnEnemy() {
         Vector3 position = GetValidPosition();
         GameObject enemyPref = Instantiate(enemyPrefab, position, Quaternion.identity);
@@ -59,4 +65,18 @@ public class SpawnEnemyController : MonoBehaviour
         }
         return newPosition;
     }
+    #endregion
+
+    #region ----------GIFT----------
+
+    public void DoSpawnGift() {
+        Invoke(nameof(SpawnGift), timeSpawnGift);
+    }
+    void SpawnGift() {
+        Vector3 newPosition = GetValidPosition();
+        newPosition.y = .2f;
+        Instantiate(giftPrefab, newPosition, Quaternion.Euler(-90, 0, 0));
+    }
+    #endregion
+
 }

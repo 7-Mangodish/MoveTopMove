@@ -46,6 +46,7 @@ public class PlayerController : MonoBehaviour
     private Vector3 weaponSpawnPosition;
     public Transform aimArea;
     private GameObject aimEnemy;
+    //WeaponData weaponData;
 
     [Header("-----Level Up-----")]
     private StateManager stateManager;
@@ -65,7 +66,10 @@ public class PlayerController : MonoBehaviour
     private Vector3 standardCharacterScale;
     private Vector3 standardEulerRot;
 
+    [Header("-----Ulti-----")]
+    public bool isUlti;
 
+    private SoundController soundController;
     private void Awake() {
         if (instance == null)
             instance = this;
@@ -75,6 +79,7 @@ public class PlayerController : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         animationControl = GetComponent<AnimationControl>();
         stateManager = GetComponent<StateManager>();
+        soundController = GetComponent<SoundController>();
         stateManager.OnCharacterTakeScore += StateManager_OnCharacterTakeScore;
     }
 
@@ -107,18 +112,17 @@ public class PlayerController : MonoBehaviour
         startGame = false;
         weaponQuantity = 1;
         weaponMultipleAbility = 1;
-
+        isUlti = false;
         stateWeapon = stateManager.GetStateWeapon();
-        LoadWeaponSkin(weapon);
-        LoadWeaponSkin(weaponHold.gameObject);
-
+        /*Sua lai scale neu no la boom*/
+        LoadWeapon();
+        //
         if (SceneManager.GetActiveScene().name == GameVariable.normalSceneName) {
             DataManager.Instance.OnUserChangeWeapon += PlayerController_OnUserChangeWeapon;
         }
         if(SceneManager.GetActiveScene().name == GameVariable.zombieSceneName) {
             SetUpAttackRange();
         }
-
         /*Status*/
         standardEulerRot = playerStatus.transform.rotation.eulerAngles;
         standardCharacterScale = this.transform.localScale;
@@ -145,63 +149,70 @@ public class PlayerController : MonoBehaviour
             aimArea.position = Vector3.zero;
             aimArea.gameObject.SetActive(false);
         }
-
-        if (this.gameObject.tag == GameVariable.DEAD_TAG)
-            return;
-
+        //
+        if (this.gameObject.tag == GameVariable.DEAD_TAG) return;
+        //
         if(stateManager.isDead&& this.gameObject.activeSelf==false && 
             SceneManager.GetActiveScene().name == GameVariable.zombieSceneName && chosenAbility == 10 ) {
             DoAbility();
         }
-
+        //
         if (timeAttackDuration < 5)
             timeAttackDuration += Time.fixedDeltaTime;
-
+        //
         if (direct.normalized != Vector3.zero) {
             animationControl.SetRun();
             rb.MovePosition(rb.position + direct.normalized * speed * Time.fixedDeltaTime);
-            //if (!canAttack)
-            //    canAttack = true;
+
         }
         else {
             animationControl.SetIdle();
-
-            if (timeAttackDuration > timeAttack)
-                canAttack = true;
-            if (!canAttack)
-                return;
-
+            //
+            if (timeAttackDuration > timeAttack) canAttack = true;
+            if (!canAttack) return;
             if (DoCheckEnemyInside()) {
                 timeAttackDuration = 0;
                 canAttack = false;
-
-                if (chosenAbility != 4) {
-
-                    directEnemy = aimArea.position - this.transform.position;
-                    directEnemy.y = 0;
+                //
+                directEnemy = aimArea.position - this.transform.position;
+                directEnemy.y = 0;
+                //
+                if (isUlti) {
                     RotateCharacter(directEnemy);
-                    animationControl.SetAttack();
+                    animationControl.SetUlti();
+                    playerAttackArea.transform.localScale = new Vector3(2, 2, 1);
 
                 }
                 else {
-                    Debug.LogWarning("Twice");
-                    directEnemy = aimArea.position - this.transform.position;
-                    directEnemy.y = 0;
-                    RotateCharacter(directEnemy);
-                    StartCoroutine(AttackTwice());
+                    if (chosenAbility != 4) {
+                        RotateCharacter(directEnemy);
+                        animationControl.SetAttack();
+
+                    }
+                    else {
+                        RotateCharacter(directEnemy);
+                        StartCoroutine(AttackTwice());
+                    }
                 }
+
             }
         }
     }
 
     #region -----------ATTACK-----------
     private bool DoCheckEnemyInside() {
-        if (aimArea.gameObject.activeSelf && aimEnemy != null && !aimEnemy.CompareTag(GameVariable.DEAD_TAG))
-            return true;
-
         float radius = playerAttackAreaCollider.radius * playerAttackAreaCollider.transform.lossyScale.x;
-        Collider[] hitCollider = Physics.OverlapSphere(this.transform.position, radius );
-
+        Collider[] hitCollider = Physics.OverlapSphere(this.transform.position, radius);
+        //
+        if (aimArea.gameObject.activeSelf && aimEnemy != null && !aimEnemy.CompareTag(GameVariable.DEAD_TAG)) {
+            foreach(Collider hit in hitCollider) {
+                if (hit.gameObject.CompareTag(GameVariable.ENEMY_TAG) || hit.gameObject.CompareTag(GameVariable.ZOMBIE_TAG)) {
+                    if (hit.gameObject == aimEnemy)
+                        return true;
+                }
+            }
+        }
+        //
         float minDisTance = float.MaxValue;
         foreach (Collider hit in hitCollider) {
             if (hit.gameObject.CompareTag(GameVariable.ENEMY_TAG) || hit.gameObject.CompareTag(GameVariable.ZOMBIE_TAG)) {
@@ -211,33 +222,27 @@ public class PlayerController : MonoBehaviour
                     minDisTance = distance;
                     aimEnemy = hit.gameObject;
                 }
-                //aimEnemy = hit.gameObject;
-                //aimArea.gameObject.SetActive(true);
             }
         }
-
+        //
         if (aimEnemy != null)
             aimArea.gameObject.SetActive(true);
         else
             aimArea.gameObject.SetActive(false);
 
-        //aimEnemy = null;
         return false;
     }
     private async void Attack() {
         if (stateManager.isDead)
             return;
-
-        SoundManager.Instance.PlaySound(SoundManager.SoundName.weapon_throw);
-
+        //
+        soundController.PlaySound(SoundData.SoundName.weapon_throw);
         weaponHold.gameObject.SetActive(false);
-
         // Kiem tra xem da len cap chua, neu co thi cap nhat lai trang thai cua vu khi
         if (stateManager.IsLevelUp) {
             stateWeapon = stateManager.GetStateWeapon();
             stateManager.IsLevelUp = false;
         }
-
         if (stateManager.isLevelUpZombieMode) {
             stateWeapon = stateManager.GetStateWeapon();
             stateManager.isLevelUpZombieMode = false;
@@ -245,35 +250,34 @@ public class PlayerController : MonoBehaviour
             if (weaponQuantity < bonusWeaponQuantity + 1)
                 weaponQuantity +=1;
         }
-
         // Nhan voi weaponMultipleAbility neu la ability
         weaponQuantity *= weaponMultipleAbility;
-
         // Tan cong va goi su kien
         angleSpread = angleAttack / weaponQuantity;
         int startIndexWeapon = (int) - weaponQuantity / 2;
-
         // Xac dinh vi tri spawn va huong nem
         weaponSpawnPosition = new Vector3(weaponSpawnTransform.position.x,
             weaponSpawnTransform.position.y, weaponSpawnTransform.position.z);
-
         // Nem vu khi
         for (int i = startIndexWeapon; i <= weaponQuantity /2; i++) {
-            if (i == 0 && weaponQuantity % 2 == 0)
-                continue;
-
-            Vector3 directWeapon = Quaternion.AngleAxis(startIndexWeapon * angleSpread, Vector3.up) * directEnemy;   
-
+            if (i == 0 && weaponQuantity % 2 == 0) continue;
+            //
+            Vector3 directWeapon = Quaternion.AngleAxis(startIndexWeapon * angleSpread, Vector3.up) * directEnemy;
             //Khoi tao vu khi
-            GameObject weaponSpawn = Instantiate(weapon, weaponSpawnPosition, Quaternion.Euler(new Vector3(90, 0, 0)));
-            weaponSpawn.transform.localScale = new Vector3(9, 9, 9);
-
+            Quaternion rot = Quaternion.LookRotation(directWeapon.normalized, Vector3.up);
+            GameObject weaponSpawn = Instantiate(weapon, weaponSpawnPosition, Quaternion.Euler(-90, rot.eulerAngles.y, 0));
             //Set trang thai(chu the, tam ban, scale, vi tri khoi tao)
+            if (!DataManager.Instance.playerData.isWeaponBoom)
+                weaponSpawn.transform.localScale = new Vector3(9, 9, 9);
+            else {
+                weaponSpawn.transform.localScale = new Vector3(3, 3, 3);
+                stateWeapon.isBoom = true;
+                weaponSpawn.transform.rotation = Quaternion.Euler(-90, rot.eulerAngles.y -90, 0); 
+            }
+            //
             stateWeapon.positionSpawn = weaponSpawnPosition;
             Rigidbody weaponRb = weaponSpawn.GetComponent<Rigidbody>();
-
             ThrowWeapon weaponThrow = weaponRb.GetComponent<ThrowWeapon>();
-
             // Kiem tra xem player co chon ability8 hay khong
             if (chosenAbility == 8) {
                 weaponThrow.isGrowing = true;
@@ -283,27 +287,33 @@ public class PlayerController : MonoBehaviour
             if (chosenAbility == 9) {
                 weaponThrow.isPiering = true;
             }
-
+            if (isUlti) {
+                speedWeapon = 125;
+                weaponThrow.isUlti = true;
+            }
+            else {
+                speedWeapon = 100;
+            }
             weaponThrow.SetStateWeapon(stateWeapon);
-
             //Nem vu khi theo huong
             if (weaponRb != null) {
                 weaponRb.linearVelocity = directWeapon.normalized * speedWeapon * Time.fixedDeltaTime;
             }
             startIndexWeapon++;
         }
-
         // Thuc hien ki nang dac biet
         if (chosenAbility == 0 || chosenAbility == 5 || chosenAbility == 6)
             DoAbility();
-
+        //
         await Task.Delay(800);
-        weaponHold.gameObject.SetActive(true);
-
+        isUlti = false;
+        if(weaponHold != null)
+            weaponHold.gameObject.SetActive(true);
     }
 
     private void EndAttack() {
         animationControl.SetEndAttack();
+        canAttack = false;
     }
     #endregion
 
@@ -311,7 +321,7 @@ public class PlayerController : MonoBehaviour
         if (direct == Vector3.zero)
             return;
 
-        Quaternion rot = Quaternion.LookRotation(direct.normalized, Vector3.up);
+        Quaternion rot = Quaternion.LookRotation(direct.normalized, Vector3.up);    
         transform.rotation = Quaternion.RotateTowards(this.transform.rotation, rot, deltaAngle);
     }
 
@@ -337,30 +347,36 @@ public class PlayerController : MonoBehaviour
 
     #region ----------WEAPON_MATERIALS----------
     private void LoadWeaponSkin(GameObject wp) {
-        int curWeapon = PlayerPrefs.GetInt(GameVariable.PLAYER_CURRENT_WEAPON);
+        //int curWeapon = DataManager.Instance.playerPersonalData.currentWeaponIndex;
 
-        WeaponData data = DataManager.Instance.GetWeaponData(curWeapon);
-        Mesh mesh = weaponObjects.GetMeshWeapon(curWeapon, 2);
+        //Mesh mesh = DataManager.Instance.GetWeaponMesh(curWeapon);
+        //wp.GetComponent<MeshFilter>().mesh = mesh;
 
-        //weaponHold.GetComponent<MeshFilter>().mesh = mesh;
-        //weapon.GetComponent<MeshFilter>().mesh = mesh;
-        wp.GetComponent<MeshFilter>().mesh = mesh;
+        //Material[] weaponMaterial = DataManager.Instance.GetWeaponMaterial(curWeapon);
+        //int materialCount = weaponObjects.GetListMaterials(curWeapon, 2).Length;
+        //Material[] materials = new Material[materialCount];
+        //for (int i = 0; i < materialCount; i++) {
+        //    materials[i] = weaponMaterial[i];
+        //}
 
-        Material[] weaponMaterial = DataManager.Instance.GetWeaponMaterial(curWeapon);
-        int materialCount = weaponObjects.GetListMaterials(curWeapon, 2).Length;
-        Material[] materials = new Material[materialCount];
-        for (int i = 0; i < materialCount; i++) {
-            materials[i] = weaponMaterial[i];
-        }
-        //weaponHold.GetComponent<MeshRenderer>().materials = materials;
-        //weapon.GetComponent<MeshRenderer>().materials = materials;
-        wp.GetComponent<MeshRenderer>().materials = materials;
+        //wp.GetComponent<MeshRenderer>().materials = materials;
     }
 
 
     private void PlayerController_OnUserChangeWeapon(object sender, DataManager.OnUserChangeWeaponArg e) {
-        //if(this == null) return;
-        //SetUpWeaponMaterial(e);
+        if (DataManager.Instance.playerData.isWeaponBoom) {
+            weaponHold.transform.localScale = new Vector3(11, 11, 11);
+            weaponHold.transform.localPosition = new Vector3(0, .5f, 0);
+        }
+        LoadWeaponSkin(weapon);
+        LoadWeaponSkin(weaponHold.gameObject);
+    }
+
+    private void LoadWeapon() {
+        if (DataManager.Instance.playerData.isWeaponBoom) {
+            weaponHold.transform.localScale = new Vector3(11, 11, 11);
+            weaponHold.transform.localPosition = new Vector3(0, .5f, 0);
+        }
         LoadWeaponSkin(weapon);
         LoadWeaponSkin(weaponHold.gameObject);
     }
@@ -570,7 +586,6 @@ public class PlayerController : MonoBehaviour
     }
 #endregion
     public void PlayerRevive(Vector3 newPosition) {
-        Debug.Log("PlayerRevive");
         canAttack = false;
         stateManager.isDead = false;
         animationControl.SetIdle();
@@ -585,9 +600,8 @@ public class PlayerController : MonoBehaviour
 
     #region ------------Status------------
 
-    public void SetPlayerName() {
-        PlayerPersonalData data = DataManager.Instance.GetPlayerPersonalData();
-        playerName.text = data.playerName;
+    public void SetPlayerName() {      ;
+        playerName.text = DataManager.Instance.playerData.playerName;
     }
     public void UpdatePlayerStatus() {
         playerStatus.transform.rotation = Quaternion.Euler(standardEulerRot);

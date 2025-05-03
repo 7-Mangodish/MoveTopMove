@@ -8,7 +8,7 @@ public class PantObjects : ScriptableObject
 
     public void SetPantMaterial(int pantIndex,SkinnedMeshRenderer pantSkin) {
         if(pantIndex < 0 || pantIndex >= listPants.Length) {
-            Debug.LogWarning("Pant Index Out of Range: " + pantIndex);
+            //Debug.LogWarning("Pant Index Out of Range: " + pantIndex);
             pantSkin.material = defautlPantMaterial;
             return;
         }

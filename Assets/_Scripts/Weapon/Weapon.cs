@@ -4,13 +4,14 @@ using UnityEngine;
 [System.Serializable]
 public class Weapon 
 {
-    [SerializeField] private GameObject[] weaponSkins;
-    [SerializeField] public int[] weaponSkinCost = new int[5];
-    [SerializeField] public float scale;
-    [SerializeField] public string name;
-    [SerializeField] public int cost;
-
-    [HideInInspector] public float standardScale = 4000;
+    public int id;
+    public GameObject[] weaponSkins;
+    public int[] weaponSkinCost = new int[5];
+    public float scale;
+    public string name;
+    public int cost;
+    public bool isBoom;
+    //[HideInInspector] public static float standardScale = 4000;
     public enum WeaponAttribute {
         None,
         Range, 
@@ -23,14 +24,4 @@ public class Weapon
     public GameObject GetWeaponSkin(int index) {
         return weaponSkins[index];
     }
-
-
-    //public void SetMaterialWeaponSkin(int skinIndex, int weaponPart, Material material) {
-    //    Renderer renderer = weaponSkins[skinIndex].GetComponent<Renderer>();
-
-    //    Material[] materials = renderer.sharedMaterials;
-    //    materials[weaponPart] = material;
-
-    //    renderer.sharedMaterials = materials;
-    //}
 }

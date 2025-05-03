@@ -24,13 +24,16 @@ public class EnemyController : MonoBehaviour
     private float timeIdleDuration;
 
     [Header("-----Enenmy Attack-----")]
-    private GameObject enemyWeapon;
     public float speedWeapon;
     public float timeAttack;
+    public Transform enemyAttackArea;
+    public bool isUlti;
+    private GameObject enemyWeapon;
     private EnemyRamdomItem enemyRandomItem;
     private float timeAttackDuration;
     private bool canAttack;
     private Vector3 playerPosition;
+
 
     [Header("-----Level Up-----")]
     private StateManager stateManager;
@@ -53,8 +56,10 @@ public class EnemyController : MonoBehaviour
     private Vector3 standardCharacterScale;
     private Vector3 standardEulerRot;
 
+    public bool isOutScreen = false;
 
     private void Awake() {
+        isUlti = false;
         animationControl = GetComponent<AnimationControl>();
         agent = GetComponent<NavMeshAgent>();
         stateManager = GetComponent<StateManager>();
@@ -122,7 +127,7 @@ public class EnemyController : MonoBehaviour
     }
 
     public void EnemyBehaviour() {
-        UpdateIndicator();
+        //UpdateIndicator();
         if (animationControl.currentState == AnimationControl.state.IsDead) {
             agent.speed = 0;
             this.gameObject.tag = GameVariable.DEAD_TAG;
@@ -172,17 +177,24 @@ public class EnemyController : MonoBehaviour
         }
 
         //Khoi tao vu khi
-        GameObject weaponSpawn = Instantiate(enemyWeapon, positionSpawn, Quaternion.Euler(new Vector3(90, 0, 0)));
+        Quaternion rot = Quaternion.LookRotation(directWeapon, Vector3.up);
+        GameObject weaponSpawn = Instantiate(enemyWeapon, positionSpawn, Quaternion.Euler(new Vector3(-90, rot.eulerAngles.y, 0)));
 
         //Set trang thai(chu the, tam ban, scale, vi tri)
         stateWeapon.positionSpawn = this.transform.position;
         Rigidbody weaponRb = weaponSpawn.GetComponent<Rigidbody>();
-        weaponRb.GetComponent<ThrowWeapon>().SetStateWeapon(stateWeapon);
+        ThrowWeapon weaponThrow = weaponSpawn.GetComponent<ThrowWeapon>();
+
+        if(isUlti)
+            weaponThrow.isUlti = true;
+        weaponThrow.SetStateWeapon(stateWeapon);
+
         //Nem vu khi theo huong
         if (weaponRb != null) {
             weaponRb.linearVelocity = directWeapon.normalized * speedWeapon * Time.fixedDeltaTime;
         }
         await Task.Delay(1000);
+        isUlti = false;
         canAttack = false;
     }
 
@@ -222,7 +234,7 @@ public class EnemyController : MonoBehaviour
     }
 
     #region -----------Indicator----------
-    void UpdateIndicator() {
+    public void UpdateIndicator() {
         Vector3 enemyPositionOnScreen = mainCamera.WorldToScreenPoint(this.transform.position);
         if (enemyPositionOnScreen.z < 0)
             return;
@@ -239,15 +251,14 @@ public class EnemyController : MonoBehaviour
             Vector3 direct = enemyPositionOnScreen - new Vector3(Screen.width / 2, Screen.height / 2, 0);
             float angle = Mathf.Atan2(direct.y, direct.x) * Mathf.Rad2Deg;
             angle = (angle < 0) ? (angle + 360) : angle;
-
-            //indicatorContainer.gameObject.SetActive(true);
+            isOutScreen = true;
+            indicatorContainer.gameObject.SetActive(true);
             indicatorContainer.GetComponent<RectTransform>().position = enemyPositionOnScreen;
 
             indicatorIcon.rectTransform.rotation = Quaternion.Euler(0, 0, angle - 90);
-
-
         }
         else {
+            isOutScreen = false;
             indicatorContainer.gameObject.SetActive(false);
         }
     }

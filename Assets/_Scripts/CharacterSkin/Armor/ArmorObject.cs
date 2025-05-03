@@ -8,7 +8,7 @@ public class ArmorObjects : ScriptableObject
 
     public void SetCharacterArmor(int armorIndex, Transform armorHolderTransform) {
         if (armorIndex < 0 || armorIndex >= listArmor.Length) {
-            Debug.LogWarning("Armor Index Out of Range " + armorIndex);
+            //Debug.LogWarning("Armor Index Out of Range " + armorIndex);
             return;
         }
         if (currentArmor != null)

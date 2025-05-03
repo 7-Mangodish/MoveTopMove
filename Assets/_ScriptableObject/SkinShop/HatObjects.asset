@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 95f9643724b1924499257bbfc89e9761, type: 3}
+  m_Name: HatObjects
+  m_EditorClassIdentifier: 
+  listHats:
+  - cost: 50
+    hatPrefab: {fileID: 3719149157653502270, guid: 73c109b0b7a12b84c80e0a659bab2cb3, type: 3}
+    index: 1
+  - cost: 25
+    hatPrefab: {fileID: 1897668126383923695, guid: aa8a319f8eb7b2047bf4ba3de6a96e10, type: 3}
+    index: 2
+  - cost: 25
+    hatPrefab: {fileID: 4148348442653307279, guid: 41e9849df16563048980bd49cf860a2f, type: 3}
+    index: 3
+  - cost: 25
+    hatPrefab: {fileID: 1773992973439010555, guid: 18f57505aa45dea47a9dbe9fb0e7e2ec, type: 3}
+    index: 4
+  - cost: 25
+    hatPrefab: {fileID: 2829776609228178689, guid: eb84ec5230012b841b430efc94a44922, type: 3}
+    index: 5
+  - cost: 25
+    hatPrefab: {fileID: 7158988212422171802, guid: 70c5370c4b64de6429b9c7752b97735c, type: 3}
+    index: 6
+  - cost: 25
+    hatPrefab: {fileID: 3100615444415210074, guid: cfe0db7f72f8dff44b1d6db8d6773a79, type: 3}
+    index: 7
+  - cost: 25
+    hatPrefab: {fileID: 6889172209268887615, guid: 66bfa6b2c0f2904459846cf011662916, type: 3}
+    index: 8

@@ -36,7 +36,7 @@ public class HomePageController : MonoBehaviour
     [SerializeField] private TextMeshProUGUI coinText;
 
     [Header("Player's Name")]
-    PlayerPersonalData playerPersonalData;
+    //PlayerPersonalData playerPersonalData;
     [SerializeField] private TMP_InputField playerNameInput;
 
     [Header("Options Button")]
@@ -46,7 +46,7 @@ public class HomePageController : MonoBehaviour
 
     [SerializeField] private Button vibrationButton;
 
-    [SerializeField] private Button volumnButton;
+    [SerializeField] private Button volumeButton;
     [SerializeField] private GameObject turnOnObject;
     [SerializeField] private GameObject turnOffObject;
     private bool isMute;
@@ -73,7 +73,8 @@ public class HomePageController : MonoBehaviour
         SetUpZombieModeButton();
 
         playButton.onClick.AddListener(() => {
-            SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
+            //SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
+            AudioManager.Instance.PlaySoundClickButton();
 
             leftPanel.SetActive(false);
             rightPanel.SetActive(false);
@@ -89,6 +90,8 @@ public class HomePageController : MonoBehaviour
 
     private void SetUpOptionsButton() {
         noAdsButton.onClick.AddListener(() => {
+            AudioManager.Instance.PlaySoundClickButton();
+            //
             if (!AdBlockPanel.gameObject.activeSelf)
                 AdBlockPanel.gameObject.SetActive(true);
             homePagePanel.SetActive(false);
@@ -100,18 +103,20 @@ public class HomePageController : MonoBehaviour
             playerNameInput.gameObject.SetActive(true);
         });
 
-        volumnButton.onClick.AddListener(() => {
+        volumeButton.onClick.AddListener(() => {
             if (!isMute) {
-                if (SoundManager.Instance != null)
-                    SoundManager.Instance.TurnOffSound();
+                //if (SoundManager.Instance != null)
+                //    SoundManager.Instance.TurnOffSound();
+                DataManager.Instance.playerData.soundVolume = 0;
 
                 turnOnObject.gameObject.SetActive(false);
                 turnOffObject.gameObject.SetActive(true);
                 isMute = true;
             }
             else {
-                if (SoundManager.Instance != null)
-                    SoundManager.Instance.TurnOnSound();
+                //if (SoundManager.Instance != null)
+                //    SoundManager.Instance.TurnOnSound();
+                DataManager.Instance.playerData.soundVolume = 1;
 
                 turnOnObject.gameObject.SetActive(true);
                 turnOffObject.gameObject.SetActive(false);
@@ -121,19 +126,20 @@ public class HomePageController : MonoBehaviour
     }
 
     private void SetUpPlayerNameInput() {
-        playerPersonalData = DataManager.Instance.GetPlayerPersonalData();
-        playerNameInput.text = playerPersonalData.playerName;
+        playerNameInput.text = DataManager.Instance.playerData.playerName;
 
         playerNameInput.onValueChanged.AddListener((string name) => {
-            playerPersonalData.playerName = name;
-            DataManager.Instance.SavePlayerPersonalData(playerPersonalData);
+            DataManager.Instance.playerData.playerName = name;
+            //DataManager.Instance.SavePlayerPersonalData(playerPersonalData);
         });
     }
     private void SetUpWeaponShop() {
         weaponShopButton.onClick.AddListener(() => {
-            SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
-
+            AudioManager.Instance.PlaySoundClickButton();
+            //
             PlayerController.Instance.gameObject.SetActive(false);
+            //WeaponShopController.Instance.LoadWeapon(DataManager.Instance.playerPersonalData.currentWeaponIndex);
+            //
             playerNameInput.gameObject.SetActive(false);
             weaponShopPanel.gameObject.SetActive(true);
             HomePageOut();
@@ -141,11 +147,13 @@ public class HomePageController : MonoBehaviour
         });
 
         exitWeaponButton.onClick.AddListener(() => {
-            SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
-
+            //SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
+            AudioManager.Instance.PlaySoundClickButton();
+            //
             GameObject[] enemyObjects = GameObject.FindGameObjectsWithTag(GameVariable.ENEMY_TAG);
-
+            //
             PlayerController.Instance.gameObject.SetActive(true);
+            //DataManager.Instance.TriggerUserChangeWeaponEvent();
             weaponShopPanel.gameObject.SetActive(false);
             playerNameInput.gameObject.SetActive(true);
             HomePageIn();
@@ -153,11 +161,12 @@ public class HomePageController : MonoBehaviour
     }
     private void SetUpSkinShopButton() {
         skinShopButton.onClick.AddListener(() => {
-            SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
-
+            //SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
+            AudioManager.Instance.PlaySoundClickButton();
+            //
             skinShopPanel.gameObject.SetActive(true);
             playerNameInput.gameObject.SetActive(false);
-
+            //
             PlayerController.Instance.SetPlayerDance();
             CameraController.Instance.TurnOnPlayerShoppingCamera();
             HomePageOut();
@@ -167,8 +176,8 @@ public class HomePageController : MonoBehaviour
 
     private void SetUpZombieModeButton() {
         zombieModeButton.onClick.AddListener(() => {
-            SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
-
+            AudioManager.Instance.PlaySoundClickButton();
+            //
             SceneManager.LoadScene(GameVariable.zombieSplashSceneInName) ;
         });
         int day = DataManager.Instance.GetZombieDayVictory();

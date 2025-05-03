@@ -16,7 +16,8 @@ public class AnimationControl : MonoBehaviour
         IsWin,
         IsDance,
         IsWalk,
-        IsRun
+        IsRun,
+        IsUlti
     }
     public state currentState = state.IsIdle;
 
@@ -46,7 +47,14 @@ public class AnimationControl : MonoBehaviour
     }
     public void SetAttack() {
         SetState(state.IsAttack, true);
+        SetState(state.IsUlti, false);
         currentState = state.IsAttack;
+    }
+
+    public void SetUlti() {
+        //Debug.LogWarning("Ulti");
+        SetState(state.IsUlti, true);
+        SetState(state.IsAttack, true);
     }
     public void SetDead() {
         SetState(state.IsDead, true);
@@ -66,6 +74,7 @@ public class AnimationControl : MonoBehaviour
     }
     public void SetEndAttack() {
         SetState(state.IsAttack, false);
+        SetState(state.IsUlti, false);
     }
     public void PlayDeadEff() {
         characterColor = GetComponentInChildren<SkinnedMeshRenderer>().material.color;

@@ -60,7 +60,7 @@ public class FirebaseManager : MonoBehaviour
 
 
     #region -----REALTIME_DATABASE-----
-    public async Task<string> CreateNewPlayer(PlayerPersonalData data) {
+    public async Task<string> CreateNewPlayer(PlayerData data) {
         DatabaseReference newPlayerRef = databaseReference.Child("players").Push();
         string playerId = newPlayerRef.Key;
 
@@ -69,16 +69,15 @@ public class FirebaseManager : MonoBehaviour
 
         return playerId;
     }
-    public async void SavePlayerData(string playerId, PlayerPersonalData data) {
-        DataSnapshot dataSnapshot = await databaseReference.Child("players").Child(playerId).GetValueAsync();
-        if (!dataSnapshot.Exists) {
-            Debug.Log(playerId + " not exists");
-            return;
-        }
-
+    public async void SavePlayerData(string playerId, PlayerData data) {
         string json = JsonUtility.ToJson(data);
-        await databaseReference.Child("players").Child(playerId).SetRawJsonValueAsync(json);
-        Debug.Log("PlayerData is saved");
+        try {
+            await databaseReference.Child("players").Child(playerId).SetRawJsonValueAsync(json);
+            Debug.Log("Data da duoc luu tren fireBase");
+        }
+        catch(System.Exception e) {
+            Debug.LogError(e.ToString());
+        }
     }
 
     //public async Task<PlayerData> LoadPlayerData(string playerId) {

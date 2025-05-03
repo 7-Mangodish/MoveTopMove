@@ -8,18 +8,18 @@ public class GameManager : MonoBehaviour
         StartCoroutine(Init());
     }
     IEnumerator Init() {
-        MaxManager.Instance.InitMaxManager();
-        yield return new WaitUntil(()=> MaxManager.Instance.isInit == true);
-
-        FirebaseManager.Instance.InitFirebase();
-        yield return new WaitUntil(() => FirebaseManager.Instance.isInit == true);
-
-        AppsFlyermanager.Instance.InitAppsFlyer();
-
-        DataManager.Instance.InitDataManager();
+        DataManager.Instance.LoadData();
         yield return new WaitUntil(() => DataManager.Instance.isInit == true);
 
-        SceneManager.LoadScene(GameVariable.normalSceneName);
+        //MaxManager.Instance.InitMaxManager();
+        //yield return new WaitUntil(() => MaxManager.Instance.isInit == true);
+
+        //FirebaseManager.Instance.InitFirebase();
+        //yield return new WaitUntil(() => FirebaseManager.Instance.isInit == true);
+
+        //AppsFlyermanager.Instance.InitAppsFlyer();
+
+        //SceneManager.LoadScene(GameVariable.normalSceneName);
 
     }
 }

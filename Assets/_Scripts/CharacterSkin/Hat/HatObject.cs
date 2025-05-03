@@ -7,7 +7,7 @@ public class HatObjects : ScriptableObject
     private GameObject currentHat;
     public void SetCharacterHat(int hatIndex, Transform hatHolderTransform) {
         if(hatIndex < 0 || hatIndex >= listHats.Length) {
-            Debug.LogWarning("Hat Index Out of range: " + hatIndex);
+            //Debug.LogWarning("Hat Index Out of range: " + hatIndex);
             return;
         }
         if(currentHat != null)

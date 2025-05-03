@@ -141,8 +141,8 @@ public class ZombieUIController : MonoBehaviour
 
     void SetUpCenterPanelButton() {
         refuseCenterButton.onClick.AddListener(() => {
-            SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
-
+            AudioManager.Instance.PlaySoundClickButton();
+            //
             centerPanel.SetActive(false);
             bottomPanel.SetActive(false);
             playerCoinPanel.gameObject.SetActive(false);
@@ -150,13 +150,15 @@ public class ZombieUIController : MonoBehaviour
             isStartGame = true;
         });
         selectAbilityButton.onClick.AddListener(() => {
-            SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
+            AudioManager.Instance.PlaySoundClickButton();
+            //
             MaxManager.Instance.ShowRewardAd();
 
         });
 
         homeCenterButton.onClick.AddListener(() => {
-            SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
+            AudioManager.Instance.PlaySoundClickButton();
+            //
             SceneManager.LoadScene(GameVariable.zombieSplashSceneOutName);
         });
     }
@@ -167,9 +169,7 @@ public class ZombieUIController : MonoBehaviour
         SetUpPlayerCoinText();
 
         settingButton.onClick.AddListener(() => {
-            if (SoundManager.Instance != null) 
-                SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
-
+            AudioManager.Instance.PlaySoundClickButton();
             settingPanel.gameObject.SetActive(true);
             Time.timeScale = 0;
         });
@@ -194,8 +194,8 @@ public class ZombieUIController : MonoBehaviour
         abilityNameText.text = abilitiesObjects.listAbilitySprite[listAbilitiesIndex[0]].name; ;
 
         changeAbilityButton_1.onClick.AddListener(() => {
-            SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
-
+            AudioManager.Instance.PlaySoundClickButton();
+            //
             currentAbility += 1;
             if (currentAbility >= listAbilitiesIndex.Count)
                 currentAbility = 0;
@@ -205,6 +205,8 @@ public class ZombieUIController : MonoBehaviour
         });
 
         changeAbilityButton_2.onClick.AddListener(() => {
+            AudioManager.Instance.PlaySoundClickButton();
+            //
             currentAbility += 1;
             if (currentAbility >= listAbilitiesIndex.Count)
                 currentAbility = 0;
@@ -253,9 +255,9 @@ public class ZombieUIController : MonoBehaviour
             int ind = i;
             listSkillButtons[i].onClick.AddListener(() => {
                 skillData = DataManager.Instance.GetSkillData();
-
-                SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
-
+                //
+                AudioManager.Instance.PlaySoundClickButton();
+                //
                 if (!CoinManager.Instance.PurchaseItem(skillData.skillCost[ind])) {
                     Debug.Log("Khong du tien");
                     if(faildUpgradeText.gameObject.activeSelf)
@@ -266,7 +268,7 @@ public class ZombieUIController : MonoBehaviour
                 else {
                     SetUpPlayerCoinText();
                 }
-
+                //
                 switch (ind) {
                     case 0: {
                             if (skillData.UpgradeHp()) {
@@ -310,15 +312,15 @@ public class ZombieUIController : MonoBehaviour
     #region ------------------End_Game------------------------
     private void SetUpRevivePanel() {
         reviveButton.onClick.AddListener(() => {
-            SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
-
+            AudioManager.Instance.PlaySoundClickButton();
+            //
             isCLickRevive = true;
             // Show Quang cao
             MaxManager.Instance.ShowRewardAd();
         });
 
         exitRevivePanelButton.onClick.AddListener(() => {
-            SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
+            AudioManager.Instance.PlaySoundClickButton();
 
             endPanel.SetActive(true);
             revivePanel.SetActive(false);
@@ -327,13 +329,13 @@ public class ZombieUIController : MonoBehaviour
 
     private void SetUpEndPanel() {
         homeEndPanelButton.onClick.AddListener(() => {
-            SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
-
+            AudioManager.Instance.PlaySoundClickButton();
+            //
             SceneManager.LoadScene(GameVariable.zombieSplashSceneOutName);
         });
         claimCoinButton.onClick.AddListener(() => {
-            SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
-
+            AudioManager.Instance.PlaySoundClickButton();
+            //
             CoinManager.Instance.SaveCoin(endGameCoin);
             SetUpPlayerCoinText();
             SceneManager.LoadScene(GameVariable.zombieSceneName);
@@ -390,13 +392,13 @@ public class ZombieUIController : MonoBehaviour
         soundOnButton.onClick.AddListener(() => {
             soundOnButton.gameObject.SetActive(false);
             soundOffButton.gameObject.SetActive(true);
-            SoundManager.Instance.TurnOffSound();
+            DataManager.Instance.playerData.soundVolume = 0;
         });
 
         soundOffButton.onClick.AddListener(() => {
             soundOffButton.gameObject.SetActive(false);
             soundOnButton.gameObject.SetActive(true);
-            SoundManager.Instance.TurnOnSound();
+            DataManager.Instance.playerData.soundVolume = 1;
         });
 
         vibrationOnButton.onClick.AddListener(() => {
@@ -410,13 +412,12 @@ public class ZombieUIController : MonoBehaviour
         });
 
         homeButton.onClick.AddListener(() => {
-            if (SoundManager.Instance != null)
-                SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
+            AudioManager.Instance.PlaySoundClickButton();
             SceneManager.LoadScene(GameVariable.zombieSplashSceneOutName);
         });
 
         continueButton.onClick.AddListener(() => {
-            SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
+            AudioManager.Instance.PlaySoundClickButton();
 
             settingPanel.gameObject.SetActive(false);
             Time.timeScale = 1;

@@ -111,11 +111,10 @@ public class SkinShopController : MonoBehaviour {
     }
 
     private void OnDisable() {
-        //Debug.LogWarning(MaxManager.Instance);
         if (MaxManager.Instance != null)
             MaxManager.Instance.OnPlayerReceiveAward -= SkinShop_OnPlayerReceiveAward;
         else
-            Debug.LogError("Max is null");
+            Debug.LogWarning("Max is null");
 
     }
 
@@ -154,7 +153,7 @@ public class SkinShopController : MonoBehaviour {
     }
     void SetUpPurchaseButton() {
         purchaseButton.onClick.AddListener(() => {
-            SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
+            AudioManager.Instance.PlaySoundClickButton();
 
             if (!PurchaseSkin())
                 Debug.Log("Khong Du Tien");
@@ -257,7 +256,7 @@ public class SkinShopController : MonoBehaviour {
             }
 
             listHatButtons[i].onClick.AddListener(() => {
-                SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
+                AudioManager.Instance.PlaySoundClickButton();
 
                 hatIndexSelected = ind;
 
@@ -285,7 +284,7 @@ public class SkinShopController : MonoBehaviour {
             }
 
             listPantButtons[i].onClick.AddListener(() => {
-                SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
+                AudioManager.Instance.PlaySoundClickButton();
 
                 pantIndexSelected = ind;
 
@@ -314,7 +313,7 @@ public class SkinShopController : MonoBehaviour {
             }
 
             listArmorButtons[i].onClick.AddListener(() => {
-                SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
+                AudioManager.Instance.PlaySoundClickButton();
 
                 armorIndexSelected = ind;
 
@@ -344,7 +343,7 @@ public class SkinShopController : MonoBehaviour {
                 }
             }         
             listSetButtons[i].onClick.AddListener(() => {
-                SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
+                AudioManager.Instance.PlaySoundClickButton();
 
                 //Debug.Log("Set: " + ind);
                 setIndexSelected = ind;
@@ -371,7 +370,7 @@ public class SkinShopController : MonoBehaviour {
         for (int i = 0; i < listShopButton.Length; i++) {
             int ind = i;
             listShopButton[i].onClick.AddListener(() => {
-                SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
+                AudioManager.Instance.PlaySoundClickButton();
                 equipedButton.gameObject.SetActive(false);
                 purchaseSystemButton.gameObject.SetActive(false);
 
@@ -479,8 +478,7 @@ public class SkinShopController : MonoBehaviour {
     }
     void SetUpExitButton() {
         exitSkinButton.onClick.AddListener(() => {
-            if(SoundManager.Instance != null) 
-                SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
+                AudioManager.Instance.PlaySoundClickButton();
 
             if (HomePageController.Instance != null)
                 HomePageController.Instance.ExitSkinShop();

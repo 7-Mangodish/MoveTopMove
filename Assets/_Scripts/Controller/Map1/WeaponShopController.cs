@@ -42,8 +42,7 @@ public class WeaponShopController : MonoBehaviour
     private int partSelected;
     int materialCount;
 
-    private WeaponData data;
-    //public event EventHandler OnUserChangeWeapon;
+    private WeaponData weaponData;
 
     private void Awake() {
         if (instance == null)
@@ -52,23 +51,27 @@ public class WeaponShopController : MonoBehaviour
             Destroy(this.gameObject);
 
         nextOptionsButton.onClick.AddListener(() =>{
-            SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
+            AudioManager.Instance.PlaySoundClickButton();
 
             weaponIndexSelected += 1;
             if (weaponIndexSelected >= weaponObjects.listWeapon.Length)
                 weaponIndexSelected = 0;
-            PlayerPrefs.SetInt("CurWeapon", weaponIndexSelected);
-            LoadWeapon();
+            //DataManager.Instance.playerPersonalData.currentWeaponIndex = weaponIndexSelected;
+            //Debug.Log(DataManager.Instance.playerPersonalData.currentWeaponIndex);
+            int id = weaponObjects.listWeapon[weaponIndexSelected].id;
+            LoadWeapon(id);
         });
 
         previousOptionsButton.onClick.AddListener(() => {
-            SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
+            AudioManager.Instance.PlaySoundClickButton();
 
             weaponIndexSelected -= 1;
             if (weaponIndexSelected < 0)
                 weaponIndexSelected = weaponObjects.listWeapon.Length-1;
-            PlayerPrefs.SetInt("CurWeapon", weaponIndexSelected);
-            LoadWeapon();
+            //DataManager.Instance.playerPersonalData.currentWeaponIndex = weaponIndexSelected;
+            //Debug.Log(DataManager.Instance.playerPersonalData.currentWeaponIndex);
+            int id = weaponObjects.listWeapon[weaponIndexSelected].id;
+            LoadWeapon(id);   
         });
 
         selectButton.onClick.AddListener(SetUpSelectButton);
@@ -103,7 +106,6 @@ public class WeaponShopController : MonoBehaviour
     }
 
     private void Start() {
-        //LoadWeapon();
         MaxManager.Instance.OnPlayerReceiveAward += WeaponShop_OnPlayerReceiveAward;
     }
 
@@ -111,27 +113,19 @@ public class WeaponShopController : MonoBehaviour
         if (MaxManager.Instance != null)
             MaxManager.Instance.OnPlayerReceiveAward -= WeaponShop_OnPlayerReceiveAward;
         else
-            Debug.LogError("Max is: null");
+            Debug.LogWarning("Max is: null");
 
     }
 
-    public void LoadWeapon() {
-        //Lay vu khi hien tai dang duoc chon
+    // Duoc goi khi moi mo shop, hoac doi vu khi
+    public void LoadWeapon(int weaponIndex) {
 
-        int weaponIndexSaved = PlayerPrefs.GetInt("CurWeapon");
-        weaponIndexSelected = weaponIndexSaved;
-
+        int weaponIndexSaved = weaponIndex;
+        weaponData = DataManager.Instance.GetWeaponData(weaponIndex);
         materialCount = weaponObjects.GetListMaterials(weaponIndexSaved, 0).Length;
-
-        data = DataManager.Instance.GetWeaponData(weaponIndexSaved);
-
-        //Debug.Log("Start, vu khi: " + weaponIndexSaved + " " + "skin: " +
-        //    data.skinIndex + ", " + data.showMaterial());
-
         // SetUp cac skin cua vu khi
-        int skinIndexSaved = data.skinIndex;
+        int skinIndexSaved = weaponData.skinIndex;
         weaponSkinIndexSelected = skinIndexSaved;
-
         for (int i=0; i< listWeaponSkinButtons.Length; i++) {
             if (i == skinIndexSaved)
                 listBorderImage[i].gameObject.SetActive(true);
@@ -145,7 +139,6 @@ public class WeaponShopController : MonoBehaviour
         Material[] skinMaterial = weaponObjects.GetListMaterials(weaponIndexSaved, skinIndexSaved);
 
         SetMeshAndMaterial(weaponDisplay, skinMesh, skinMaterial);
-
         float scale = 3 * weaponObjects.listWeapon[weaponIndexSelected].scale;
         weaponDisplay.transform.localScale = new Vector3(scale, scale, scale);  
 
@@ -155,13 +148,13 @@ public class WeaponShopController : MonoBehaviour
             weaponObjects.listWeapon[weaponIndexSaved].attribute;
 
         //Kiem tra xemvu khi da duoc mua hay chua
-        if (data.isLock) {
+        if (weaponData.isLock) {
             purchaseWeaponText.text = weaponObjects.listWeapon[weaponIndexSaved].cost.ToString();
             purchaseWeaponButton.gameObject.SetActive(true);
             purchaseWeaponByAdButton.gameObject.SetActive(true);
 
-            purchaseWeaponByAdText.text = 
-                data.adQuantity.ToString() + "/2";
+            purchaseWeaponByAdText.text =
+                DataManager.Instance.playerData.listWeaponData[weaponIndexSaved].adQuantity.ToString() + "/2";
 
             TurnOffUI();
             return;
@@ -169,17 +162,12 @@ public class WeaponShopController : MonoBehaviour
         }
         else {
             listWeaponSkinButtons[skinIndexSaved].onClick.Invoke();
-
             TurnOnUI();
         }
-
         SetUpLockSkinIcon();
-
+        SetSelectAndEquipButton(skinIndexSaved);
         // Hien thi mau neu skin da luu = 0
         SetUpColorBoard(skinIndexSaved);
-        //Debug.Log(PlayerController.Instance.name);
-        //DataManager.Instance.SaveWeaponData(weaponIndexSelected, data);
-
     }
 
     void SetUpLockSkinIcon() {
@@ -192,7 +180,7 @@ public class WeaponShopController : MonoBehaviour
 
             }
             purchaseSkinText.text = weaponObjects.listWeapon[weaponIndexSelected].weaponSkinCost[i].ToString();
-            if (data.isLockSkin[i] == false) {
+            if (DataManager.Instance.playerData.listWeaponData[weaponIndexSelected].isLockSkin[i] == false) {
                 if (lockIcon != null)
                     lockIcon.gameObject.SetActive(false);
 
@@ -207,19 +195,19 @@ public class WeaponShopController : MonoBehaviour
         }
     }
 
+    // SetUp skin cua vu khi
     void SetUpSkin(int weaponIndex, int skinIndex) {
-        
         // Lay scale
         float scale = weaponObjects.listWeapon[weaponIndex].scale;
         listWeaponSkins[skinIndex].gameObject.transform.localScale = new Vector3(scale, scale, scale);
-
+        // Set Up Skin Mesh
         Mesh skinMesh = weaponObjects.GetMeshWeapon(weaponIndex, skinIndex);
         Material[] skinMaterials =new Material[materialCount];
         if(skinIndex !=0 )
            skinMaterials = weaponObjects.GetListMaterials(weaponIndex, skinIndex);
         else {
             for (int i = 0; i < materialCount; i++) {
-                int materialIndex = data.weaponMaterials[i];
+                int materialIndex = DataManager.Instance.playerData.listWeaponData[weaponIndexSelected].weaponMaterials[i];
                 Material savedMaterial = listColorButtons[materialIndex].GetComponent<Image>().material;
                 skinMaterials[i] = savedMaterial;
             }
@@ -235,13 +223,14 @@ public class WeaponShopController : MonoBehaviour
                 listPartTargetButton[j].gameObject.SetActive(false);
         }
     }
+
+    // Set mau cho cac nut chon mau
     void SetUpColorBoard(int skinIndex) {
         if (skinIndex == 0) {
-            Debug.Log(data.showMaterial());
-
             SetUpTargetPartButton();
-            data = DataManager.Instance.GetWeaponData(weaponIndexSelected);
-            int[] materialIndex = data.weaponMaterials; 
+
+            //data = DataManager.Instance.GetWeaponData(weaponIndexSelected);
+            int[] materialIndex = weaponData.weaponMaterials; 
             for (int i=0; i< 3; i++) {
                 if(i < materialCount) {
                     listWeaponPartButtons[i].gameObject.SetActive(true);
@@ -265,6 +254,8 @@ public class WeaponShopController : MonoBehaviour
             }
         }
     }
+
+    //Set Mesh va Material cho gameObject
     void SetMeshAndMaterial(GameObject obj, Mesh mesh, Material[] materials) {
         obj.GetComponent<MeshFilter>().mesh = mesh;
         obj.GetComponent<MeshRenderer>().sharedMaterials = materials;
@@ -318,10 +309,10 @@ public class WeaponShopController : MonoBehaviour
         //    0, partSelected, materialSelected);
 
         // Luu Data
-        data = DataManager.Instance.GetWeaponData(weaponIndexSelected);
-        data.weaponMaterials[partSelected] = materialIndex;
+        //data = DataManager.Instance.GetWeaponData(weaponIndexSelected);
+        weaponData.weaponMaterials[partSelected] = materialIndex;
 
-        DataManager.Instance.SaveWeaponData(weaponIndexSelected, data);
+        //DataManager.Instance.SaveWeaponData(weaponIndexSelected, data);
 
     }
 
@@ -340,7 +331,7 @@ public class WeaponShopController : MonoBehaviour
     void SetPurchaseSkinAndSelect(int skinIndex) {
         equipedButton.gameObject.SetActive(false);
 
-        if (data.isLockSkin[skinIndex]) {
+        if (DataManager.Instance.playerData.listWeaponData[weaponIndexSelected].isLockSkin[skinIndex]) {
             purchaseSkinButton.gameObject.SetActive(true);
             purchaseSkinText.text = weaponObjects.listWeapon[weaponIndexSelected].weaponSkinCost[skinIndex].ToString();
             purchaseSkinByAdButton.gameObject.SetActive(true);
@@ -353,9 +344,7 @@ public class WeaponShopController : MonoBehaviour
         }
     }
     void SetSelectAndEquipButton(int skinIndex) {
-        //data = WeaponDataManager.Instance.GetWeaponData(weaponIndexSelected);
-        //Debug.Log(skinIndex + " " + data.skinIndex);
-        if (data.skinIndex == skinIndex) {
+        if (DataManager.Instance.playerData.listWeaponData[weaponIndexSelected].skinIndex == skinIndex) {
             equipedButton.gameObject.SetActive(true);
             selectButton.gameObject.SetActive(false);
         }
@@ -367,26 +356,30 @@ public class WeaponShopController : MonoBehaviour
 
     #region ----------PURCHASE_WEAPON-----------
     void SetUpPurchaseWeaponButton() {
-        SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
+        AudioManager.Instance.PlaySoundClickButton();
 
-        int playerCoin = PlayerPrefs.GetInt("PlayerCoin");
+        int playerCoin = PlayerPrefs.GetInt(GameVariable.PLAYER_COIN);
         if (playerCoin > weaponObjects.listWeapon[weaponIndexSelected].cost)
             playerCoin -= weaponObjects.listWeapon[weaponIndexSelected].cost;
         else {
             Debug.Log("Thieu tien roi b ei");
             return;
         }
-        PlayerPrefs.SetInt("PlayerCoin", playerCoin);
+        PlayerPrefs.SetInt(GameVariable.PLAYER_COIN, playerCoin);
         HomePageController.Instance.SetCoinText();
 
         purchaseWeaponButton.gameObject.SetActive(false);
         purchaseWeaponByAdButton.gameObject.SetActive(false);
-        data.isLock = false;
-
+        //
+        DataManager.Instance.playerData.listWeaponData[weaponIndexSelected].isLock = false;
+        DataManager.Instance.playerData.currentWeaponId = weaponObjects.listWeapon[weaponIndexSelected].id;
+        //
         equipedButton.gameObject.SetActive(true);
         equipedButton.gameObject.GetComponent<RectTransform>().localPosition = new Vector3(0, -500, -2);
 
-        DataManager.Instance.SaveWeaponData(weaponIndexSelected, data);
+        if (weaponObjects.listWeapon[weaponIndexSelected].isBoom)
+            weaponData.isBoom = true;
+        
         TurnOnUI();
         SetUpLockSkinIcon();
 
@@ -401,21 +394,21 @@ public class WeaponShopController : MonoBehaviour
     }
 
     void HandlerPurchaseWeaponByAd() {
-        data.adQuantity += 1;
-        purchaseWeaponByAdText.text = data.adQuantity.ToString() + "/2";
+        DataManager.Instance.playerData.listWeaponData[weaponIndexSelected].adQuantity += 1;
+        purchaseWeaponByAdText.text = DataManager.Instance.playerData.listWeaponData[weaponIndexSelected].adQuantity.ToString() + "/2";
 
-        if (data.adQuantity == 2) {
+        if (DataManager.Instance.playerData.listWeaponData[weaponIndexSelected].adQuantity == 2) {
             purchaseWeaponButton.gameObject.SetActive(false);
             purchaseWeaponByAdButton.gameObject.SetActive(false);
             purchaseSkinByAdButton.gameObject.SetActive(false);
 
-            data.isLock = false;
+            DataManager.Instance.playerData.listWeaponData[weaponIndexSelected].isLock = false;
+            DataManager.Instance.playerData.currentWeaponId = weaponObjects.listWeapon[weaponIndexSelected].id;
 
-            
             equipedButton.gameObject.SetActive(true);
             equipedButton.gameObject.GetComponent<RectTransform>().localPosition = new Vector3(0, -500, -2);
 
-            DataManager.Instance.SaveWeaponData(weaponIndexSelected, data);
+            
             TurnOnUI();
         }
         SetUpLockSkinIcon();
@@ -426,23 +419,19 @@ public class WeaponShopController : MonoBehaviour
 
     #region PurchaseWeaponSkin
     void SetUpPurchaseSkinButton() {
-        SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
-
-
+        AudioManager.Instance.PlaySoundClickButton();
         if (!CoinManager.Instance.PurchaseItem(weaponObjects.listWeapon[weaponIndexSelected].weaponSkinCost[weaponSkinIndexSelected])) {
             Debug.Log("ko du tien");
             return;
-        }
-         
+        }         
         HomePageController.Instance.SetCoinText();
-
-        //weaponObjects.listWeapon[weaponIndexSelected].weaponSkinCost[weaponSkinIndexSelected] = 0;
-        data.isLockSkin[weaponSkinIndexSelected] = false;
-
+        //
+        DataManager.Instance.playerData.listWeaponData[weaponIndexSelected].isLockSkin[weaponSkinIndexSelected] = false;
+        //
         purchaseSkinButton.gameObject.SetActive(false);
         purchaseSkinByAdButton.gameObject.SetActive(false);
         equipedButton.gameObject.SetActive(true);
-
+        //
         Transform lockIcon = null;
         foreach(Transform child in listWeaponSkinButtons[weaponSkinIndexSelected].transform) {
             if (child.gameObject.CompareTag("LockImage")) {
@@ -451,10 +440,9 @@ public class WeaponShopController : MonoBehaviour
         }
         if(lockIcon != null) 
             lockIcon.gameObject.SetActive(false);
-
-        //data = WeaponDataManager.Instance.GetWeaponData(weaponIndexSelected);
-        data.skinIndex = weaponSkinIndexSelected;
-        DataManager.Instance.SaveWeaponData(weaponIndexSelected, data);
+        //
+        DataManager.Instance.playerData.listWeaponData[weaponIndexSelected].skinIndex = weaponSkinIndexSelected;
+        
     }
     void SetUpPurchaseSkinButtonByAd() {
         if(MaxManager.Instance != null) {
@@ -464,12 +452,12 @@ public class WeaponShopController : MonoBehaviour
 
     }
     void HandlerPurchaseSkinByAd() {
-        data.isLockSkin[weaponSkinIndexSelected] = false;
-
+        DataManager.Instance.playerData.listWeaponData[weaponIndexSelected].isLockSkin[weaponSkinIndexSelected] = false;
+        //
         purchaseSkinButton.gameObject.SetActive(false);
         purchaseSkinByAdButton.gameObject.SetActive(false);
         equipedButton.gameObject.SetActive(true);
-
+        //
         Transform lockIcon = null;
         foreach (Transform child in listWeaponSkinButtons[weaponSkinIndexSelected].transform) {
             if (child.gameObject.CompareTag("LockImage")) {
@@ -479,19 +467,17 @@ public class WeaponShopController : MonoBehaviour
         }
         if (lockIcon != null)
             lockIcon.gameObject.SetActive(false);
-
-        //data = WeaponDataManager.Instance.GetWeaponData(weaponIndexSelected);
-        data.skinIndex = weaponSkinIndexSelected;
-        DataManager.Instance.SaveWeaponData(weaponIndexSelected, data);
+        //
+        DataManager.Instance.playerData.listWeaponData[weaponIndexSelected].skinIndex = weaponSkinIndexSelected;
+        
     }
 
     #endregion
     void SetUpSelectButton() {
-        SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
-
-        data = DataManager.Instance.GetWeaponData(weaponIndexSelected);
-        data.skinIndex = weaponSkinIndexSelected;
-        DataManager.Instance.SaveWeaponData(weaponIndexSelected, data);
+        AudioManager.Instance.PlaySoundClickButton();
+        //
+        DataManager.Instance.playerData.currentWeaponId = weaponObjects.listWeapon[weaponIndexSelected].id;
+        DataManager.Instance.playerData.listWeaponData[weaponIndexSelected].skinIndex = weaponSkinIndexSelected;
         selectButton.gameObject.SetActive(false);
         equipedButton.gameObject.SetActive(true);
     }

@@ -108,7 +108,7 @@ public class MaxManager : MonoBehaviour
         }
     }
     private void AppOpen_OnAdLoadedEvent(string arg1, MaxSdkBase.AdInfo arg2) {
-        Debug.Log("AppOpenAd Loaded");
+        //Debug.Log("AppOpenAd Loaded");
     }
     private void AppOpen_OnAdHiddenEvent(string arg1, MaxSdkBase.AdInfo arg2) {
         MaxSdk.LoadAppOpenAd(appOpenAdUnitId);

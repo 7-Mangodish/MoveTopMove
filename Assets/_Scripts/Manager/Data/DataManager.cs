@@ -1,6 +1,7 @@
 using System;
+using System.Globalization;
 using UnityEngine;
-
+using static System.Guid;
 public class DataManager : MonoBehaviour
 {
     private static DataManager instance;
@@ -9,6 +10,8 @@ public class DataManager : MonoBehaviour
     public static string PLAYER_ID;
     public bool isInit = false;
 
+    [Header("-----PlayerPersonalData------")]
+    public PlayerData playerData;
 
     [Header("-----WEAPON-----")]
     public WeaponObjects weaponObjects;
@@ -25,7 +28,6 @@ public class DataManager : MonoBehaviour
     public ArmorObjects armorObjects;
     public SetObjects setObjects;
 
-
     public void Awake() {
         if (instance == null)
             instance = this;
@@ -35,96 +37,108 @@ public class DataManager : MonoBehaviour
     }
 
     private void OnApplicationQuit() {
-        SaveData();
+        Debug.Log("AppQuit");
+        SaveData(); 
     }
+    //private void OnApplicationPause(bool pause) { SaveData(); }
 
-    /*
-     Lay Player ID, Neu khong co, tao moi thong qua Firebase va luu duoi PlayerPref
-     */
-    public async void InitDataManager() {
-        if (!PlayerPrefs.HasKey(GameVariable.PLAYER_ID)) {
-            string deviceModel = SystemInfo.deviceModel;
-
-            PlayerPersonalData playerData = new PlayerPersonalData(deviceModel);
-            PLAYER_ID = await FirebaseManager.Instance.CreateNewPlayer(playerData);
-
-            PlayerPrefs.SetString(GameVariable.PLAYER_ID, PLAYER_ID);
+    public void LoadData() {
+        if (PlayerPrefs.HasKey(GameVariable.PLAYER_PERSONAL_DATA)) {
+            string json = PlayerPrefs.GetString(GameVariable.PLAYER_PERSONAL_DATA);
+            playerData = JsonUtility.FromJson<PlayerData>(json);
+            isInit = true;
+            // Xoa weaponData neu xoa weapon tren weaponObjects
+            for(int i = playerData.listWeaponData.Count - 1; i >= 0; i--){
+                bool isDelete = true;
+                foreach (Weapon weapon in weaponObjects.listWeapon) {
+                    if (playerData.listWeaponData[i].weaponId == weapon.id) { isDelete = false; continue; }
+                }
+                if (isDelete) playerData.listWeaponData.RemoveAt(i);
+            }
+            //Them moi weaponData neu them moi vao ScriptableObject
+            foreach(Weapon weapon in weaponObjects.listWeapon) {
+                bool isNew = true;
+                foreach(WeaponData weaponData in playerData.listWeaponData) {
+                    if(weaponData.weaponId  == weapon.id) {isNew = false; continue; }
+                }
+                if(isNew) {
+                    WeaponData newWeaponData = new WeaponData(weapon.id);
+                    playerData.listWeaponData.Add(newWeaponData);
+                }
+            }
+            return;
         }
-        else
-            PLAYER_ID = PlayerPrefs.GetString(GameVariable.PLAYER_ID);
+        //
+        playerData = new PlayerData(
+            hatObjects.listHats.Length,
+            pantObjects.listPants.Length,
+            armorObjects.listArmor.Length,
+            setObjects.listSets.Length
+            );
+        // Duyet qua tung vu khi trong WeaponObject
+        foreach (Weapon weapon in weaponObjects.listWeapon) {
+            WeaponData newWeaponData = new WeaponData(weapon.id);
+            playerData.listWeaponData.Add(newWeaponData);
+        }
+        PlayerPrefs.SetString(GameVariable.PLAYER_PERSONAL_DATA, JsonUtility.ToJson(playerData));
         isInit = true;
-    }
-    
-    // Luu Data khi Out App
-    private void SaveData() {
-        PlayerPersonalData data = GetPlayerPersonalData();
-        FirebaseManager.Instance.SavePlayerData(PLAYER_ID, data);
+
     }
 
-    #region -----------------PLAYER_DATA---------------
-    public PlayerPersonalData GetPlayerPersonalData() {
-        if (!PlayerPrefs.HasKey(GameVariable.PLAYER_PERSONAL_DATA))
-        {
-            string deviceModel = SystemInfo.deviceModel;
-            PlayerPersonalData newData = new PlayerPersonalData(deviceModel);
-            SavePlayerPersonalData(newData);
-            
-        }
-        string json = PlayerPrefs.GetString(GameVariable.PLAYER_PERSONAL_DATA);
-        PlayerPersonalData data = JsonUtility.FromJson<PlayerPersonalData>(json);
-        return data;
+    private void SaveData() {
+        if (!isInit)
+            return;
+        PlayerPrefs.SetString(GameVariable.PLAYER_PERSONAL_DATA,JsonUtility.ToJson(playerData));
+        PlayerPrefs.Save();
+        //
+        //FirebaseManager.Instance.SavePlayerData(playerPersonalData.PLAYER_ID, playerPersonalData);
     }
-    public void SavePlayerPersonalData(PlayerPersonalData data) {
-        string json = JsonUtility.ToJson(data);
-        PlayerPrefs.SetString(GameVariable.PLAYER_PERSONAL_DATA, json);
-    }
-    #endregion
 
     #region ----------------WEAPON_DATA------------
-    public WeaponData GetWeaponData(int weaponIndex) {
-        if (!PlayerPrefs.HasKey(weaponIndex.ToString())) {
-            WeaponData weaponData = new WeaponData();
-            if (weaponIndex == 0)
-                weaponData.isLock = false;
-            SaveWeaponData(weaponIndex, weaponData);
-            return weaponData;
+    public WeaponData GetWeaponData(int id) {
+        foreach (WeaponData data in playerData.listWeaponData) {
+            if (data.weaponId == id)
+                return data;
         }
-
-        string json = PlayerPrefs.GetString(weaponIndex.ToString());
-        WeaponData data = JsonUtility.FromJson<WeaponData>(json);
-        return data;
+        // Truong hop khong co data
+        WeaponData weaponData = new WeaponData(id);
+        if (id == 0)
+            weaponData.isLock = false;
+        playerData.listWeaponData.Add(weaponData);
+        return weaponData;
     }
 
-    public void SaveWeaponData(int weaponIndex, WeaponData data) {
-        string json = JsonUtility.ToJson(data);
-        //Debug.Log("Save Weapon: " + weaponIndex + ", skin: " + data.skinIndex + ", " + data.showMaterial());
-        PlayerPrefs.SetString(weaponIndex.ToString(), json);
+    //public void TriggerUserChangeWeaponEvent() {
+    //    Material[] materialTemp = new Material[3];
+    //    for (int i = 0; i < 3; i++) {
+    //        materialTemp[i] = listMaterial[playerPersonalData.listWeaponData[playerPersonalData.currentWeaponIndex].weaponMaterials[i]];
+    //    }
+    //    OnUserChangeWeapon?.Invoke(this, new OnUserChangeWeaponArg {
+    //        skinIndex = playerPersonalData.listWeaponData[playerPersonalData.currentWeaponId].skinIndex,
+    //        materials = materialTemp,
+    //    });
+    //}
 
-        Material[] materialTemp = new Material[3];
-        for (int i = 0; i < 3; i++) {
-            materialTemp[i] = listMaterial[data.weaponMaterials[i]];
-        }
-        OnUserChangeWeapon?.Invoke(this, new OnUserChangeWeaponArg {
-            skinIndex = data.skinIndex,
-            materials = materialTemp,
+    //public Material[] GetWeaponMaterial(int weaponIndex) {
+    //    WeaponData data = GetWeaponData(weaponIndex);
 
-        });
-    }
+    //    Material[] materialTemp = new Material[3];
+    //    if (data.skinIndex == 0) {
+    //        for (int i = 0; i < 3; i++) {
+    //            materialTemp[i] = listMaterial[data.weaponMaterials[i]];
+    //        }
+    //    }
+    //    else
+    //        materialTemp = weaponObjects.GetListMaterials(weaponIndex, data.skinIndex);
+    //    return materialTemp;
+    //}
 
-    public Material[] GetWeaponMaterial(int weaponIndex) {
-        WeaponData data = GetWeaponData(weaponIndex);
 
-        Material[] materialTemp = new Material[3];
-        if(data.skinIndex == 0) {
-            for (int i = 0; i < 3; i++) {
-                materialTemp[i] = listMaterial[data.weaponMaterials[i]];
-            }
-        }
-        else
-            materialTemp = weaponObjects.GetListMaterials(weaponIndex, data.skinIndex);
-        return materialTemp;
-    }
-
+    //public Mesh GetWeaponMesh(int weaponIndex) {
+    //    if (weaponIndex < weaponObjects.listWeapon.Length) {
+    //        return weaponObjects.GetMeshWeapon(0, 2);
+    //    }
+    //}
     #endregion
 
     #region ----------------SKIN_DATA--------------

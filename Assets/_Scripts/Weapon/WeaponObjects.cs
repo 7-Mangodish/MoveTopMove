@@ -17,7 +17,6 @@ public class WeaponObjects : ScriptableObject
         Material[] materials = weapon.GetComponent<MeshRenderer>().sharedMaterials;
         return materials;
     }
-
     //public void  SetWeaponPartMaterial(int weaponIndex, int weaponSkinIndex, int weaponPart, Material material) {
     //    listWeapon[weaponIndex].SetMaterialWeaponSkin(weaponSkinIndex, weaponPart, material);
     //}

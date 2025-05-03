@@ -24,6 +24,7 @@ public class GameUIController : MonoBehaviour
     [SerializeField] private Button soundOffButton;
     [SerializeField] private Button vibrationOnButton;
     [SerializeField] private Button vibrationOffButton;
+    public bool isSetting;
 
     [Header("-----InGame-----")]
     [SerializeField] private TextMeshProUGUI enemyQuantityText;
@@ -40,6 +41,7 @@ public class GameUIController : MonoBehaviour
     [SerializeField] private TextMeshProUGUI deadCoinText;
     [SerializeField] private int deadCoin;
     [SerializeField] private Button deadx3RewardButton;
+    [SerializeField] private TextMeshProUGUI rankText;
     public bool isRevived;
     public bool isClickedRevive;
 
@@ -51,7 +53,7 @@ public class GameUIController : MonoBehaviour
     [SerializeField] private Button winx3RewardButton;
     private HomePageController homeManager;
 
-    private List<GameObject> listCharacterDisplay = new List<GameObject>();
+    public List<GameObject> listCharacterDisplay = new List<GameObject>();
     private bool isClickedx3Reward;
     private void Awake() {
         if (instance == null)
@@ -77,36 +79,43 @@ public class GameUIController : MonoBehaviour
         if(MaxManager.Instance != null)
             MaxManager.Instance.OnPlayerReceiveAward -= GameUI_OnPlayerReceiveAward;
         else
-            Debug.LogError("Max is: "+MaxManager.Instance);
+            Debug.LogWarning("Max is: "+MaxManager.Instance);
     }
     private void SetSettingPanel() {
+        isSetting = false;
         settingButton.onClick.AddListener(() => {
+            AudioManager.Instance.PlaySoundClickButton();
             settingUIPanel.gameObject.SetActive(true);
-            TurnOffFloatingText();
+            Map1GameController.Instance.TurnOffEnemyStatus();
             Time.timeScale = 0;
         });
 
         settingHomeButton.onClick.AddListener(() => {
+            AudioManager.Instance.PlaySoundClickButton();
+            Map1GameController.Instance.TurnOnEnemyStatus();
             SceneManager.LoadScene(GameVariable.normalSceneName);
             Time.timeScale = 1f;
         });
 
         settingContinueButton.onClick.AddListener(() => {
+            AudioManager.Instance.PlaySoundClickButton();
             settingUIPanel.SetActive(false);
+            Map1GameController.Instance.TurnOnEnemyStatus();
             Time.timeScale = 1f;
-            TurnOnFloatingText();
         });
 
         soundOnButton.onClick.AddListener(() => {
             soundOnButton.gameObject.SetActive(false);
             soundOffButton.gameObject.SetActive(true);
-            SoundManager.Instance.TurnOffSound();
+            //
+            DataManager.Instance.playerData.soundVolume = 0;
         });
 
         soundOffButton.onClick.AddListener(() => {
             soundOffButton.gameObject.SetActive(false);
             soundOnButton.gameObject.SetActive(true);
-            SoundManager.Instance.TurnOnSound();
+            //
+            DataManager.Instance.playerData.soundVolume = 0;
         });
 
         vibrationOnButton.onClick.AddListener(() => {
@@ -121,11 +130,14 @@ public class GameUIController : MonoBehaviour
     }
     private void SetUpRevivePanel() {
         exitReviveButton.onClick.AddListener(() => {
+            AudioManager.Instance.PlaySoundClickButton();
+            //
             revivePanel.gameObject.SetActive(false);
             deadPanel.gameObject.SetActive(true);
         });
         reviveByAdButton.onClick.AddListener(() => {
-            //Debug.Log(this.name);
+            AudioManager.Instance.PlaySoundClickButton();
+            //
             MaxManager.Instance.ShowRewardAd();
             isClickedRevive = true;
         });
@@ -133,8 +145,9 @@ public class GameUIController : MonoBehaviour
 
     private void SetUpDeadPanel() {
         continueButton.onClick.AddListener(() => {
+            AudioManager.Instance.PlaySoundClickButton();
             SceneManager.LoadScene(GameVariable.normalSceneName);
-
+            //
             deadPanel.gameObject.SetActive(false);
             if(isClickedx3Reward)
                 CoinManager.Instance.SaveCoin(deadCoin * 3);
@@ -143,6 +156,8 @@ public class GameUIController : MonoBehaviour
 
         });
         deadx3RewardButton.onClick.AddListener(() => {
+            AudioManager.Instance.PlaySoundClickButton();
+            //
             MaxManager.Instance.ShowRewardAd();
             isClickedx3Reward = true;
         });
@@ -176,7 +191,7 @@ public class GameUIController : MonoBehaviour
     }
 
     public async void TurnOnReviveUI() {
-        TurnOffFloatingText();
+        //TurnOffFloatingText();
         if (!isRevived) {
             revivePanel.gameObject.SetActive(true);
             await Task.Delay(5200);
@@ -191,7 +206,7 @@ public class GameUIController : MonoBehaviour
     }
 
     public async void TurnOnWinPanel() {
-        TurnOffFloatingText();
+        //TurnOffFloatingText();
         await Task.Delay(1000);
         winPanel.SetActive(true);
     }
@@ -207,22 +222,26 @@ public class GameUIController : MonoBehaviour
 
     }
 
-    public void TurnOffFloatingText() {
-        GameObject[] listName = GameObject.FindGameObjectsWithTag(GameVariable.CHARACTER_STATUS_TAG);
-        listCharacterDisplay.Clear();
-        listCharacterDisplay.AddRange(listName);
-        foreach (GameObject obs in listCharacterDisplay) {
-            //Debug.Log(obs);
-            if(obs != null) 
-                obs.SetActive(false);
-        }
-    }
+    //public void TurnOffFloatingText() {
+    //    GameObject[] listName = GameObject.FindGameObjectsWithTag(GameVariable.CHARACTER_STATUS_TAG);
+    //    listCharacterDisplay.Clear();
+    //    listCharacterDisplay.AddRange(listName);
+    //    foreach (GameObject obs in listCharacterDisplay) {
+    //        //Debug.Log(obs);
+    //        if(obs != null) 
+    //            obs.SetActive(false);
+    //    }
+    //}
 
-    public void TurnOnFloatingText() {
-        foreach (GameObject obs in listCharacterDisplay) {
-            if(obs != null) 
-                obs.SetActive(true);
-        }
+    //public void TurnOnFloatingText() {
+    //    foreach (GameObject obs in listCharacterDisplay) {
+    //        if(obs != null) 
+    //            obs.SetActive(true);
+    //    }
+    //}
+
+    public void SetUpPlayerRank(int rank) {
+        rankText.text = $"#{rank}";
     }
     IEnumerator TurnOffInstructPanel() {
         yield return new  WaitUntil(()=> PlayerController.Instance.startGame);
