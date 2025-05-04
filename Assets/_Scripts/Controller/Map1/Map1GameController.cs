@@ -39,7 +39,7 @@ public class Map1GameController : MonoBehaviour
         HomePageController.Instance.SetUpHomePage();
         SkinShopController.Instance.SetUpSkinShop();
         PlayerController.Instance.SetUpPlayer();
-        //WeaponShopController.Instance.LoadWeapon();
+        WeaponShopController.Instance.InitWeaponShopData();
 
         StartCoroutine(StartGame());
         StartCoroutine(WinGame());

@@ -16,11 +16,6 @@ public class DataManager : MonoBehaviour
     [Header("-----WEAPON-----")]
     public WeaponObjects weaponObjects;
     public Material[] listMaterial;
-    public class OnUserChangeWeaponArg : EventArgs {
-        public int skinIndex;
-        public Material[] materials;
-    }
-    public event EventHandler<OnUserChangeWeaponArg> OnUserChangeWeapon;
 
     [Header("-----SKIN-----")]
     public HatObjects hatObjects;
@@ -47,30 +42,14 @@ public class DataManager : MonoBehaviour
             string json = PlayerPrefs.GetString(GameVariable.PLAYER_PERSONAL_DATA);
             playerData = JsonUtility.FromJson<PlayerData>(json);
             isInit = true;
-            // Xoa weaponData neu xoa weapon tren weaponObjects
-            for(int i = playerData.listWeaponData.Count - 1; i >= 0; i--){
-                bool isDelete = true;
-                foreach (Weapon weapon in weaponObjects.listWeapon) {
-                    if (playerData.listWeaponData[i].weaponId == weapon.id) { isDelete = false; continue; }
-                }
-                if (isDelete) playerData.listWeaponData.RemoveAt(i);
-            }
-            //Them moi weaponData neu them moi vao ScriptableObject
-            foreach(Weapon weapon in weaponObjects.listWeapon) {
-                bool isNew = true;
-                foreach(WeaponData weaponData in playerData.listWeaponData) {
-                    if(weaponData.weaponId  == weapon.id) {isNew = false; continue; }
-                }
-                if(isNew) {
-                    WeaponData newWeaponData = new WeaponData(weapon.id);
-                    playerData.listWeaponData.Add(newWeaponData);
-                }
-            }
+            //
+            UpdateWeapon();
+            UpdateHat();
             return;
         }
         //
         playerData = new PlayerData(
-            hatObjects.listHats.Length,
+            hatObjects.listHats.Count,
             pantObjects.listPants.Length,
             armorObjects.listArmor.Length,
             setObjects.listSets.Length
@@ -78,11 +57,18 @@ public class DataManager : MonoBehaviour
         // Duyet qua tung vu khi trong WeaponObject
         foreach (Weapon weapon in weaponObjects.listWeapon) {
             WeaponData newWeaponData = new WeaponData(weapon.id);
+            if (weapon.isBoom) newWeaponData.isBoom = true;
             playerData.listWeaponData.Add(newWeaponData);
         }
+        playerData.listWeaponData[0].isLock = false;
+        // Duyet Tung Hat trong HatObject
+        foreach(Hat hat in hatObjects.listHats) {
+            HatData newHatData = new HatData(hat.id);
+            playerData.listHatData.Add(newHatData);
+        }
+        //
         PlayerPrefs.SetString(GameVariable.PLAYER_PERSONAL_DATA, JsonUtility.ToJson(playerData));
         isInit = true;
-
     }
 
     private void SaveData() {
@@ -95,57 +81,82 @@ public class DataManager : MonoBehaviour
     }
 
     #region ----------------WEAPON_DATA------------
+
+    public void UpdateWeapon() {
+        // Xoa weaponData neu xoa weapon tren weaponObjects
+        for (int i = playerData.listWeaponData.Count - 1; i >= 0; i--) {
+            bool isDelete = true;
+            foreach (Weapon weapon in weaponObjects.listWeapon) {
+                if (playerData.listWeaponData[i].weaponId == weapon.id) { isDelete = false; continue; }
+            }
+            if (isDelete) playerData.listWeaponData.RemoveAt(i);
+        }
+        //Them moi weaponData neu them moi vao ScriptableObject
+        foreach (Weapon weapon in weaponObjects.listWeapon) {
+            bool isNew = true;
+            foreach (WeaponData weaponData in playerData.listWeaponData) {
+                if (weaponData.weaponId == weapon.id) { isNew = false; continue; }
+            }
+            if (isNew) {
+                WeaponData newWeaponData = new WeaponData(weapon.id);
+                if (weapon.isBoom) newWeaponData.isBoom = true;
+                playerData.listWeaponData.Add(newWeaponData);
+            }
+        }
+    }
     public WeaponData GetWeaponData(int id) {
         foreach (WeaponData data in playerData.listWeaponData) {
             if (data.weaponId == id)
                 return data;
         }
-        // Truong hop khong co data
-        WeaponData weaponData = new WeaponData(id);
-        if (id == 0)
-            weaponData.isLock = false;
-        playerData.listWeaponData.Add(weaponData);
+        // Truong hop vu khi su dung da bi xoa data tren SC
+        Debug.LogWarning("weaponData da bi xoa, tra ve vu khi dau tien");
+        WeaponData weaponData = playerData.listWeaponData[0];
+        playerData.currentWeaponId = weaponData.weaponId;
+        if (weaponData.isLock) weaponData.isLock = false;
         return weaponData;
     }
 
-    //public void TriggerUserChangeWeaponEvent() {
-    //    Material[] materialTemp = new Material[3];
-    //    for (int i = 0; i < 3; i++) {
-    //        materialTemp[i] = listMaterial[playerPersonalData.listWeaponData[playerPersonalData.currentWeaponIndex].weaponMaterials[i]];
-    //    }
-    //    OnUserChangeWeapon?.Invoke(this, new OnUserChangeWeaponArg {
-    //        skinIndex = playerPersonalData.listWeaponData[playerPersonalData.currentWeaponId].skinIndex,
-    //        materials = materialTemp,
-    //    });
-    //}
-
-    //public Material[] GetWeaponMaterial(int weaponIndex) {
-    //    WeaponData data = GetWeaponData(weaponIndex);
-
-    //    Material[] materialTemp = new Material[3];
-    //    if (data.skinIndex == 0) {
-    //        for (int i = 0; i < 3; i++) {
-    //            materialTemp[i] = listMaterial[data.weaponMaterials[i]];
-    //        }
-    //    }
-    //    else
-    //        materialTemp = weaponObjects.GetListMaterials(weaponIndex, data.skinIndex);
-    //    return materialTemp;
-    //}
-
-
-    //public Mesh GetWeaponMesh(int weaponIndex) {
-    //    if (weaponIndex < weaponObjects.listWeapon.Length) {
-    //        return weaponObjects.GetMeshWeapon(0, 2);
-    //    }
-    //}
+    public Material[] GetWeaponMaterial(int weaponId) {
+        WeaponData weaponData = GetWeaponData(weaponId);
+        Material[] materialTemp = new Material[3];
+        if (weaponData.skinIndex == 0) {
+            for (int i = 0; i < 3; i++) {
+                materialTemp[i] = listMaterial[weaponData.weaponMaterials[i]];
+            }
+        }
+        else
+            materialTemp = weaponObjects.GetListMaterials(weaponId, weaponData.skinIndex);
+        return materialTemp;
+    }
     #endregion
 
     #region ----------------SKIN_DATA--------------
+    public void UpdateHat() {
+        for(int i= playerData.listHatData.Count-1; i>=0; i--) {
+            bool isDelete = true;
+            foreach(Hat hat in hatObjects.listHats) {
+                if(hat.id == playerData.listHatData[i].hatId) { isDelete = false; break; }
+            }
+            if (isDelete){ playerData.listHatData.RemoveAt(i); }
+        }
+        foreach(Hat hat in hatObjects.listHats) {
+            bool isNew = true;
+            foreach(HatData hatData in playerData.listHatData) {
+                if (hatData.hatId == hat.id) {
+                    isNew = false; break;
+                }
+            }
+            if (isNew) {
+                HatData newHatData = new HatData(hat.id);
+                playerData.listHatData.Add(newHatData);
+            }
+        }
+    }
     public SkinData GetSkinData() {
         if (!PlayerPrefs.HasKey(GameVariable.PLAYER_SKIN)) {
             SkinData skinData = new SkinData(
-                hatObjects.listHats.Length,
+                hatObjects.listHats.Count,
                 pantObjects.listPants.Length,
                 armorObjects.listArmor.Length,
                 setObjects.listSets.Length

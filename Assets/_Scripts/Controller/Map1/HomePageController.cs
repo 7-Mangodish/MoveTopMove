@@ -24,10 +24,8 @@ public class HomePageController : MonoBehaviour
     private Animator homePageAnimator;
     [SerializeField] private GameObject leftPanel;
     [SerializeField] private GameObject rightPanel;
-
     [SerializeField] private Button playButton;
     [SerializeField] private GameObject joystick;
-
     [SerializeField] private Button zombieModeButton;
     [SerializeField] private TextMeshProUGUI dayZombieModeText;
 
@@ -43,9 +41,7 @@ public class HomePageController : MonoBehaviour
     [SerializeField] private GameObject AdBlockPanel;
     [SerializeField] private Button noAdsButton;
     [SerializeField] private Button exitAdBlockPanel;
-
     [SerializeField] private Button vibrationButton;
-
     [SerializeField] private Button volumeButton;
     [SerializeField] private GameObject turnOnObject;
     [SerializeField] private GameObject turnOffObject;
@@ -147,12 +143,12 @@ public class HomePageController : MonoBehaviour
         });
 
         exitWeaponButton.onClick.AddListener(() => {
-            //SoundManager.Instance.PlaySound(SoundManager.SoundName.button_click);
             AudioManager.Instance.PlaySoundClickButton();
             //
             GameObject[] enemyObjects = GameObject.FindGameObjectsWithTag(GameVariable.ENEMY_TAG);
             //
             PlayerController.Instance.gameObject.SetActive(true);
+            PlayerController.Instance.LoadWeapon();
             //DataManager.Instance.TriggerUserChangeWeaponEvent();
             weaponShopPanel.gameObject.SetActive(false);
             playerNameInput.gameObject.SetActive(true);

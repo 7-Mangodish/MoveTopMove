@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using TMPro;
@@ -18,8 +19,10 @@ public class SkinShopController : MonoBehaviour {
 
     [Header("-----HatButton-----")]
     [SerializeField] private HatObjects hatObjects;
-    [SerializeField] private Button[] listHatButtons;
+    [SerializeField] private List<Button> listHatButtons;
     [SerializeField] private Transform hatHolderTransform;
+    public Button hatOpsButton;
+    public Transform hatContent;
     private int hatIndexSelected;
 
     [Header("-----PantButton-----")]
@@ -93,8 +96,6 @@ public class SkinShopController : MonoBehaviour {
 
         pantSkin = characterPant.GetComponent<SkinnedMeshRenderer>();
 
-        //Debug.Log("Hat: " + data.hatIndex + ", Pant: " +
-        //    data.pantIndex + ", Armor: " + data.armorIndex + ", Set: " + data.setIndex + ", isSet:" + data.isSet);
         hatIndexSelected = data.hatIndex;
         pantIndexSelected = data.pantIndex;
         armorIndexSelected = data.armorIndex;
@@ -243,32 +244,43 @@ public class SkinShopController : MonoBehaviour {
         });
     }
     void SetUpListHatButton() {
-        if (data == null)
-            Debug.Log("data is null");
-        for (int i = 0; i < listHatButtons.Length; i++) {
+        listHatButtons = new List<Button>(hatObjects.listHats.Count);
+        for (int i =0; i<hatObjects.listHats.Count; i++) {
+            Button hatSpawn = Instantiate(hatOpsButton, hatContent);
+            //
+            Hat hat = hatObjects.listHats[i];
+            hatSpawn.GetComponent<Image>().sprite = hat.hatSprite;
+            listHatButtons.Add(hatSpawn);
+            //
             int ind = i;
-            
-            if (data.isUnLockHat[ind] == 1) {
-                Transform child = FindChildWithTag(listHatButtons[ind].transform);
-                if (child != null) {
-                    child.gameObject.SetActive(false);
-                }
-            }
+
+        }
+
+        for (int i = 0; i < listHatButtons.Count; i++) {
+            int ind = i;
+           
+        //    if (data.isUnLockHat[ind] == 1) {
+        //        Transform child = FindChildWithTag(listHatButtons[ind].transform);
+        //        if (child != null) {
+        //            child.gameObject.SetActive(false);
+        //        }
+        //    }
 
             listHatButtons[i].onClick.AddListener(() => {
-                AudioManager.Instance.PlaySoundClickButton();
+                Debug.Log(hatObjects.listHats[ind].id);
+        //        AudioManager.Instance.PlaySoundClickButton();
 
-                hatIndexSelected = ind;
+        //        hatIndexSelected = ind;
 
-                skinInfor.text = "+" + hatObjects.listHats[ind].index.ToString() + " Range";
-                purchaseText.text = hatObjects.listHats[ind].cost.ToString();
+        //        skinInfor.text = "+" + hatObjects.listHats[ind].index.ToString() + " Range";
+        //        purchaseText.text = hatObjects.listHats[ind].cost.ToString();
 
-                SetUpBorderImage(listHatButtons[ind].transform);
-                SetupPurchaseAndSelectButton(data.isUnLockHat[ind]);
-                if (selectButton.IsActive())
-                    SetUpSelectAndEquipedButton(type, ind);
+        //        SetUpBorderImage(listHatButtons[ind].transform);
+        //        SetupPurchaseAndSelectButton(data.isUnLockHat[ind]);
+        //        if (selectButton.IsActive())
+        //            SetUpSelectAndEquipedButton(type, ind);
 
-                hatObjects.SetCharacterHat(ind, hatHolderTransform);
+        //        hatObjects.SetCharacterHat(ind, hatHolderTransform);
             });
         }
     }

@@ -19,9 +19,10 @@ public class PlayerData
     public SkillData skillData;
 
     public int currentWeaponId;
-    public bool isWeaponBoom;
     public List<WeaponData> listWeaponData = new List<WeaponData>();
 
+    public int currentHatId;
+    public List<HatData> listHatData = new List<HatData>();
     public PlayerData(int hatCount, int pantCount, int armorCount, int setCount) {
         this.PLAYER_ID = Guid.NewGuid().ToString();
         playerName = "You";
@@ -32,4 +33,12 @@ public class PlayerData
     }
 
 
+}
+
+public class HatData {
+    public int hatId;
+    public bool isLock = true;
+    public HatData(int id) {
+        hatId = id;
+    }
 }

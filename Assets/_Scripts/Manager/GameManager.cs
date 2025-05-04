@@ -11,15 +11,15 @@ public class GameManager : MonoBehaviour
         DataManager.Instance.LoadData();
         yield return new WaitUntil(() => DataManager.Instance.isInit == true);
 
-        //MaxManager.Instance.InitMaxManager();
-        //yield return new WaitUntil(() => MaxManager.Instance.isInit == true);
+        MaxManager.Instance.InitMaxManager();
+        yield return new WaitUntil(() => MaxManager.Instance.isInit == true);
 
-        //FirebaseManager.Instance.InitFirebase();
-        //yield return new WaitUntil(() => FirebaseManager.Instance.isInit == true);
+        FirebaseManager.Instance.InitFirebase();
+        yield return new WaitUntil(() => FirebaseManager.Instance.isInit == true);
 
-        //AppsFlyermanager.Instance.InitAppsFlyer();
+        AppsFlyermanager.Instance.InitAppsFlyer();
 
-        //SceneManager.LoadScene(GameVariable.normalSceneName);
+        SceneManager.LoadScene(GameVariable.normalSceneName);
 
     }
 }

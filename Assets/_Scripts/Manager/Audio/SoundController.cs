@@ -12,7 +12,6 @@ public class SoundController : MonoBehaviour
         audioSource.playOnAwake = false;
     }
 
-
     public void PlaySound(SoundData.SoundName soundName) {
         if (AudioManager.Instance == null) return;
         //if (AudioManager.Instance == null || !AudioManager.Ins.CanPlaySound(soundName)) return;
@@ -35,8 +34,7 @@ public class SoundController : MonoBehaviour
         audioSource.volume = soundData.volume * (isMusic ? DataManager.Instance.playerData.musicVolume : DataManager.Instance.playerData.soundVolume);
         if (isMusic && AudioManager.Instance.isChangeTempVolume) {
             audioSource.volume = audioSource.volume / 2;
-        }
-        
+        }        
     }
 
 }

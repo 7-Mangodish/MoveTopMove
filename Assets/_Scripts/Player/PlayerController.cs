@@ -46,7 +46,7 @@ public class PlayerController : MonoBehaviour
     private Vector3 weaponSpawnPosition;
     public Transform aimArea;
     private GameObject aimEnemy;
-    //WeaponData weaponData;
+    WeaponData weaponData;
 
     [Header("-----Level Up-----")]
     private StateManager stateManager;
@@ -83,11 +83,6 @@ public class PlayerController : MonoBehaviour
         stateManager.OnCharacterTakeScore += StateManager_OnCharacterTakeScore;
     }
 
-    private void OnDestroy() {
-        if(SceneManager.GetActiveScene().name == GameVariable.normalSceneName && DataManager.Instance != null)
-            DataManager.Instance.OnUserChangeWeapon -= PlayerController_OnUserChangeWeapon;
-    }
-
     private void OnTriggerEnter(Collider other) {
         if(other.gameObject.CompareTag(GameVariable.ENEMY_TAG) ||
             other.gameObject.CompareTag(GameVariable.ZOMBIE_TAG)) {
@@ -117,9 +112,6 @@ public class PlayerController : MonoBehaviour
         /*Sua lai scale neu no la boom*/
         LoadWeapon();
         //
-        if (SceneManager.GetActiveScene().name == GameVariable.normalSceneName) {
-            DataManager.Instance.OnUserChangeWeapon += PlayerController_OnUserChangeWeapon;
-        }
         if(SceneManager.GetActiveScene().name == GameVariable.zombieSceneName) {
             SetUpAttackRange();
         }
@@ -267,7 +259,7 @@ public class PlayerController : MonoBehaviour
             Quaternion rot = Quaternion.LookRotation(directWeapon.normalized, Vector3.up);
             GameObject weaponSpawn = Instantiate(weapon, weaponSpawnPosition, Quaternion.Euler(-90, rot.eulerAngles.y, 0));
             //Set trang thai(chu the, tam ban, scale, vi tri khoi tao)
-            if (!DataManager.Instance.playerData.isWeaponBoom)
+            if (!weaponData.isBoom)
                 weaponSpawn.transform.localScale = new Vector3(9, 9, 9);
             else {
                 weaponSpawn.transform.localScale = new Vector3(3, 3, 3);
@@ -347,33 +339,35 @@ public class PlayerController : MonoBehaviour
 
     #region ----------WEAPON_MATERIALS----------
     private void LoadWeaponSkin(GameObject wp) {
-        //int curWeapon = DataManager.Instance.playerPersonalData.currentWeaponIndex;
-
-        //Mesh mesh = DataManager.Instance.GetWeaponMesh(curWeapon);
-        //wp.GetComponent<MeshFilter>().mesh = mesh;
-
-        //Material[] weaponMaterial = DataManager.Instance.GetWeaponMaterial(curWeapon);
-        //int materialCount = weaponObjects.GetListMaterials(curWeapon, 2).Length;
-        //Material[] materials = new Material[materialCount];
-        //for (int i = 0; i < materialCount; i++) {
-        //    materials[i] = weaponMaterial[i];
-        //}
-
-        //wp.GetComponent<MeshRenderer>().materials = materials;
-    }
-
-
-    private void PlayerController_OnUserChangeWeapon(object sender, DataManager.OnUserChangeWeaponArg e) {
-        if (DataManager.Instance.playerData.isWeaponBoom) {
-            weaponHold.transform.localScale = new Vector3(11, 11, 11);
-            weaponHold.transform.localPosition = new Vector3(0, .5f, 0);
+        int curWeaponId = DataManager.Instance.playerData.currentWeaponId;
+        //
+        Mesh mesh = weaponObjects.GetMeshWeapon(curWeaponId, 2);
+        wp.GetComponent<MeshFilter>().mesh = mesh;
+        //
+        Material[] weaponMaterial = DataManager.Instance.GetWeaponMaterial(curWeaponId);
+        int materialCount = weaponObjects.GetListMaterials(curWeaponId, 2).Length;
+        Material[] materials = new Material[materialCount];
+        for (int i = 0; i < materialCount; i++) {
+            materials[i] = weaponMaterial[i];
         }
-        LoadWeaponSkin(weapon);
-        LoadWeaponSkin(weaponHold.gameObject);
+        //
+        wp.GetComponent<MeshRenderer>().materials = materials;
     }
 
-    private void LoadWeapon() {
-        if (DataManager.Instance.playerData.isWeaponBoom) {
+
+    //private void PlayerController_OnUserChangeWeapon(object sender, EventArgs e) {
+    //    if (DataManager.Instance.playerData.isWeaponBoom) {
+    //        weaponHold.transform.localScale = new Vector3(11, 11, 11);
+    //        weaponHold.transform.localPosition = new Vector3(0, .5f, 0);
+    //    }
+    //    LoadWeaponSkin(weapon);
+    //    LoadWeaponSkin(weaponHold.gameObject);
+    //}
+
+    public void LoadWeapon() {
+        int curWeaponId = DataManager.Instance.playerData.currentWeaponId;
+        weaponData = DataManager.Instance.GetWeaponData(curWeaponId);
+        if (weaponData.isBoom) {
             weaponHold.transform.localScale = new Vector3(11, 11, 11);
             weaponHold.transform.localPosition = new Vector3(0, .5f, 0);
         }

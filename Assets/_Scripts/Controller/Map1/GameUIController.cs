@@ -208,7 +208,7 @@ public class GameUIController : MonoBehaviour
     public async void TurnOnWinPanel() {
         //TurnOffFloatingText();
         await Task.Delay(1000);
-        winPanel.SetActive(true);
+        if(winPanel) winPanel.SetActive(true);
     }
 
     private void GameUI_OnPlayerReceiveAward(object sender, MaxManager.TypeReward t) {

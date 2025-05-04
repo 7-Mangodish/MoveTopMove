@@ -40,7 +40,7 @@ public class EnemyRamdomItem : MonoBehaviour {
         characterSkin.material = materialObjects.listMaterials[randNumber];
     }
     void RandomEnemyHat() {
-        int rand = Random.Range(0, hatObjects.listHats.Length);
+        int rand = Random.Range(0, hatObjects.listHats.Count);
         Instantiate(hatObjects.listHats[rand].hatPrefab, hatHolder);
     }
     void RandomEnemyPant() {
