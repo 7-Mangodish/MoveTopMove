@@ -1,0 +1,69 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 55c0ca1a5f3e4b0419d24495c1ca7e5e, type: 3}
+  m_Name: ConfigPlayerSkin
+  m_EditorClassIdentifier: 
+  listHatObject:
+  - {fileID: 0}
+  - {fileID: 7158988212422171802, guid: 70c5370c4b64de6429b9c7752b97735c, type: 3}
+  - {fileID: 3719149157653502270, guid: 73c109b0b7a12b84c80e0a659bab2cb3, type: 3}
+  - {fileID: 1897668126383923695, guid: aa8a319f8eb7b2047bf4ba3de6a96e10, type: 3}
+  - {fileID: 4148348442653307279, guid: 41e9849df16563048980bd49cf860a2f, type: 3}
+  - {fileID: 1773992973439010555, guid: 18f57505aa45dea47a9dbe9fb0e7e2ec, type: 3}
+  - {fileID: 2829776609228178689, guid: eb84ec5230012b841b430efc94a44922, type: 3}
+  - {fileID: 3100615444415210074, guid: cfe0db7f72f8dff44b1d6db8d6773a79, type: 3}
+  - {fileID: 6889172209268887615, guid: 66bfa6b2c0f2904459846cf011662916, type: 3}
+  listPantMaterial:
+  - {fileID: 0}
+  - {fileID: 2100000, guid: 41cf9a756d43ecb4a9c8e50841f7b72e, type: 2}
+  - {fileID: 2100000, guid: fdc607ea5515e2a428ab30e87e612e3a, type: 2}
+  - {fileID: 2100000, guid: 3fc5a98f60f73bb48aabecfce389fd23, type: 2}
+  - {fileID: 2100000, guid: d40eac1b70e5858449a0d88a7e52d7e7, type: 2}
+  - {fileID: 2100000, guid: 902e4b22caf70b34293cadc31cdb36b9, type: 2}
+  - {fileID: 2100000, guid: 2c168f092589f1944b8960164670f443, type: 2}
+  - {fileID: 2100000, guid: 853c3dd900c0db04e974443e40239bb1, type: 2}
+  - {fileID: 2100000, guid: d195ee3576e25794485806fc99e5bd68, type: 2}
+  listArmorObject:
+  - {fileID: 0}
+  - {fileID: 865511459645595182, guid: 44ee0a648c14a56438d2b1de554610df, type: 3}
+  - {fileID: 8760932476282283681, guid: 63b1eb4f36df2774e83711e5fbf7130a, type: 3}
+  listPlayerSetObject:
+  - hatSetObject: {fileID: 0}
+    armorSetObject: {fileID: 0}
+    wingSetObject: {fileID: 0}
+    tailSetObject: {fileID: 0}
+    matSetObject: {fileID: 0}
+  - hatSetObject: {fileID: 5180592971215784640, guid: c3ee23b313edd9d48b8d3c60c1c63bc5, type: 3}
+    armorSetObject: {fileID: 0}
+    wingSetObject: {fileID: 0}
+    tailSetObject: {fileID: 0}
+    matSetObject: {fileID: 2100000, guid: 998efac54d854e74b9203dd790ec61d0, type: 2}
+  - hatSetObject: {fileID: 6560373514545906627, guid: 3664dc9029df249478a6269b9705b3a6, type: 3}
+    armorSetObject: {fileID: 8010000197011981430, guid: 0bdcb64b2417bd94b9544c9d4874fa9a, type: 3}
+    wingSetObject: {fileID: 0}
+    tailSetObject: {fileID: 0}
+    matSetObject: {fileID: 2100000, guid: 938bf0eeaa2e5484ab7608e59bfcdca2, type: 2}
+  - hatSetObject: {fileID: 564889987972136770, guid: 718a516a0f0cc8540854b85be45103a8, type: 3}
+    armorSetObject: {fileID: 4808704080521188535, guid: 756eb137dc4fce34bb419daf2db894e5, type: 3}
+    wingSetObject: {fileID: 4527622377431850777, guid: 7ca33fd4af0286b4ebcd998bb3549b6c, type: 3}
+    tailSetObject: {fileID: 0}
+    matSetObject: {fileID: 2100000, guid: 93de8c3778743774290af422539a5525, type: 2}
+  - hatSetObject: {fileID: 3100615444415210074, guid: cd3ece144e149f741938b268a4cf0286, type: 3}
+    armorSetObject: {fileID: 0}
+    wingSetObject: {fileID: 18896146964566725, guid: db8383df5d45ce544ab4a1fe8ec0e635, type: 3}
+    tailSetObject: {fileID: 3090200777508558033, guid: 1cfa2e89c39da3b47a551a52136113c9, type: 3}
+    matSetObject: {fileID: 2100000, guid: d9ae424681ff13744a037da101cc0825, type: 2}
+  - hatSetObject: {fileID: 0}
+    armorSetObject: {fileID: 0}
+    wingSetObject: {fileID: 1793895094339770422, guid: 9efc55698d6868b46a55264e53aa594c, type: 3}
+    tailSetObject: {fileID: 0}
+    matSetObject: {fileID: 2100000, guid: dd9dce30095b81940b4365c756f9eca7, type: 2}

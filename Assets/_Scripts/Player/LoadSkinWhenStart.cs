@@ -33,29 +33,29 @@ public class LoadSkinWhenStart : MonoBehaviour
     }
 
     public void LoadSkin() {
-        data = DataManager.Instance.GetSkinData();
-        if (data.isSet) {
-            hatObjects.DestroyHat();
-            characterPant.gameObject.SetActive(false);
-            armorObjects.DestroyArmor();
+        //data = DataManager.Instance.GetSkinData();
+        //if (data.isSet) {
+        //    hatObjects.DestroyHat();
+        //    characterPant.gameObject.SetActive(false);
+        //    armorObjects.DestroyArmor();
 
-            setObjects.SetCharacterHatSet(data.setIndex, hatHolderTransform);
-            setObjects.SetCharacterArmorSet(data.setIndex, armorHolderTransform);
-            setObjects.SetCharacterWingSet(data.setIndex, wingHolderTransform);
-            setObjects.SetCharacterTailSet(data.setIndex, tailHolderTransform);
-            setObjects.SetCharacterMaterialSet(data.setIndex, playerMesh);
-        }
-        else {
-            SkinnedMeshRenderer pantSkin = characterPant.GetComponent<SkinnedMeshRenderer>();
+        //    setObjects.SetCharacterHatSet(data.setIndex, hatHolderTransform);
+        //    setObjects.SetCharacterArmorSet(data.setIndex, armorHolderTransform);
+        //    setObjects.SetCharacterWingSet(data.setIndex, wingHolderTransform);
+        //    setObjects.SetCharacterTailSet(data.setIndex, tailHolderTransform);
+        //    setObjects.SetCharacterMaterialSet(data.setIndex, playerMesh);
+        //}
+        //else {
+        //    SkinnedMeshRenderer pantSkin = characterPant.GetComponent<SkinnedMeshRenderer>();
 
-            setObjects.DestroySet();
-            if (!characterPant.gameObject.activeSelf)
-                characterPant.gameObject.SetActive(true);
-            playerMesh.material = playerMaterial;
-            hatObjects.SetCharacterHat(data.hatIndex, hatHolderTransform);
-            pantObjects.SetPantMaterial(data.pantIndex, pantSkin);
-            armorObjects.SetCharacterArmor(data.armorIndex, armorHolderTransform);
-        }
+        //    setObjects.DestroySet();
+        //    if (!characterPant.gameObject.activeSelf)
+        //        characterPant.gameObject.SetActive(true);
+        //    playerMesh.material = playerMaterial;
+        //    hatObjects.SetCharacterHat(data.hatIndex, hatHolderTransform);
+        //    pantObjects.SetPantMaterial(data.pantIndex, pantSkin);
+        //    armorObjects.SetCharacterArmor(data.armorIndex, armorHolderTransform);
+        //}
     }
 
 }

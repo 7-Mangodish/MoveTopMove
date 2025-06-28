@@ -5,34 +5,41 @@ using static System.Guid;
 
 public class PlayerData
 {
+    public bool isNew = true;
     public string PLAYER_ID;
-
     public string playerName;
     public string deviceModel;
     public int zone;
     public float musicVolume = 1;
     public float soundVolume = 1;
     public bool isVibrantion = true;
-    public int zombieDayVictory;
-
-    public SkinData skinData;
-    public SkillData skillData;
-
+    //Weapon
     public int currentWeaponId;
     public List<WeaponData> listWeaponData = new List<WeaponData>();
-
+    //Skin
     public int currentHatId;
-    public List<HatData> listHatData = new List<HatData>();
-    public PlayerData(int hatCount, int pantCount, int armorCount, int setCount) {
+    public int currentPantId;
+    public int currentArmorId;
+    public int currentSetId;
+    public List<SkinData> listHatSkinData;
+    public List<SkinData> listPantSkinData;
+    public List<SkinData> listArmorSkinData;
+    public List<SkinData> listSetSkinData;
+    public bool isSet;
+    public int coin;
+    //ZombieMode
+    public SkillData skillData;
+    public int zombieDayVictory;
+    public PlayerData() {
         this.PLAYER_ID = Guid.NewGuid().ToString();
         playerName = "You";
         this.deviceModel = SystemInfo.deviceModel;
         zone = 1;
-        skinData = new SkinData(hatCount, pantCount, armorCount, setCount);
         skillData = new SkillData();
+        currentHatId = currentPantId = currentArmorId = currentSetId = 0;
+        isSet = false;
+        zombieDayVictory = 0;
     }
-
-
 }
 
 public class HatData {
@@ -41,4 +48,22 @@ public class HatData {
     public HatData(int id) {
         hatId = id;
     }
+}
+
+[Serializable]
+public class SkinData {
+    public int adsWatch;
+    public E_SkinType skinType;
+
+    public SkinData(int adsWatch, E_SkinType skinType) {
+        this.adsWatch = adsWatch;
+        this.skinType = skinType;
+    }
+}
+
+public enum E_SkinType {
+    Use,
+    Buy,
+    NotBuy
+
 }

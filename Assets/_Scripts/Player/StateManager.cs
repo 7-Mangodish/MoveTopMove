@@ -16,24 +16,23 @@ public class StateManager : MonoBehaviour
     public bool IsLevelUp;
 
     [SerializeField] private SkillObjects skillObjects;
-
+    //
     [Header("-----Weapon's State-----")]
     [SerializeField] private float deltaScaleWeapon;
     [SerializeField] private GameObject maxDistancePoint;
     private ThrowWeapon.StateWeapon stateWeapon;
-
+    //
     [Header("Character's Animation Control")]
     private AnimationControl animationControl;
-
+    //
     [Header("-----Player's Scale-----")]
     [SerializeField] private TextMeshProUGUI playerScaleText;
     private int currentLevel;
-
     [Header("-----Zombie Mode-----")]
     [SerializeField] private GameObject playerShield;
     public bool isLevelUpZombieMode;
     public int enemyCount;
-
+    //
     public event EventHandler<int> OnCharacterTakeScore;
     public bool isDead = false;
     private SoundController soundController;

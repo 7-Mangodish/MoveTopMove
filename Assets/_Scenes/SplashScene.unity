@@ -1492,6 +1492,11 @@ MonoBehaviour:
   pantObjects: {fileID: 11400000, guid: 450c8293c14cf2142b5ddc14d86984bf, type: 2}
   armorObjects: {fileID: 11400000, guid: 55429d39b39f0cb4f8ba68a0a755068a, type: 2}
   setObjects: {fileID: 11400000, guid: 42c250d1946742248a35ce8219891602, type: 2}
+  configPlayerSkinShop: {fileID: 11400000, guid: 3e3506f4217a61744b445dc2189f0311, type: 2}
+  cheatPlayerCoin: 10000
+  winPlayerCoin: 100
+  losePlayerCoin: 50
+  isDoubleAward: 0
 --- !u!114 &6410668475512290714
 MonoBehaviour:
   m_ObjectHideFlags: 0

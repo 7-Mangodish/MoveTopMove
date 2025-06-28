@@ -45,6 +45,7 @@ public class HomePageController : MonoBehaviour
     [SerializeField] private Button volumeButton;
     [SerializeField] private GameObject turnOnObject;
     [SerializeField] private GameObject turnOffObject;
+    [SerializeField] private Button cheatCoinButton;
     private bool isMute;
 
     public bool isStartGame;
@@ -98,7 +99,6 @@ public class HomePageController : MonoBehaviour
             homePagePanel.SetActive(true);
             playerNameInput.gameObject.SetActive(true);
         });
-
         volumeButton.onClick.AddListener(() => {
             if (!isMute) {
                 //if (SoundManager.Instance != null)
@@ -119,6 +119,10 @@ public class HomePageController : MonoBehaviour
                 isMute = false;
             }
         });
+        cheatCoinButton.onClick.AddListener(() => {
+            DataManager.Instance.UpdatePlayerCoin(DataManager.Instance.cheatPlayerCoin);
+            SetCoinText();
+        });
     }
 
     private void SetUpPlayerNameInput() {
@@ -126,7 +130,6 @@ public class HomePageController : MonoBehaviour
 
         playerNameInput.onValueChanged.AddListener((string name) => {
             DataManager.Instance.playerData.playerName = name;
-            //DataManager.Instance.SavePlayerPersonalData(playerPersonalData);
         });
     }
     private void SetUpWeaponShop() {
@@ -164,6 +167,7 @@ public class HomePageController : MonoBehaviour
             playerNameInput.gameObject.SetActive(false);
             //
             PlayerController.Instance.SetPlayerDance();
+            SkinShopController.Ins.SetUpOpenShop();
             CameraController.Instance.TurnOnPlayerShoppingCamera();
             HomePageOut();
         });
@@ -176,7 +180,7 @@ public class HomePageController : MonoBehaviour
             //
             SceneManager.LoadScene(GameVariable.zombieSplashSceneInName) ;
         });
-        int day = DataManager.Instance.GetZombieDayVictory();
+        int day = DataManager.Instance.playerData.zombieDayVictory;
         dayZombieModeText.text = (day + 1).ToString();
     }
 
@@ -190,7 +194,7 @@ public class HomePageController : MonoBehaviour
     }
 
     public void SetCoinText() {
-        coinText.text =  PlayerPrefs.GetInt("PlayerCoin").ToString();
+        coinText.text =  DataManager.Instance.playerData.coin.ToString();
     }
 
     public void HomePageOut() {

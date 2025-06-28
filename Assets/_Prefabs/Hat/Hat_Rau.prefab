@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 3675983693508384157}
   - component: {fileID: 9010874076604204766}
   m_Layer: 0
-  m_Name: Hat4
+  m_Name: Hat_Rau
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

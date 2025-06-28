@@ -37,16 +37,13 @@ public class MaxManager : MonoBehaviour
 
     public void InitMaxManager() {
         MaxSdkCallbacks.OnSdkInitializedEvent += (MaxSdkBase.SdkConfiguration obj) => {
-            //Debug.Log("MaxSdk is inited");
-
             MaxSdkCallbacks.Rewarded.OnAdDisplayedEvent += Rewarded_OnAdDisplayEvent;// Duoc goi khi rewardAd hien thi
             MaxSdkCallbacks.Rewarded.OnAdReceivedRewardEvent += Rewarded_OnAdReceivedRewardEvent;// dc goi khi nguoi choi nhan dc phan thuong
             MaxSdkCallbacks.Rewarded.OnAdHiddenEvent += Rewarded_OnAdHiddenEvent;// dc goi khi rewardAd bi dong
-
-
+            //
             MaxSdkCallbacks.AppOpen.OnAdHiddenEvent += AppOpen_OnAdHiddenEvent;// duoc goi khi OpenAppAd bi tat
             MaxSdkCallbacks.AppOpen.OnAdLoadedEvent += AppOpen_OnAdLoadedEvent;
-
+            //
             MaxSdk.LoadRewardedAd(rewardedAdUnitId);
             MaxSdk.LoadAppOpenAd(appOpenAdUnitId);
             MaxSdk.ShowMediationDebugger();
@@ -66,8 +63,8 @@ public class MaxManager : MonoBehaviour
         MaxSdk.HideBanner(bannerAdUnitId);
     }
     #endregion
+    
     #region ---------------REWARD_ADS---------------
-
     private void Rewarded_OnAdDisplayEvent(string arg1, MaxSdkBase.AdInfo arg2) {
         Time.timeScale = 0;
     }
@@ -92,7 +89,7 @@ public class MaxManager : MonoBehaviour
     }
     #endregion
 
-    #region -------------APPOPEN_AD--------------
+    #region -------------APP_OPEN_AD--------------
     public void ShowAppOpen() {
         if(MaxSdk.IsAppOpenAdReady(appOpenAdUnitId)) {
             MaxSdk.ShowAppOpenAd(appOpenAdUnitId);

@@ -12,7 +12,7 @@ public class ZombieGameController : MonoBehaviour
     public int currentZombieCount;
     public int maxZombieCount;
     public List<ZombieController> listZombieController = new List<ZombieController>();
-    private SoundController soundController;
+    public SoundController soundController;
 
     private bool isPlayerLose = false;
     private bool isPlayerWin = false;
@@ -21,7 +21,6 @@ public class ZombieGameController : MonoBehaviour
         currentZombieCount = maxZombieCount;
         ZombieUIController.Instance.SetUpUIWhenStart();
         CameraController.Instance.SetUpCameraInZombieMode();
-        PlayerController.Instance.GetComponent<LoadSkinWhenStart>().LoadSkin();
         PlayerController.Instance.SetUpPlayer();
 
         StartCoroutine(StartGame());
@@ -34,19 +33,16 @@ public class ZombieGameController : MonoBehaviour
     {
         if (!ZombieUIController.Instance.isStartGame)
             return;
-
         PlayerController.Instance.GetPlayerInput();
-
         DoSpawnZombie();
-
         int zombieDieCount = listZombieController.RemoveAll(x => x == null);
         currentZombieCount -= zombieDieCount;
         ZombieUIController.Instance.DisplayZombieCount(currentZombieCount);
-
+        //
         for (int i=0; i<listZombieController.Count; ++i) {
             listZombieController[i].ZombieBehaviour();
         }
-
+        //
         if (currentZombieCount == 0 && PlayerController.Instance.gameObject.activeSelf) {
             isPlayerWin = true;
         }
@@ -68,7 +64,6 @@ public class ZombieGameController : MonoBehaviour
         yield return new WaitUntil(() => ZombieUIController.Instance.isStartGame);
         SkillData data = DataManager.Instance.GetSkillData();
         PlayerController.Instance.ReferenceToSkillAndAbility(data); // Lay cac chi so skill
-
         StartCoroutine(ZombieUIController.Instance.ShowInstruction());
     }
 
@@ -98,7 +93,7 @@ public class ZombieGameController : MonoBehaviour
             timeDuration = timeSpawnZombie;
         else
             timeDuration += Time.deltaTime;
-
+        //
         if (timeDuration >= timeSpawnZombie) {
             timeDuration = 0f;
             if (spawnedZombieCount < maxZombieCount) {

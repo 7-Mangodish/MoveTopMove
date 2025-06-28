@@ -7,7 +7,6 @@ public class Hat
     public int id;
     //public bool isNew = true;
     public int cost;
-    public int index;
     public GameObject hatPrefab;
     public Sprite hatSprite;
     

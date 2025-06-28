@@ -209,7 +209,7 @@ public class PlayerAbility : MonoBehaviour
         }
     }
     private void Ability7() {
-        CoinManager.Instance.isDoubleAward = true;
+            DataManager.Instance.isDoubleAward = true;
     }
     private void Ability8() {
         OnPlayerChooseAbility8?.Invoke(this, EventArgs.Empty);

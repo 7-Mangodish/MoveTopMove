@@ -1,68 +1,54 @@
 using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;
+using System.Xml.Serialization;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class SkinShopController : MonoBehaviour {
-    private static SkinShopController instance;
-    public static SkinShopController Instance { get { return instance; } }
-
-
-    [SerializeField] private Material playerMaterial;
-
+    private static SkinShopController ins;
+    public static SkinShopController Ins { get { return ins; } }
+ 
     [Header("-----Top Panel-----")]
-    [SerializeField] private Button[] listShopButton;
-    [SerializeField] private Image[] listShopIcon;
-    [SerializeField] private GameObject[] listShopPanel;
+    public Button[] listShopButton;
+    public Image[] listShopIcon;
+    public GameObject[] listShopPanel;
+    public Transform hatPanelTrans;
+    public Transform pantPanelTrans;
+    public Transform armorPanelTrans;
+    public Transform setPanelTrans;
+    public bool isOpenedSetPanel;
+    //
+    [Header("-----SkinButtonUI------")]
+    public Dictionary<int, SkinShopButtonUI> dictHatButtonUI = new Dictionary<int, SkinShopButtonUI>();
+    public Dictionary<int, SkinShopButtonUI> dictPantButtonUI = new Dictionary<int, SkinShopButtonUI>();
+    public Dictionary<int, SkinShopButtonUI> dictArmorButtonUI = new Dictionary<int, SkinShopButtonUI>();
+    public Dictionary<int, SkinShopButtonUI> dictSetButtonUI = new Dictionary<int, SkinShopButtonUI>();
+    //
+    [Header("-----Button-----")]
+    public SkinShopButtonUI skinShopButtonPref;
+    public Button selectButton;
+    public GameObject purchaseSystemButton;
+    public Button purchaseByAdButton;
+    public Button purchaseButton;
+    public Button equipedButton;
+    public GameObject borderImagePref;
+    public GameObject equippedImagePref;
+    public Button exitButton;
+    [HideInInspector] public SkinShopButtonUI currentSkinShopButtonUI; // Luu button dang duoc chon
+    [HideInInspector] public SkinShopButtonUI equippedSkinShopButtonUI; // Luu button dang dang dung
+    [HideInInspector] public GameObject currentBorderImage;
+    [HideInInspector] public GameObject currentEquippedImage;
+    public int idHatSelect;
+    public int idPantSelect;
+    public int idArmorSelect;
+    public int idSetSelect;
+    //
+    [Header("-----Text-----")]
+    public TextMeshProUGUI skinCostTMP;
+    public TextMeshProUGUI adsCostTMP;
 
-    [Header("-----HatButton-----")]
-    [SerializeField] private HatObjects hatObjects;
-    [SerializeField] private List<Button> listHatButtons;
-    [SerializeField] private Transform hatHolderTransform;
-    public Button hatOpsButton;
-    public Transform hatContent;
-    private int hatIndexSelected;
-
-    [Header("-----PantButton-----")]
-    [SerializeField] private PantObjects pantObjects;
-    [SerializeField] private Button[] listPantButtons;
-    [SerializeField] private GameObject characterPant;
-    private SkinnedMeshRenderer pantSkin;
-    private int pantIndexSelected;
-
-    [Header("-----ArmorButton-----")]
-    [SerializeField] private ArmorObjects armorObjects;
-    [SerializeField] private Button[] listArmorButtons;
-    [SerializeField] private Transform armorHolderTransform;
-    private int armorIndexSelected;
-
-    [Header("-----SetButton-----")]
-    [SerializeField] private SetObjects setObjects;
-    [SerializeField] private Button[] listSetButtons;
-    [SerializeField] private Transform wingHolderTransform;
-    [SerializeField] private Transform tailHolderTransform;
-    [SerializeField] private SkinnedMeshRenderer playerMesh;
-    private int setIndexSelected;
-    private bool isSet;
-
-    [Header("Button")]
-    [SerializeField] private Button selectButton;
-    [SerializeField] private GameObject purchaseSystemButton;
-    [SerializeField] private Button purchaseByAdButton;
-    [SerializeField] private Button purchaseButton;
-    [SerializeField] private Button equipedButton;
-    [SerializeField] private GameObject borderImagePref;
-    private GameObject currentBorderImage;
-    [SerializeField] private GameObject equippedImagePref;
-    private GameObject currentEquippedImage;
-    [SerializeField] private Button exitSkinButton;
-
-
-    [Header("Text")]
-    [SerializeField] private TextMeshProUGUI purchaseText;
-    [SerializeField] private TextMeshProUGUI skinInfor;
     private enum TypeSkin {
         hat,
         pant,
@@ -70,356 +56,143 @@ public class SkinShopController : MonoBehaviour {
         set
     }
     private TypeSkin type;
-    private SkinData data;
 
-    private void Awake() {
-        if (instance == null)
-            instance = this;
-        else
-            Destroy(this.gameObject);
-    }
-
-    public void SetUpSkinShop() {
-        data = DataManager.Instance.GetSkinData();
-
-        SetUpShopButton();
-        SetUpExitButton();
-
-        SetUpListHatButton();
-        SetUpListPantButton();
-        SetUpListArmorButton();
-        SetUpListSetButton();
-
-        SetUpPurchaseButton();
-        SetUpPurchaseByAdButton();
-        SetUpSelecButton();
-
-        pantSkin = characterPant.GetComponent<SkinnedMeshRenderer>();
-
-        hatIndexSelected = data.hatIndex;
-        pantIndexSelected = data.pantIndex;
-        armorIndexSelected = data.armorIndex;
-        setIndexSelected = data.setIndex;
-
-        if (data.isSet) {
-            listShopButton[3].onClick.Invoke();
-        }
-        else {
-            listShopButton[0].onClick.Invoke();
-        }
-
-        MaxManager.Instance.OnPlayerReceiveAward += SkinShop_OnPlayerReceiveAward;
+    private void OnEnable() {
+        MaxManager.Instance.OnPlayerReceiveAward += MaxManager_OnPlayerReceiveAward;
     }
 
     private void OnDisable() {
         if (MaxManager.Instance != null)
-            MaxManager.Instance.OnPlayerReceiveAward -= SkinShop_OnPlayerReceiveAward;
+            MaxManager.Instance.OnPlayerReceiveAward -= MaxManager_OnPlayerReceiveAward;
         else
             Debug.LogWarning("Max is null");
 
     }
-
-    void SetUpSelecButton() {
-        selectButton.onClick.AddListener(() => {
-            //data = GetSkinData();
-            data = DataManager.Instance.GetSkinData();
-
-            switch (type) {
-                case TypeSkin.hat: {
-                        data.hatIndex = hatIndexSelected;
-                        SetUpEquippedImage(listHatButtons[hatIndexSelected].transform);
-                        break;
-                    }
-                case TypeSkin.pant: {
-                        data.pantIndex = pantIndexSelected;
-                        SetUpEquippedImage(listPantButtons[pantIndexSelected].transform);
-                        break;
-                    }
-                case TypeSkin.armor: {
-                        data.armorIndex = armorIndexSelected;
-                        SetUpEquippedImage(listArmorButtons[armorIndexSelected].transform);
-                        break;
-                    }
-                case TypeSkin.set: {
-                        data.setIndex = setIndexSelected;
-                        SetUpEquippedImage(listSetButtons[setIndexSelected].transform);
-                        break;
-                    }
-            }
-            //SaveSkinData(data);
-            DataManager.Instance.SaveSkinData(data);
-            selectButton.gameObject.SetActive(false);
-            equipedButton.gameObject.SetActive(true);
-        });
+    public void Awake() {
+        if (ins == null) ins = this;
+        else Destroy(this.gameObject);
+        //
+        InitSkinShop();
+        SetUpEventShopButton();
+        SetUpEventButtonUI();
+        SetUpEventPurchaseButton();
+        SetUpEventPurchaseByAdButton();
+        SetUpEventSelecButton();
+        SetUpEventExitButton();
     }
-    void SetUpPurchaseButton() {
-        purchaseButton.onClick.AddListener(() => {
-            AudioManager.Instance.PlaySoundClickButton();
 
-            if (!PurchaseSkin())
-                Debug.Log("Khong Du Tien");
+    // Tao cac nut skin va setup cac thuoc tinh cua nut
+    public void InitSkinShop() {
+        for(int i=0; i< DataManager.Instance.configPlayerSkinShop.listHatSkinShop.Length; i++) {
+            SkinShopButtonUI newButton = Instantiate(skinShopButtonPref, hatPanelTrans);
+            int id = DataManager.Instance.configPlayerSkinShop.listHatSkinShop[i].id;
+            newButton.InitButtonInfor(DataManager.Instance.configPlayerSkinShop.listHatSkinShop[i], DataManager.Instance.playerData.listHatSkinData[id]);
+            dictHatButtonUI[newButton.skinShopInfor.id] = newButton;
+            if (newButton.skinShopInfor.id == DataManager.Instance.playerData.currentHatId) {
+                SetUpEquippedImage(newButton.transform);
+                SetUpBorderImage(newButton.transform);
+            }
+        }
+        for (int i = 0; i < DataManager.Instance.configPlayerSkinShop.listPantSkinShop.Length; i++) {
+            SkinShopButtonUI newButton = Instantiate(skinShopButtonPref, pantPanelTrans);
+            int id = DataManager.Instance.configPlayerSkinShop.listPantSkinShop[i].id;
+            newButton.InitButtonInfor(DataManager.Instance.configPlayerSkinShop.listPantSkinShop[i], DataManager.Instance.playerData.listPantSkinData[id]);
+            //listPantButtonUI.Add(newButton);
+            dictPantButtonUI[newButton.skinShopInfor.id] = newButton;
+        }
+        for (int i = 0; i < DataManager.Instance.configPlayerSkinShop.listArmorSkinShop.Length; i++) {
+            SkinShopButtonUI newButton = Instantiate(skinShopButtonPref, armorPanelTrans);
+            int id = DataManager.Instance.configPlayerSkinShop.listArmorSkinShop[i].id;
+            newButton.InitButtonInfor(DataManager.Instance.configPlayerSkinShop.listArmorSkinShop[i], DataManager.Instance.playerData.listArmorSkinData[id]);
+            //listArmorButtonUI.Add(newButton);
+            dictArmorButtonUI[newButton.skinShopInfor.id] = newButton;
+        }
+        for (int i = 0; i < DataManager.Instance.configPlayerSkinShop.listSetSkinShop.Length; i++) {
+            SkinShopButtonUI newButton = Instantiate(skinShopButtonPref, setPanelTrans);
+            int id = DataManager.Instance.configPlayerSkinShop.listSetSkinShop[i].id;
+            newButton.InitButtonInfor(DataManager.Instance.configPlayerSkinShop.listSetSkinShop[i], DataManager.Instance.playerData.listSetSkinData[id]);
+            //listSetButtonUI.Add(newButton);
+            dictSetButtonUI[newButton.skinShopInfor.id] = newButton;
+        }
+    }
+
+    // Duoc goi khi moi lan mo shop skin
+    public void SetUpOpenShop() {
+        for (int i = 0; i < listShopButton.Length; i++) {
+            if (!DataManager.Instance.playerData.isSet) {
+                equippedSkinShopButtonUI = dictHatButtonUI[DataManager.Instance.playerData.currentHatId];
+                if (i == 0) {
+                    listShopPanel[i].SetActive(true);
+                    listShopButton[i].GetComponent<Image>().enabled = false;
+                    listShopIcon[i].color = Color.white;
+                }
+                else {
+                    listShopPanel[i].SetActive(false);
+                    listShopButton[i].GetComponent<Image>().enabled = true;
+                    listShopIcon[i].color = Color.gray;
+                    listShopPanel[i].gameObject.SetActive(false);
+                }
+            }
             else {
-                purchaseSystemButton.gameObject.SetActive(false);
-                equipedButton.gameObject.SetActive(true);
-                switch (type) {
-                    case TypeSkin.hat: {
-                            SetUpEquippedImage(listHatButtons[hatIndexSelected].transform);
-                            break;
-                        }
-                    case TypeSkin.pant: {
-                            SetUpEquippedImage(listPantButtons[pantIndexSelected].transform);
-                            break;
-                        }
-                    case TypeSkin.armor: {
-                            SetUpEquippedImage(listArmorButtons[armorIndexSelected].transform);
-                            break;
-                        }
-                    case TypeSkin.set: {
-                            SetUpEquippedImage(listSetButtons[setIndexSelected].transform);
-                            break;
-                        }
+                equippedSkinShopButtonUI = dictSetButtonUI[DataManager.Instance.playerData.currentSetId];
+                if (i == 3) {
+                    listShopPanel[i].SetActive(true);
+                    listShopButton[i].GetComponent<Image>().enabled = false;
+                    listShopIcon[i].color = Color.white;
+                }
+                else {
+                    listShopPanel[i].SetActive(false);
+                    listShopButton[i].GetComponent<Image>().enabled = true;
+                    listShopIcon[i].color = Color.gray;
+                    listShopPanel[i].gameObject.SetActive(false);
                 }
             }
-
-        });
-    }
-    void HandlerPurchaseByAdButton() {
-        Transform child = null;
-        //data = GetSkinData();
-
-        purchaseSystemButton.gameObject.SetActive(false);
-        equipedButton.gameObject.SetActive(true);
-        switch (type) {
-            case TypeSkin.hat: {
-
-                    child = FindChildWithTag(listHatButtons[hatIndexSelected].transform);
-                    //hatObjects.listHats[hatIndexSelected].isLock = false;
-                    data.isUnLockHat[hatIndexSelected] = 1;
-
-                    SetUpEquippedImage(listHatButtons[hatIndexSelected].transform);
-                    data.hatIndex = hatIndexSelected;
-                    break;
-                }
-            case TypeSkin.pant: {
-
-                    child = FindChildWithTag(listPantButtons[pantIndexSelected].transform);
-                    SetUpEquippedImage(listPantButtons[pantIndexSelected].transform);
-
-                    data.isUnLockPant[pantIndexSelected] = 1;
-                    data.pantIndex = pantIndexSelected;
-                    break;
-                }
-            case TypeSkin.armor: {
-
-                    child = FindChildWithTag(listArmorButtons[armorIndexSelected].transform);
-                    SetUpEquippedImage(listArmorButtons[armorIndexSelected].transform);
-
-                    data.isUnLockArmor[armorIndexSelected] = 1;
-                    data.armorIndex = armorIndexSelected;
-                    break;
-                }
-            case TypeSkin.set: {
-
-                    child = FindChildWithTag(listSetButtons[setIndexSelected].transform);
-                    SetUpEquippedImage(listSetButtons[setIndexSelected].transform);
-
-                    data.isUnLockSet[setIndexSelected] = 1;
-                    data.setIndex = setIndexSelected;
-                    break;
-                }
         }
-
-        if (child != null) {
-            child.gameObject.SetActive(false);
-        }
-        DataManager.Instance.SaveSkinData(data);
+        idHatSelect = DataManager.Instance.playerData.currentHatId;
+        idPantSelect = DataManager.Instance.playerData.currentPantId;
+        idArmorSelect = DataManager.Instance.playerData.currentArmorId;
+        idSetSelect = DataManager.Instance.playerData.currentSetId;
+        SetUpEquippedImage(equippedSkinShopButtonUI.transform);
+        SetUpBorderImage(equippedSkinShopButtonUI.transform);
+        if (equippedSkinShopButtonUI.skinShopInfor.id != 0)
+            equipedButton.gameObject.SetActive(true);
     }
-    void SetUpPurchaseByAdButton() {
-        purchaseByAdButton.onClick.AddListener(() => {
-            if(MaxManager.Instance!= null) {
-                MaxManager.Instance.ShowRewardAd();
-                MaxManager.Instance.SetTypeReward(MaxManager.TypeReward.playerSkin);
-            }
 
-        });
-    }
-    void SetUpListHatButton() {
-        listHatButtons = new List<Button>(hatObjects.listHats.Count);
-        for (int i =0; i<hatObjects.listHats.Count; i++) {
-            Button hatSpawn = Instantiate(hatOpsButton, hatContent);
-            //
-            Hat hat = hatObjects.listHats[i];
-            hatSpawn.GetComponent<Image>().sprite = hat.hatSprite;
-            listHatButtons.Add(hatSpawn);
-            //
-            int ind = i;
-
-        }
-
-        for (int i = 0; i < listHatButtons.Count; i++) {
-            int ind = i;
-           
-        //    if (data.isUnLockHat[ind] == 1) {
-        //        Transform child = FindChildWithTag(listHatButtons[ind].transform);
-        //        if (child != null) {
-        //            child.gameObject.SetActive(false);
-        //        }
-        //    }
-
-            listHatButtons[i].onClick.AddListener(() => {
-                Debug.Log(hatObjects.listHats[ind].id);
-        //        AudioManager.Instance.PlaySoundClickButton();
-
-        //        hatIndexSelected = ind;
-
-        //        skinInfor.text = "+" + hatObjects.listHats[ind].index.ToString() + " Range";
-        //        purchaseText.text = hatObjects.listHats[ind].cost.ToString();
-
-        //        SetUpBorderImage(listHatButtons[ind].transform);
-        //        SetupPurchaseAndSelectButton(data.isUnLockHat[ind]);
-        //        if (selectButton.IsActive())
-        //            SetUpSelectAndEquipedButton(type, ind);
-
-        //        hatObjects.SetCharacterHat(ind, hatHolderTransform);
-            });
-        }
-    }
-    void SetUpListPantButton() {
-        for (int i = 0; i < listPantButtons.Length; i++) {
-            int ind = i;
-
-            if (data.isUnLockPant[ind] == 1) {
-                Transform child = FindChildWithTag(listPantButtons[ind].transform);
-                if (child != null) {
-                    child.gameObject.SetActive(false);
-                }
-            }
-
-            listPantButtons[i].onClick.AddListener(() => {
-                AudioManager.Instance.PlaySoundClickButton();
-
-                pantIndexSelected = ind;
-
-                skinInfor.text = "+" + pantObjects.listPants[ind].index.ToString() + " Range";
-                purchaseText.text = pantObjects.listPants[ind].cost.ToString();
-
-                SetUpBorderImage(listPantButtons[ind].transform) ;
-                SetupPurchaseAndSelectButton(data.isUnLockPant[ind]);
-                if (selectButton.IsActive())
-                    SetUpSelectAndEquipedButton(type, ind);
-
-                pantObjects.SetPantMaterial(ind, pantSkin);
-
-            });
-        }
-    }
-    void SetUpListArmorButton() {
-        for (int i = 0; i < listArmorButtons.Length; i++) {
-            int ind = i;
-
-            if (data.isUnLockArmor[ind] == 1) {
-                Transform child = FindChildWithTag(listArmorButtons[ind].transform);
-                if (child != null) {
-                    child.gameObject.SetActive(false);
-                }
-            }
-
-            listArmorButtons[i].onClick.AddListener(() => {
-                AudioManager.Instance.PlaySoundClickButton();
-
-                armorIndexSelected = ind;
-
-                skinInfor.text = "+" + armorObjects.listArmor[ind].index.ToString() + " Hp";
-                purchaseText.text = armorObjects.listArmor[ind].cost.ToString();
-
-                SetUpBorderImage(listArmorButtons[ind].transform) ;
-                SetupPurchaseAndSelectButton(data.isUnLockArmor[ind]);
-
-                if (selectButton.IsActive())
-                    SetUpSelectAndEquipedButton(type, ind);
-
-                armorObjects.SetCharacterArmor(ind, armorHolderTransform);
-            });
-        }
-    }
-    void SetUpListSetButton() {
-        for (int i = 0; i < listSetButtons.Length; i++) {
-            int ind = i;
-
-            if (data.isUnLockSet[ind] == 1) {
-                //Debug.Log("UnLock" + ind);
-                Transform child = FindChildWithTag(listSetButtons[ind].transform);
-                if (child != null)
-                {
-                    child.gameObject.SetActive(false);
-                }
-            }         
-            listSetButtons[i].onClick.AddListener(() => {
-                AudioManager.Instance.PlaySoundClickButton();
-
-                //Debug.Log("Set: " + ind);
-                setIndexSelected = ind;
-
-                skinInfor.text = "+" + setObjects.listSets[ind].index.ToString() + " Hp";
-                purchaseText.text = setObjects.listSets[ind].cost.ToString();
-
-                SetUpBorderImage(listSetButtons[ind].transform) ;
-                SetupPurchaseAndSelectButton(data.isUnLockSet[ind]);
-                if (selectButton.IsActive())
-                    SetUpSelectAndEquipedButton(type, ind);
-
-                setObjects.SetCharacterHatSet(ind, hatHolderTransform);
-                setObjects.SetCharacterArmorSet(ind, armorHolderTransform);
-                setObjects.SetCharacterWingSet(ind, wingHolderTransform);
-                setObjects.SetCharacterTailSet(ind, tailHolderTransform);
-                setObjects.SetCharacterMaterialSet(ind, playerMesh);
-
-
-            });
-        }
-    }
-    void SetUpShopButton() {
+    void SetUpEventShopButton() {
         for (int i = 0; i < listShopButton.Length; i++) {
             int ind = i;
             listShopButton[i].onClick.AddListener(() => {
                 AudioManager.Instance.PlaySoundClickButton();
-                equipedButton.gameObject.SetActive(false);
-                purchaseSystemButton.gameObject.SetActive(false);
-
                 switch (ind) {
                     case 0: {
                             type = TypeSkin.hat;
-                            if (data == null)
-                                Debug.LogWarning("data null");
-                            if(data.hatIndex >= 0)
-                                equipedButton.gameObject.SetActive(true);
+                            currentSkinShopButtonUI = dictHatButtonUI[idHatSelect];
+                            equippedSkinShopButtonUI = dictHatButtonUI[DataManager.Instance.playerData.currentHatId];
                             break;
                         }
                     case 1: {
                             type = TypeSkin.pant;
-                            if (data.pantIndex >= 0)
-                                equipedButton.gameObject.SetActive(true);
+                            currentSkinShopButtonUI = dictPantButtonUI[idPantSelect];
+                            equippedSkinShopButtonUI = dictPantButtonUI[DataManager.Instance.playerData.currentPantId];
                             break;
                         }
                     case 2: {
                             type = TypeSkin.armor;
-                            if (data.armorIndex >= 0)
-                                equipedButton.gameObject.SetActive(true);
+                            currentSkinShopButtonUI = dictArmorButtonUI[idArmorSelect];
+                            equippedSkinShopButtonUI = dictArmorButtonUI[DataManager.Instance.playerData.currentArmorId];
                             break;
                         }
                     case 3: {
                             type = TypeSkin.set;
-                            if (data.setIndex >= 0)
-                                equipedButton.gameObject.SetActive(true);
+                            currentSkinShopButtonUI = dictSetButtonUI[idSetSelect];
+                            equippedSkinShopButtonUI = dictSetButtonUI[DataManager.Instance.playerData.currentSetId];
                             break;
                         }
                 }
-                LoadSkin(type);
-
+                //Tat va bat UI
                 listShopButton[ind].GetComponent<Image>().enabled = false;
                 listShopIcon[ind].color = Color.white;
                 listShopPanel[ind].gameObject.SetActive(true);
-
                 for (int j = 0; j < listShopIcon.Length; j++) {
                     if (j != ind) {
                         listShopButton[j].GetComponent<Image>().enabled = true;
@@ -427,212 +200,291 @@ public class SkinShopController : MonoBehaviour {
                         listShopPanel[j].gameObject.SetActive(false);
                     }
                 }
+                //
+                if (type == TypeSkin.set) {
+                    PlayerController.Instance.playerSkin.ChangeSkinSet(idSetSelect);
+                }
+                else {
+                    PlayerController.Instance.playerSkin.SetActiveSet(false);
+                    PlayerController.Instance.playerSkin.ChangeSkinHat(idHatSelect);
+                    PlayerController.Instance.playerSkin.ChangeSkinPant(idPantSelect);
+                    PlayerController.Instance.playerSkin.ChangeSkinArmor(idArmorSelect);
+                }
+                //
+                SetUpBorderImage(currentSkinShopButtonUI.transform);
+                SetUpEquippedImage(equippedSkinShopButtonUI.transform);
+                equipedButton.gameObject.SetActive(false);
+                selectButton.gameObject.SetActive(false);
+                purchaseSystemButton.SetActive(false);
+                if (currentSkinShopButtonUI.skinShopInfor.id == 0)
+                    return;
+                switch (currentSkinShopButtonUI.skinData.skinType) {
+                    case E_SkinType.NotBuy:
+                        purchaseSystemButton.SetActive(true);
+                        break;
+                    case E_SkinType.Buy: //truong hop da mua nhung khong dung
+                        selectButton.gameObject.SetActive(true);
+                        break;
+                    case E_SkinType.Use:
+                        equipedButton.gameObject.SetActive(true);
+                        break;
+                }
             });
         }
     }
-    void SetUpSelectAndEquipedButton(TypeSkin type, int ind) {
-        //SkinData skinData = GetSkinData();
-        data = DataManager.Instance.GetSkinData();
-        bool res = false;
-        switch (type) {
-            case TypeSkin.hat: {
-                    if (data.hatIndex == ind)
-                        res = true;
-                    break;
-                }
-            case TypeSkin.pant: {
-                    if (data.pantIndex == ind)
-                        res = true;
-                    break;
-                }
-            case TypeSkin.armor: {
-                    if (data.armorIndex == ind)
-                        res = true;
-                    break;
-                }
-            case TypeSkin.set: {
-                    if (data.setIndex == ind)
-                        res = true;
-                    break;
-                }
-        }
 
-        if (res) {
-            equipedButton.gameObject.SetActive(true);
-            selectButton.gameObject.SetActive(false);
+    void SetUpEventButtonUI() {
+        foreach(SkinShopButtonUI btn in dictHatButtonUI.Values) {
+            btn.skinButton.onClick.AddListener(() => {
+                AudioManager.Instance.PlaySoundClickButton();
+                PlayerController.Instance.playerSkin.ChangeSkinHat(btn.skinShopInfor.id);
+                //
+                SetUpBorderImage(btn.transform);
+                currentSkinShopButtonUI = btn;
+                idHatSelect = currentSkinShopButtonUI.skinShopInfor.id;
+                // Thay doi UI
+                skinCostTMP.text = btn.skinShopInfor.cost.ToString();
+                adsCostTMP.text = string.Format("{0}/{1}", btn.skinData.adsWatch, btn.skinShopInfor.adsWatchCost);
+                purchaseSystemButton.gameObject.SetActive(false);
+                selectButton.gameObject.SetActive(false);
+                equipedButton.gameObject.SetActive(false);
+                switch (btn.skinData.skinType) {
+                    case E_SkinType.NotBuy:
+                        purchaseSystemButton.SetActive(true);
+                        break;
+                    case E_SkinType.Buy: //truong hop da mua nhung khong dung
+                        selectButton.gameObject.SetActive(true);
+                        break;
+                    case E_SkinType.Use:
+                        equipedButton.gameObject.SetActive(true);
+                        break;
+                }
+            });
         }
-        else {
-            equipedButton.gameObject.SetActive(false);
-            selectButton.gameObject.SetActive(true);
+        foreach (SkinShopButtonUI btn in dictPantButtonUI.Values) {
+            btn.skinButton.onClick.AddListener(() => {
+                AudioManager.Instance.PlaySoundClickButton();
+                PlayerController.Instance.playerSkin.ChangeSkinPant(btn.skinShopInfor.id);
+                //
+                SetUpBorderImage(btn.transform);
+                currentSkinShopButtonUI = btn;
+                idPantSelect = currentSkinShopButtonUI.skinShopInfor.id;
+                // Thay doi UI
+                skinCostTMP.text = btn.skinShopInfor.cost.ToString();
+                adsCostTMP.text = string.Format("{0}/{1}", btn.skinData.adsWatch, btn.skinShopInfor.adsWatchCost);
+                purchaseSystemButton.gameObject.SetActive(false);
+                selectButton.gameObject.SetActive(false);
+                equipedButton.gameObject.SetActive(false);
+                switch (btn.skinData.skinType) {
+                    case E_SkinType.NotBuy:
+                        purchaseSystemButton.SetActive(true);
+                        break;
+                    case E_SkinType.Buy: //truong hop da mua nhung khong dung
+                        selectButton.gameObject.SetActive(true);
+                        break;
+                    case E_SkinType.Use:
+                        equipedButton.gameObject.SetActive(true);
+                        break;
+                }
+            });
         }
-    }
-    void SetupPurchaseAndSelectButton(int isLock) {
-        equipedButton.gameObject.SetActive(false);
-        if (isLock == 0) {
-            purchaseSystemButton.gameObject.SetActive(true);
-            selectButton.gameObject.SetActive(false);
+        foreach (SkinShopButtonUI btn in dictArmorButtonUI.Values) {
+            btn.skinButton.onClick.AddListener(() => {
+                AudioManager.Instance.PlaySoundClickButton();
+                PlayerController.Instance.playerSkin.ChangeSkinArmor(btn.skinShopInfor.id);
+                //
+                SetUpBorderImage(btn.transform);
+                currentSkinShopButtonUI = btn;
+                idArmorSelect = currentSkinShopButtonUI.skinShopInfor.id;
+                // Thay doi UI
+                skinCostTMP.text = btn.skinShopInfor.cost.ToString();
+                adsCostTMP.text = string.Format("{0}/{1}", btn.skinData.adsWatch, btn.skinShopInfor.adsWatchCost);
+                purchaseSystemButton.gameObject.SetActive(false);
+                selectButton.gameObject.SetActive(false);
+                equipedButton.gameObject.SetActive(false);
+                switch (btn.skinData.skinType) {
+                    case E_SkinType.NotBuy:
+                        purchaseSystemButton.SetActive(true);
+                        break;
+                    case E_SkinType.Buy: //truong hop da mua nhung khong dung
+                        selectButton.gameObject.SetActive(true);
+                        break;
+                    case E_SkinType.Use:
+                        equipedButton.gameObject.SetActive(true);
+                        break;
+                }
+            });
         }
-        else {
-            purchaseSystemButton.gameObject.SetActive(false);
-            selectButton.gameObject.SetActive(true);
+        foreach (SkinShopButtonUI btn in dictSetButtonUI.Values) {
+            btn.skinButton.onClick.AddListener(() => {
+                AudioManager.Instance.PlaySoundClickButton();
+                PlayerController.Instance.playerSkin.ChangeSkinSet(btn.skinShopInfor.id);
+                //
+                SetUpBorderImage(btn.transform);
+                currentSkinShopButtonUI = btn;
+                idSetSelect = currentSkinShopButtonUI.skinShopInfor.id;
+                // Thay doi UI
+                skinCostTMP.text = btn.skinShopInfor.cost.ToString();
+                adsCostTMP.text = string.Format("{0}/{1}", btn.skinData.adsWatch, btn.skinShopInfor.adsWatchCost);
+                purchaseSystemButton.gameObject.SetActive(false);
+                selectButton.gameObject.SetActive(false);
+                equipedButton.gameObject.SetActive(false);
+                switch (btn.skinData.skinType) {
+                    case E_SkinType.NotBuy:
+                        purchaseSystemButton.SetActive(true);
+                        break;
+                    case E_SkinType.Buy: //truong hop da mua nhung khong dung
+                        selectButton.gameObject.SetActive(true);
+                        break;
+                    case E_SkinType.Use:
+                        equipedButton.gameObject.SetActive(true);
+                        break;
+                }
+            });
         }
     }
     void SetUpBorderImage(Transform parentTranform) {
-        if (currentBorderImage != null)
-            Destroy(currentBorderImage);
-        currentBorderImage = Instantiate(borderImagePref, parentTranform);
+        if (currentBorderImage == null)
+            currentBorderImage = Instantiate(borderImagePref, parentTranform);
+        currentBorderImage.transform.SetParent(parentTranform);
+        currentBorderImage.transform.localPosition = Vector3.zero;
     }
-    void SetUpEquippedImage(Transform parentTransform) {
-        if (currentEquippedImage != null){
-            Destroy(currentEquippedImage);
-        }
-        currentEquippedImage = Instantiate(equippedImagePref, parentTransform);
-    }
-    void SetUpExitButton() {
-        exitSkinButton.onClick.AddListener(() => {
-                AudioManager.Instance.PlaySoundClickButton();
 
-            if (HomePageController.Instance != null)
-                HomePageController.Instance.ExitSkinShop();
-            else
-                Debug.LogError("HomePage is null");
-            LoadSkin(type);
+    void SetUpEventSelecButton() {
+        selectButton.onClick.AddListener(() => {
+            switch (type) {
+                case TypeSkin.hat:
+                    DataManager.Instance.playerData.currentHatId = currentSkinShopButtonUI.skinShopInfor.id;
+                    DataManager.Instance.playerData.isSet = false;
+                    break;
+                case TypeSkin.pant:
+                    DataManager.Instance.playerData.currentPantId = currentSkinShopButtonUI.skinShopInfor.id;
+                    DataManager.Instance.playerData.isSet = false;
+                    break;
+                case TypeSkin.armor:
+                    DataManager.Instance.playerData.currentArmorId = currentSkinShopButtonUI.skinShopInfor.id;
+                    DataManager.Instance.playerData.isSet = false;
+                    break;
+                case TypeSkin.set:
+                    DataManager.Instance.playerData.currentSetId = currentSkinShopButtonUI.skinShopInfor.id;
+                    DataManager.Instance.playerData.isSet = true;
+                    break;
+            }
+            selectButton.gameObject.SetActive(false);
+            equipedButton.gameObject.SetActive(true);
+            SetUpEquippedImage(currentSkinShopButtonUI.transform);
+            UpdateSkinType();
+            AudioManager.Instance.PlaySoundClickButton();
+
         });
     }
-    void LoadSkin(TypeSkin typeSkin) {
-        //data = GetSkinData();
-        data = DataManager.Instance.GetSkinData();
-        if (typeSkin == TypeSkin.set) {
-            hatObjects.DestroyHat();
-            characterPant.gameObject.SetActive(false);
-            armorObjects.DestroyArmor();
-
-            setObjects.SetCharacterHatSet(data.setIndex, hatHolderTransform);
-            setObjects.SetCharacterArmorSet(data.setIndex, armorHolderTransform);
-            setObjects.SetCharacterWingSet(data.setIndex, wingHolderTransform);
-            setObjects.SetCharacterTailSet(data.setIndex, tailHolderTransform);
-            setObjects.SetCharacterMaterialSet(data.setIndex, playerMesh);
-            data.isSet = true;
-        }
-        else {
-            setObjects.DestroySet();
-            if (!characterPant.gameObject.activeSelf)
-                characterPant.gameObject.SetActive(true);
-            playerMesh.material = playerMaterial;
-            hatObjects.SetCharacterHat(data.hatIndex, hatHolderTransform);
-            pantObjects.SetPantMaterial(data.pantIndex, pantSkin);
-            armorObjects.SetCharacterArmor(data.armorIndex, armorHolderTransform);
-
-            data.isSet = false;
-        }
-
-        if (currentBorderImage != null)
-            Destroy(currentBorderImage);
-        switch (typeSkin) {
-            case TypeSkin.hat: {
-                    if (data.hatIndex >= 0) {
-                        SetUpBorderImage(listHatButtons[data.hatIndex].transform);
-                        SetUpEquippedImage(listHatButtons[data.hatIndex].transform);
-                    }
-                    break;
+    void SetUpEventPurchaseButton() {
+        purchaseButton.onClick.AddListener(() => {
+            AudioManager.Instance.PlaySoundClickButton();
+            if (DataManager.Instance.playerData.coin < currentSkinShopButtonUI.skinShopInfor.cost)
+                Debug.Log("Khong Du Tien");
+            else {
+                switch (type) {
+                    case TypeSkin.hat:
+                        // Cap nhat lai skin dang dung
+                        DataManager.Instance.playerData.currentHatId = currentSkinShopButtonUI.skinShopInfor.id;
+                        break;
+                    case TypeSkin.pant:
+                        DataManager.Instance.playerData.currentPantId = currentSkinShopButtonUI.skinShopInfor.id;
+                        break;
+                    case TypeSkin.armor:
+                        DataManager.Instance.playerData.currentArmorId = currentSkinShopButtonUI.skinShopInfor.id;
+                        break;
+                    case TypeSkin.set:
+                        DataManager.Instance.playerData.currentSetId = currentSkinShopButtonUI.skinShopInfor.id;
+                        DataManager.Instance.playerData.isSet = true;
+                        break;
                 }
-            case TypeSkin.pant: {
-                    if (data.pantIndex >= 0) {
-                        SetUpBorderImage(listPantButtons[data.pantIndex].transform);
-                        SetUpEquippedImage(listPantButtons[data.pantIndex].transform);
-                    }
-                    break;
-                }
-            case TypeSkin.armor: {
-                    if (data.armorIndex >= 0) {
-                        SetUpBorderImage(listArmorButtons[data.armorIndex].transform);
-                        SetUpEquippedImage(listArmorButtons[data.armorIndex].transform);
-                    }
-                    break;
-                }
-            case TypeSkin.set: {
-                    if (data.setIndex >= 0) {
-                        SetUpBorderImage(listSetButtons[data.setIndex].transform);
-                        SetUpEquippedImage(listSetButtons[data.setIndex].transform);
-                    }
-                    break;
-                }
-        }
-
-    }
-    Transform FindChildWithTag(Transform parentTransform) {
-        foreach(Transform trans in parentTransform) {
-            if (trans.gameObject.CompareTag("LockImage")) {
-                return trans;
+                purchaseSystemButton.gameObject.SetActive(false);
+                equipedButton.gameObject.SetActive(true);
+                SetUpEquippedImage(currentSkinShopButtonUI.transform);
+                UpdateSkinType();
+                DataManager.Instance.UpdatePlayerCoin(-currentSkinShopButtonUI.skinShopInfor.cost);
+                HomePageController.Instance.SetCoinText();
             }
-        }
-        return null;
+
+        });
     }
 
-    bool PurchaseSkin() {
-        Transform child = null;
-        //data = GetSkinData();
-        switch (type) {
-            case TypeSkin.hat: {
-                    if (!CoinManager.Instance.PurchaseItem(hatObjects.listHats[hatIndexSelected].cost))
-                        return false;
-
-                    child = FindChildWithTag(listHatButtons[hatIndexSelected].transform);
-                    //hatObjects.listHats[hatIndexSelected].isLock = false;
-
-                    SetUpEquippedImage(listHatButtons[hatIndexSelected].transform);
-
-                    data.isUnLockHat[hatIndexSelected] = 1;
-                    data.hatIndex = hatIndexSelected;
-                    break;
-                }
-            case TypeSkin.pant: {
-                    if (!CoinManager.Instance.PurchaseItem(pantObjects.listPants[pantIndexSelected].cost))
-                        return false;
-
-                    child = FindChildWithTag(listPantButtons[pantIndexSelected].transform);
-                    SetUpEquippedImage(listPantButtons[pantIndexSelected].transform);
-
-                    data.isUnLockPant[pantIndexSelected] = 1;
-                    data.pantIndex = pantIndexSelected;
-                    break;
-                }
-            case TypeSkin.armor: {
-                    if (!CoinManager.Instance.PurchaseItem(armorObjects.listArmor[armorIndexSelected].cost))
-                        return false;
-
-                    child = FindChildWithTag(listArmorButtons[armorIndexSelected].transform);
-                    SetUpEquippedImage(listArmorButtons[armorIndexSelected].transform);
-
-                    data.isUnLockArmor[armorIndexSelected] = 1;
-                    data.armorIndex = armorIndexSelected;
-                    break;
-                }
-            case TypeSkin.set: {
-                    if (!CoinManager.Instance.PurchaseItem(setObjects.listSets[setIndexSelected].cost))
-                        return false;
-
-                    child = FindChildWithTag(listSetButtons[setIndexSelected].transform);
-                    SetUpEquippedImage(listSetButtons[setIndexSelected].transform);
-
-                    data.isUnLockSet[setIndexSelected] = 1;
-                    data.setIndex = setIndexSelected;
-                    break;
-                }
-        }
-
-        if (child != null) {
-            child.gameObject.SetActive(false);
-        }
-        DataManager.Instance.SaveSkinData(data);
-        HomePageController.Instance.SetCoinText();
-        return true;
+    // Ham duoc goi de cap nhat cac Type trong DB va trong cac button khi select 1 skin hoac mua 1 skin
+    public void UpdateSkinType() {
+        if(equippedSkinShopButtonUI != null) 
+            equippedSkinShopButtonUI.ChangeStateButton(E_SkinType.Buy);
+        currentSkinShopButtonUI.ChangeStateButton(E_SkinType.Use);
+        equippedSkinShopButtonUI = currentSkinShopButtonUI;
     }
 
-    private void SkinShop_OnPlayerReceiveAward(object sender, MaxManager.TypeReward t) {
-        if(t == MaxManager.TypeReward.playerSkin) {
-            HandlerPurchaseByAdButton();
+    void HandlerPurchaseByAdsButton() {
+        currentSkinShopButtonUI.skinData.adsWatch += 1;
+        adsCostTMP.text = string.Format("{0}/{1}", currentSkinShopButtonUI.skinData.adsWatch, currentSkinShopButtonUI.skinShopInfor.adsWatchCost);
+        if (currentSkinShopButtonUI.skinData.adsWatch >= 2) {
+            switch (type) {
+                case TypeSkin.hat:
+                    // Cap nhat lai skin dang dung
+                    DataManager.Instance.playerData.currentHatId = currentSkinShopButtonUI.skinShopInfor.id;
+                    break;
+                case TypeSkin.pant:
+                    DataManager.Instance.playerData.currentPantId = currentSkinShopButtonUI.skinShopInfor.id;
+                    break;
+                case TypeSkin.armor:
+                    DataManager.Instance.playerData.currentArmorId = currentSkinShopButtonUI.skinShopInfor.id;
+                    break;
+                case TypeSkin.set:
+                    DataManager.Instance.playerData.currentSetId = currentSkinShopButtonUI.skinShopInfor.id;
+                    DataManager.Instance.playerData.isSet = true;
+                    break;
+            }
+            purchaseSystemButton.gameObject.SetActive(false);
+            equipedButton.gameObject.SetActive(true);
+            SetUpEquippedImage(currentSkinShopButtonUI.transform);
+            SetUpBorderImage(currentSkinShopButtonUI.transform);
+            UpdateSkinType();
+        }
+
+    }
+    void SetUpEventPurchaseByAdButton() {
+        purchaseByAdButton.onClick.AddListener(() => {
+            if (MaxManager.Instance != null) {
+                MaxManager.Instance.ShowRewardAd();
+                MaxManager.Instance.SetTypeReward(MaxManager.TypeReward.playerSkin);
+            }
+
+        });
+    }
+
+    void SetUpEquippedImage(Transform parentTransform) {
+        if (currentEquippedImage == null)
+           currentEquippedImage = Instantiate(equippedImagePref, parentTransform);
+        currentEquippedImage.transform.SetParent(parentTransform);
+        currentEquippedImage.transform.localPosition = Vector3.zero;
+    }
+    void SetUpEventExitButton() {
+        exitButton.onClick.AddListener(() => {
+            AudioManager.Instance.PlaySoundClickButton();
+            if (HomePageController.Instance != null)
+                HomePageController.Instance.ExitSkinShop();
+            if (DataManager.Instance.playerData.isSet == false) {
+                PlayerController.Instance.playerSkin.ChangeSkinHat(DataManager.Instance.playerData.currentHatId);
+                PlayerController.Instance.playerSkin.ChangeSkinPant(DataManager.Instance.playerData.currentPantId);
+                PlayerController.Instance.playerSkin.ChangeSkinArmor(DataManager.Instance.playerData.currentArmorId);
+            }
+            else
+                PlayerController.Instance.playerSkin.ChangeSkinSet(DataManager.Instance.playerData.currentSetId);
+            equipedButton.gameObject.SetActive(false);
+            selectButton.gameObject.SetActive(false);
+            purchaseSystemButton.SetActive(false);
+        });
+    }
+    private void MaxManager_OnPlayerReceiveAward(object sender, MaxManager.TypeReward t) {
+        if (t == MaxManager.TypeReward.playerSkin) {
+            HandlerPurchaseByAdsButton();
             FirebaseManager.Instance.HandlerClickAdEvent(FirebaseManager.TypeEvent.clickSkinShopAd, FirebaseManager.TypeAd.reward);
         }
     }
+
 }

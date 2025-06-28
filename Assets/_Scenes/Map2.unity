@@ -4209,7 +4209,7 @@ GameObject:
   m_Component:
   - component: {fileID: 270640102}
   m_Layer: 0
-  m_Name: -----------PLAYER----------
+  m_Name: ___________PLAYER____________________
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9811,6 +9811,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   weaponObjects: {fileID: 11400000, guid: 2862eb37f7bb1ef42a2d65fe4e13edac, type: 2}
+  playerSkin: {fileID: 524359564082891185}
   speed: 2
   playerAttackArea: {fileID: 1176915710}
   playerAttackAreaCollider: {fileID: 1795009627}
@@ -9833,7 +9834,7 @@ MonoBehaviour:
   playerStatus: {fileID: 379026077}
   playerName: {fileID: 1943871933}
   playerScore: {fileID: 1593323172}
-  playerSkin: {fileID: 524359564082891185}
+  playerSkinMesh: {fileID: 524359564082891185}
   textScoreEffect: {fileID: 8103957946568389776}
   isUlti: 0
 --- !u!114 &584122414
@@ -11587,7 +11588,7 @@ GameObject:
   m_Component:
   - component: {fileID: 743824390}
   m_Layer: 0
-  m_Name: ---------------MAP--------------
+  m_Name: ___________MAP______________________
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -19741,7 +19742,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1221945384}
   m_Layer: 0
-  m_Name: -----------CONTROLLER--------
+  m_Name: ___________CONTROLLER______________
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -20492,7 +20493,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1251637918}
   m_Layer: 0
-  m_Name: ---------MANAGER-------------
+  m_Name: ___________MANAGER__________________
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -26639,7 +26640,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1576465056}
   m_Layer: 0
-  m_Name: -------------ENEMY----------------
+  m_Name: ___________ENEMY_____________________
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -27404,7 +27405,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1602067882}
   m_Layer: 0
-  m_Name: -----------------UI---------------------
+  m_Name: ___________UI_________________________
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -32200,8 +32201,9 @@ MonoBehaviour:
   timeSpawnZombie: 0.75
   spawnedZombieCount: 0
   currentZombieCount: 0
-  maxZombieCount: 50
+  maxZombieCount: 10
   listZombieController: []
+  soundController: {fileID: 1870196890}
 --- !u!82 &1870196889
 AudioSource:
   m_ObjectHideFlags: 0
@@ -78165,9 +78167,8 @@ GameObject:
   - component: {fileID: 584122409}
   - component: {fileID: 584122414}
   - component: {fileID: 584122416}
-  - component: {fileID: 8296172669094856276}
   - component: {fileID: 8296172669094856277}
-  - component: {fileID: 8296172669094856278}
+  - component: {fileID: 8296172669094856281}
   - component: {fileID: 8296172669094856280}
   - component: {fileID: 8296172669094856279}
   m_Layer: 3
@@ -78177,24 +78178,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &8296172669094856276
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8296172669094856274}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 860f4d03722937b4387263d36b8b20dd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  weaponObjects: {fileID: 11400000, guid: 2862eb37f7bb1ef42a2d65fe4e13edac, type: 2}
-  weapon: {fileID: 8927054480053354187, guid: 34bae78461d38d94b88a956b9ef73ec0, type: 3}
-  currentAbility: 0
-  speedWeapon: 100
-  weaponCircleObject: {fileID: 6196578945528617089}
-  skillObjects: {fileID: 11400000, guid: 68164646cc3805642b6ae9fbe5066d72, type: 2}
 --- !u!114 &8296172669094856277
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -78211,31 +78194,6 @@ MonoBehaviour:
   obstacleLayerMask:
     serializedVersion: 2
     m_Bits: 256
---- !u!114 &8296172669094856278
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8296172669094856274}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4bf070d2b68fce74a9287025c347ff82, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  hatObjects: {fileID: 11400000, guid: 1ac17890d7f81a7408ad01777321b6b7, type: 2}
-  hatHolderTransform: {fileID: 1810407765}
-  pantObjects: {fileID: 11400000, guid: 450c8293c14cf2142b5ddc14d86984bf, type: 2}
-  characterPant: {fileID: 6617154172877372725}
-  armorObjects: {fileID: 11400000, guid: 55429d39b39f0cb4f8ba68a0a755068a, type: 2}
-  armorHolderTransform: {fileID: 2027195787}
-  setObjects: {fileID: 11400000, guid: 42c250d1946742248a35ce8219891602, type: 2}
-  wingHolderTransform: {fileID: 1095822943}
-  tailHolderTransform: {fileID: 39061091}
-  playerMesh: {fileID: 524359564082891185}
-  playerMaterial: {fileID: 2100000, guid: 82859911bd85b7540afbee85eafc57d3, type: 2}
-  weaponObjects: {fileID: 11400000, guid: 2862eb37f7bb1ef42a2d65fe4e13edac, type: 2}
-  weaponHold: {fileID: 4132986351722733770}
 --- !u!82 &8296172669094856279
 AudioSource:
   m_ObjectHideFlags: 0
@@ -78346,6 +78304,31 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isMusic: 0
+--- !u!114 &8296172669094856281
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8296172669094856274}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1202182c27eba9b45ab5de2350f7535d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  configPlayerSkin: {fileID: 11400000, guid: 413522186640c6e4aa93cecd9566a805, type: 2}
+  hatHolderTrans: {fileID: 1810407765}
+  arrHatSkin: []
+  playerPant: {fileID: 6617154172877372725}
+  pantSkinMesh: {fileID: 8694194341804756178}
+  armorHolderTrans: {fileID: 2027195787}
+  arrArmorSkin: []
+  wingHolderTrans: {fileID: 1095822943}
+  tailHolderTrans: {fileID: 39061091}
+  playerSkinMesh: {fileID: 524359564082891185}
+  arrSetSkin: []
+  pantStartMat: {fileID: 2100000, guid: 5e7f06a449887d34d9426e1d0627a923, type: 2}
+  playerStartMat: {fileID: 2100000, guid: e3ee7c486604fdb49bddc316dc1f462b, type: 2}
 --- !u!1 &8404232990511776570
 GameObject:
   m_ObjectHideFlags: 0

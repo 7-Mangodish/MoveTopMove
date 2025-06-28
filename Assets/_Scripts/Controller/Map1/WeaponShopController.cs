@@ -431,7 +431,7 @@ public class WeaponShopController : MonoBehaviour
     #region PurchaseWeaponSkin
     void SetUpPurchaseSkinButton() {
         AudioManager.Instance.PlaySoundClickButton();
-        if (!CoinManager.Instance.PurchaseItem(weapon.weaponSkinCost[weaponSkinIndexSelected])) {
+        if (DataManager.Instance.playerData.coin < weapon.weaponSkinCost[weaponSkinIndexSelected]) {
             Debug.Log("ko du tien");
             return;
         }         

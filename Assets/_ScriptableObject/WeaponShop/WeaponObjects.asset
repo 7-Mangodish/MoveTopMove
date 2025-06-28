@@ -15,34 +15,6 @@ MonoBehaviour:
   listWeapon:
   - id: 1
     weaponSkins:
-    - {fileID: 1228265344304733173, guid: 8ac2d6938b029ff479695b65a7c4ad1c, type: 3}
-    - {fileID: 1228265344304733173, guid: 60fbf01e704dbd644b3d076d177e8ddf, type: 3}
-    - {fileID: 1228265344304733173, guid: 5b4f82e349b227147937aa301cfb7e38, type: 3}
-    - {fileID: 1228265344304733173, guid: 06fc3e7206a2aeb46a1e0014d43db57e, type: 3}
-    - {fileID: 1228265344304733173, guid: 2b354ebd6a370b2488250497eed3b291, type: 3}
-    weaponSkinCost: 000000000000000000000000c80000002c010000
-    scale: 1500
-    name: Tam giac quy
-    cost: 1000
-    isBoom: 1
-    attribute: 2
-    index: 1
-  - id: 2
-    weaponSkins:
-    - {fileID: 1228265344304733173, guid: 8ac2d6938b029ff479695b65a7c4ad1c, type: 3}
-    - {fileID: 1228265344304733173, guid: 60fbf01e704dbd644b3d076d177e8ddf, type: 3}
-    - {fileID: 1228265344304733173, guid: 5b4f82e349b227147937aa301cfb7e38, type: 3}
-    - {fileID: 1228265344304733173, guid: 06fc3e7206a2aeb46a1e0014d43db57e, type: 3}
-    - {fileID: 1228265344304733173, guid: 2b354ebd6a370b2488250497eed3b291, type: 3}
-    weaponSkinCost: 000000000000000000000000c80000002c010000
-    scale: 1500
-    name: Tam giac Than
-    cost: 1500
-    isBoom: 1
-    attribute: 2
-    index: 1
-  - id: 3
-    weaponSkins:
     - {fileID: 1228265344304733173, guid: b3269500b834c0d4b8a72624c36fb06e, type: 3}
     - {fileID: 1228265344304733173, guid: 1369aa825933a3f42b8374779d4b1963, type: 3}
     - {fileID: 1228265344304733173, guid: b02a0d3b19ee5c541914743e25cbda6c, type: 3}
@@ -51,6 +23,62 @@ MonoBehaviour:
     weaponSkinCost: 000000000000000000000000c80000002c010000
     scale: 4000
     name: 'Bua '
+    cost: 1500
+    isBoom: 0
+    attribute: 2
+    index: 1
+  - id: 2
+    weaponSkins:
+    - {fileID: 1641302586908938356, guid: 36424b45b0ee5c64e9cd84a89ca4e295, type: 3}
+    - {fileID: 3387278768150794692, guid: dac133c1eabbb2449bead332e6b4cc47, type: 3}
+    - {fileID: 2621694304590956299, guid: f7b6c112d6bddc845a19570275e48d77, type: 3}
+    - {fileID: 4121030702376636329, guid: 9280aa2c417f8434ea4be380a23d3112, type: 3}
+    - {fileID: 3241973797489323169, guid: bae0df45fa9916440933bb14937e3e50, type: 3}
+    weaponSkinCost: 000000000000000000000000c80000002c010000
+    scale: 4000
+    name: LoliPop
+    cost: 1500
+    isBoom: 0
+    attribute: 2
+    index: 1
+  - id: 3
+    weaponSkins:
+    - {fileID: 4848246232461898487, guid: 7c0bf84e4cadf144c9c81d34515018f8, type: 3}
+    - {fileID: 4848246232461898487, guid: e35a876ed1aabb44bbc1cb938bc27d2f, type: 3}
+    - {fileID: 4848246232461898487, guid: a8874ae246b9ba346b8f2cd821c78d6b, type: 3}
+    - {fileID: 4848246232461898487, guid: dae62e1bc808e114ab92ec6df4a832ea, type: 3}
+    - {fileID: 4848246232461898487, guid: 213a9d119d463e341988826b637a7a27, type: 3}
+    weaponSkinCost: 000000000000000000000000c80000002c010000
+    scale: 4000
+    name: Candy
+    cost: 1500
+    isBoom: 0
+    attribute: 1
+    index: 1
+  - id: 4
+    weaponSkins:
+    - {fileID: 7718864798309270226, guid: c08e44e8917b3934aab2b28c457072ac, type: 3}
+    - {fileID: 7718864798309270226, guid: 04342726b498ab440b5dba02ccc8dba2, type: 3}
+    - {fileID: 7718864798309270226, guid: 460a760e108bf6d4abf6c5ff570f7123, type: 3}
+    - {fileID: 7718864798309270226, guid: 3abf204280d1cf547a62fb285baac64e, type: 3}
+    - {fileID: 7718864798309270226, guid: 5f243b8e2af9ab345a845ba767faf3f7, type: 3}
+    weaponSkinCost: 000000000000000000000000c80000002c010000
+    scale: 4000
+    name: Riu Thor
+    cost: 1500
+    isBoom: 0
+    attribute: 2
+    index: 1
+  - id: 5
+    weaponSkins:
+    - {fileID: 1228265344304733173, guid: 8ac2d6938b029ff479695b65a7c4ad1c, type: 3}
+    - {fileID: 1228265344304733173, guid: 60fbf01e704dbd644b3d076d177e8ddf, type: 3}
+    - {fileID: 1228265344304733173, guid: 5b4f82e349b227147937aa301cfb7e38, type: 3}
+    - {fileID: 1228265344304733173, guid: 06fc3e7206a2aeb46a1e0014d43db57e, type: 3}
+    - {fileID: 1228265344304733173, guid: 2b354ebd6a370b2488250497eed3b291, type: 3}
+    weaponSkinCost: 000000000000000000000000c80000002c010000
+    scale: 1500
+    name: Boomerang
     cost: 1500
     isBoom: 1
     attribute: 2

@@ -163,7 +163,7 @@ public class ZombieUIController : MonoBehaviour
         });
     }
     public void  SetUpTopPanel() {
-        int day = DataManager.Instance.GetZombieDayVictory();
+        int day = DataManager.Instance.playerData.zombieDayVictory;
         currentZombieDayText.text = "Day "+(day+1).ToString();
 
         SetUpPlayerCoinText();
@@ -258,7 +258,7 @@ public class ZombieUIController : MonoBehaviour
                 //
                 AudioManager.Instance.PlaySoundClickButton();
                 //
-                if (!CoinManager.Instance.PurchaseItem(skillData.skillCost[ind])) {
+                if (DataManager.Instance.playerData.coin < skillData.skillCost[ind]) {
                     Debug.Log("Khong du tien");
                     if(faildUpgradeText.gameObject.activeSelf)
                         faildUpgradeText.gameObject.SetActive(false);
@@ -266,7 +266,9 @@ public class ZombieUIController : MonoBehaviour
                     return;
                 }
                 else {
+                    DataManager.Instance.UpdatePlayerCoin(-skillData.skillCost[ind]);
                     SetUpPlayerCoinText();
+
                 }
                 //
                 switch (ind) {
@@ -336,7 +338,7 @@ public class ZombieUIController : MonoBehaviour
         claimCoinButton.onClick.AddListener(() => {
             AudioManager.Instance.PlaySoundClickButton();
             //
-            CoinManager.Instance.SaveCoin(endGameCoin);
+            DataManager.Instance.UpdatePlayerCoin(endGameCoin);
             SetUpPlayerCoinText();
             SceneManager.LoadScene(GameVariable.zombieSceneName);
         });
@@ -348,7 +350,7 @@ public class ZombieUIController : MonoBehaviour
     #endregion
 
     private void SetUpPlayerCoinText() {
-        playerCoinText.text = PlayerPrefs.GetInt(GameVariable.PLAYER_COIN).ToString();
+        playerCoinText.text = DataManager.Instance.playerData.coin.ToString();
     }
 
     private void SetUpZombieDay(int currentDay, bool isVictory) {
@@ -371,7 +373,7 @@ public class ZombieUIController : MonoBehaviour
                 listZombieDayImage[4].sprite = dayVictoryStart;
             else
                 listZombieDayImage[currentDay - 1].sprite = dayVictory;
-            DataManager.Instance.SetZombieDayVictory(currentDay);
+            DataManager.Instance.playerData.zombieDayVictory = currentDay;
         }
 
         else {
@@ -432,14 +434,14 @@ public class ZombieUIController : MonoBehaviour
         loseTittle.gameObject.SetActive(false);
 
 
-        int dayZombie = DataManager.Instance.GetZombieDayVictory();
+        int dayZombie = DataManager.Instance.playerData.zombieDayVictory;
         SetUpZombieDay(dayZombie + 1, true);
 
         winTittle.text = "U suvived Day " + (dayZombie + 1).ToString();
 
-        endGameCoin = CoinManager.Instance.GetWinCoin();
+        endGameCoin = DataManager.Instance.winPlayerCoin;
         coinText.text = endGameCoin.ToString();
-        if (CoinManager.Instance.isDoubleAward)
+        if (DataManager.Instance.isDoubleAward)
             x2Text.gameObject.SetActive(true);
         else
             x2Text.gameObject.SetActive(false);
@@ -460,13 +462,13 @@ public class ZombieUIController : MonoBehaviour
         else
             endPanel.gameObject.SetActive(true);
 
-        int dayZombie = DataManager.Instance.GetZombieDayVictory(); ;
+        int dayZombie = DataManager.Instance.playerData.zombieDayVictory; ;
         SetUpZombieDay(dayZombie + 1, false);
 
-        endGameCoin = CoinManager.Instance.GetLoseCoin();
+        endGameCoin = DataManager.Instance.winPlayerCoin;
         coinText.text = endGameCoin.ToString();
         x3CoinText.text = (endGameCoin * 3).ToString();
-        if (CoinManager.Instance.isDoubleAward)
+        if (DataManager.Instance.isDoubleAward)
             x2Text.gameObject.SetActive(true);
         else
             x2Text.gameObject.SetActive(false);
@@ -495,7 +497,7 @@ public class ZombieUIController : MonoBehaviour
         if (t == MaxManager.TypeReward.x3Coin) {
             endGameCoin *= 3;
 
-            CoinManager.Instance.SaveCoin(endGameCoin);
+            DataManager.Instance.UpdatePlayerCoin(endGameCoin);
             SetUpPlayerCoinText();
             SceneManager.LoadScene(GameVariable.zombieSceneName);
 

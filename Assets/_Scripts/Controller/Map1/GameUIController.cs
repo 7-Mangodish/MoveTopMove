@@ -150,9 +150,9 @@ public class GameUIController : MonoBehaviour
             //
             deadPanel.gameObject.SetActive(false);
             if(isClickedx3Reward)
-                CoinManager.Instance.SaveCoin(deadCoin * 3);
+                DataManager.Instance.UpdatePlayerCoin(deadCoin * 3);
             else
-                CoinManager.Instance.SaveCoin(deadCoin);
+                DataManager.Instance.UpdatePlayerCoin(deadCoin);
 
         });
         deadx3RewardButton.onClick.AddListener(() => {
@@ -170,9 +170,9 @@ public class GameUIController : MonoBehaviour
 
             winPanel.gameObject.SetActive(false);
             if (isClickedx3Reward)
-                CoinManager.Instance.SaveCoin(winCoin * 3);
+                DataManager.Instance.UpdatePlayerCoin(winCoin * 3);
             else
-                CoinManager.Instance.SaveCoin(winCoin);
+                DataManager.Instance.UpdatePlayerCoin(winCoin);
         });
         winx3RewardButton.onClick.AddListener(() => {
             MaxManager.Instance.ShowRewardAd();

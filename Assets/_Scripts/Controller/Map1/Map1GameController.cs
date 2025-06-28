@@ -37,7 +37,6 @@ public class Map1GameController : MonoBehaviour
     private void Start() {
         CameraController.Instance.SetUpCamera();
         HomePageController.Instance.SetUpHomePage();
-        SkinShopController.Instance.SetUpSkinShop();
         PlayerController.Instance.SetUpPlayer();
         WeaponShopController.Instance.InitWeaponShopData();
 

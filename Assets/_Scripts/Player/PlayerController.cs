@@ -13,6 +13,7 @@ public class PlayerController : MonoBehaviour
     public static PlayerController Instance { get => instance; }
 
     [SerializeField] WeaponObjects weaponObjects;
+    public PlayerSkin playerSkin;
     private SkillData skillData;
 
     [Header("-----Skill-----")]
@@ -61,7 +62,7 @@ public class PlayerController : MonoBehaviour
     public GameObject playerStatus;
     public TextMeshPro playerName;
     public TextMeshPro playerScore;
-    public SkinnedMeshRenderer playerSkin;
+    public SkinnedMeshRenderer playerSkinMesh;
     public GameObject textScoreEffect;
     private Vector3 standardCharacterScale;
     private Vector3 standardEulerRot;
@@ -118,9 +119,10 @@ public class PlayerController : MonoBehaviour
         /*Status*/
         standardEulerRot = playerStatus.transform.rotation.eulerAngles;
         standardCharacterScale = this.transform.localScale;
-
-        playerStatus.GetComponent<SpriteRenderer>().color = playerSkin.material.color;
-        playerName.color = playerSkin.material.color;
+        //
+        playerStatus.GetComponent<SpriteRenderer>().color = playerSkinMesh.material.color;
+        playerName.color = playerSkinMesh.material.color;
+        playerName.text = DataManager.Instance.playerData.playerName;
     }
 
     public void GetPlayerInput() {
@@ -536,7 +538,7 @@ public class PlayerController : MonoBehaviour
 
     /*Double Reward*/
     private void Ability7() {
-        CoinManager.Instance.isDoubleAward = true;
+        DataManager.Instance.isDoubleAward = true;
     }
 
     /*Growing Weapon*/
@@ -599,13 +601,13 @@ public class PlayerController : MonoBehaviour
     }
     public void UpdatePlayerStatus() {
         playerStatus.transform.rotation = Quaternion.Euler(standardEulerRot);
-
+        //
         Vector3 camToStatus = playerStatus.transform.position - Camera.main.transform.position;
         float distanceOnCameraForward = Vector3.Dot(camToStatus, Camera.main.transform.forward);
-
+        //
         float propotion = (distanceOnCameraForward / GameVariable.STD_DISTANCE);
         Vector3 newScale = propotion * GameVariable.STD_SCALE;
-
+        //
         if (standardCharacterScale != this.transform.localScale) {
             float scaleFactor = this.transform.localScale.x / standardCharacterScale.x;
             newScale /= scaleFactor;
