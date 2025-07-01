@@ -323,6 +323,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 97043b22c9110c24db885d226f62e138, type: 2}
   - {fileID: 11400000, guid: 0a18e87af880d494b925c741e72fefde, type: 2}
   - {fileID: 11400000, guid: 3d4b09a2b31f9134b9f967b807a5fe85, type: 2}
+  - {fileID: 11400000, guid: ed71462895dc448459670ab6b24091d0, type: 2}
   clickSoundCtrl: {fileID: 2049996622}
   isChangeTempVolume: 0
 --- !u!4 &530148913

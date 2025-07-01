@@ -18,8 +18,9 @@ public class SpawnController : MonoBehaviour
 
     [Header("-----GIFT-----")]
     public GameObject giftPrefab;
+    public GameObject giftInstance;
     public float timeSpawnGift;
-    private List<GameObject> giftList;
+    public float timeSpawnGiftDuration;
 
     void Awake()
     {
@@ -70,12 +71,23 @@ public class SpawnController : MonoBehaviour
     #region ----------GIFT----------
 
     public void DoSpawnGift() {
-        Invoke(nameof(SpawnGift), timeSpawnGift);
+        timeSpawnGiftDuration += Time.deltaTime;
+        if(timeSpawnGiftDuration > timeSpawnGift ) {
+            SpawnGift();
+        }
     }
     void SpawnGift() {
         Vector3 newPosition = GetValidPosition();
         newPosition.y = .2f;
-        Instantiate(giftPrefab, newPosition, Quaternion.Euler(-90, 0, 0));
+        timeSpawnGiftDuration = 0;
+        if (giftInstance == null)
+            giftInstance = Instantiate(giftPrefab, newPosition, Quaternion.Euler(-90, 0, 0));
+        else {
+            if (!giftInstance.activeSelf) {
+                giftInstance.gameObject.SetActive(true);
+                giftInstance.transform.position = newPosition;
+            }
+        }
     }
     #endregion
 

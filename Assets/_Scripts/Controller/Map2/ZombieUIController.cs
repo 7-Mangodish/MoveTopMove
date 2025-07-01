@@ -416,11 +416,12 @@ public class ZombieUIController : MonoBehaviour
         homeButton.onClick.AddListener(() => {
             AudioManager.Instance.PlaySoundClickButton();
             SceneManager.LoadScene(GameVariable.zombieSplashSceneOutName);
+            Time.timeScale = 1;
+
         });
 
         continueButton.onClick.AddListener(() => {
             AudioManager.Instance.PlaySoundClickButton();
-
             settingPanel.gameObject.SetActive(false);
             Time.timeScale = 1;
         });
@@ -461,10 +462,10 @@ public class ZombieUIController : MonoBehaviour
         }
         else
             endPanel.gameObject.SetActive(true);
-
+        //
         int dayZombie = DataManager.Instance.playerData.zombieDayVictory; ;
         SetUpZombieDay(dayZombie + 1, false);
-
+        //
         endGameCoin = DataManager.Instance.winPlayerCoin;
         coinText.text = endGameCoin.ToString();
         x3CoinText.text = (endGameCoin * 3).ToString();

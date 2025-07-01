@@ -32201,7 +32201,7 @@ MonoBehaviour:
   timeSpawnZombie: 0.75
   spawnedZombieCount: 0
   currentZombieCount: 0
-  maxZombieCount: 10
+  maxZombieCount: 30
   listZombieController: []
   soundController: {fileID: 1870196890}
 --- !u!82 &1870196889

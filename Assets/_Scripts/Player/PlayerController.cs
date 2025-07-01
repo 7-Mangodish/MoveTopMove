@@ -240,21 +240,21 @@ public class PlayerController : MonoBehaviour
         if (stateManager.isLevelUpZombieMode) {
             stateWeapon = stateManager.GetStateWeapon();
             stateManager.isLevelUpZombieMode = false;
-
             if (weaponQuantity < bonusWeaponQuantity + 1)
                 weaponQuantity +=1;
         }
-        // Nhan voi weaponMultipleAbility neu la ability
-        weaponQuantity *= weaponMultipleAbility;
-        // Tan cong va goi su kien
-        angleSpread = angleAttack / weaponQuantity;
-        int startIndexWeapon = (int) - weaponQuantity / 2;
+        // Nhan voi weaponMultiple neu nhu la ky nang dac biet
+        float weaponQuantityTmp = weaponQuantity;
+        weaponQuantityTmp *= weaponMultipleAbility;
+        // Tinh toan goc nem
+        angleSpread = angleAttack / weaponQuantityTmp;
+        int startIndexWeapon = (int) -weaponQuantityTmp / 2;
         // Xac dinh vi tri spawn va huong nem
         weaponSpawnPosition = new Vector3(weaponSpawnTransform.position.x,
             weaponSpawnTransform.position.y, weaponSpawnTransform.position.z);
         // Nem vu khi
-        for (int i = startIndexWeapon; i <= weaponQuantity /2; i++) {
-            if (i == 0 && weaponQuantity % 2 == 0) continue;
+        for (int i = startIndexWeapon; i <= weaponQuantityTmp / 2; i++) {
+            if (i == 0 && weaponQuantityTmp % 2 == 0) continue;
             //
             Vector3 directWeapon = Quaternion.AngleAxis(startIndexWeapon * angleSpread, Vector3.up) * directEnemy;
             //Khoi tao vu khi
@@ -281,7 +281,7 @@ public class PlayerController : MonoBehaviour
             if (chosenAbility == 9) {
                 weaponThrow.isPiering = true;
             }
-            if (isUlti) {
+            if (isUlti ) {
                 speedWeapon = 125;
                 weaponThrow.isUlti = true;
             }

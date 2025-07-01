@@ -22,6 +22,7 @@ public class SoundData:  ScriptableObject
         dead_1,
         dead_2,
         end_win,
-        end_lose
+        end_lose,
+        gift
     }
 }

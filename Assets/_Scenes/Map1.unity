@@ -29736,7 +29736,9 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 264
   giftPrefab: {fileID: 226231111751851427, guid: 498c18e19d02a6c489f7cfbf95629011, type: 3}
+  giftInstance: {fileID: 0}
   timeSpawnGift: 5
+  timeSpawnGiftDuration: 0
 --- !u!1 &1634325752
 GameObject:
   m_ObjectHideFlags: 0
@@ -34140,8 +34142,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   zone1: {fileID: 436894574}
   zone2: {fileID: 1028585022}
-  startEnemyCount: 2
-  maxEnemyCount: 10
+  startEnemyCount: 5
+  maxEnemyCount: 20
   listEnemyController: []
   listEnemyStatus: []
   listEnemyIndicator: []

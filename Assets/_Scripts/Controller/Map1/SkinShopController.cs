@@ -221,6 +221,8 @@ public class SkinShopController : MonoBehaviour {
                 switch (currentSkinShopButtonUI.skinData.skinType) {
                     case E_SkinType.NotBuy:
                         purchaseSystemButton.SetActive(true);
+                        skinCostTMP.text = currentSkinShopButtonUI.skinShopInfor.cost.ToString();
+                        adsCostTMP.text = currentSkinShopButtonUI.skinData.adsWatch.ToString();
                         break;
                     case E_SkinType.Buy: //truong hop da mua nhung khong dung
                         selectButton.gameObject.SetActive(true);

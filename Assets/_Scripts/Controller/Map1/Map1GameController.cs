@@ -7,23 +7,23 @@ public class Map1GameController : MonoBehaviour
 {
     private static Map1GameController instance;
     public static Map1GameController Instance { get => instance; }
-
-
     private SoundController soundController;
+    //
     [Header("-----ZONE-----")]
     public GameObject zone1;
     public GameObject zone2;
-
+    //
     [Header("-----GAME_PLAY-----")]
     public int startEnemyCount;
     public int maxEnemyCount;
     public List<EnemyController> listEnemyController = new List<EnemyController>();
     private bool isPlayerWin = false;
     private bool isPlayerLose = false;
-
+    //
     [Header("-----ENEMY_STATUS-----")]
     public List<GameObject> listEnemyStatus = new List<GameObject>();
     public List<GameObject> listEnemyIndicator = new List<GameObject>();
+    
     private void Awake() {
         if (instance == null) {
             instance = this;
@@ -51,6 +51,7 @@ public class Map1GameController : MonoBehaviour
         //
         PlayerController.Instance.GetPlayerInput();
         //
+        SpawnController.Instance.DoSpawnGift();
         for (int i = 0; i < listEnemyController.Count; i++) {
             if (listEnemyController[i] == null) {
                 maxEnemyCount -= 1;
@@ -85,7 +86,7 @@ public class Map1GameController : MonoBehaviour
 
     private void LateUpdate() {
         for (int i = 0; i < listEnemyController.Count; i++) {
-            if (listEnemyController[i] != null) {
+            if (listEnemyController[i] != null && HomePageController.Instance.isStartGame) {
                 listEnemyController[i].UpdateEnemyStatus();
                 listEnemyController[i].UpdateIndicator();
                 //if (listEnemyController[i].isOutScreen) {
@@ -132,7 +133,6 @@ public class Map1GameController : MonoBehaviour
         CameraController.Instance.TurnOnGamePlayCamera();
         MaxManager.Instance.StopShowBannerAd();
         PlayerController.Instance.SetPlayerName();
-        if (DataManager.Instance.playerData.zone == 2)  SpawnController.Instance.DoSpawnGift();
     }
 
     /*Set Up khi Win Game*/

@@ -2382,7 +2382,7 @@ MonoBehaviour:
   timeIdle: 5
   speedWeapon: 75
   timeAttack: 3
-  enemyAttackArea: {fileID: 0}
+  enemyAttackArea: {fileID: 7120604368603404460}
   isUlti: 0
   targetCanvas: {fileID: 0}
   indicatorContainer: {fileID: 4003254000959017245}
@@ -2393,6 +2393,7 @@ MonoBehaviour:
   characterStatus: {fileID: 5447401567217543909}
   characterName: {fileID: 8634458255175838052}
   characterScore: {fileID: 2193490781618066953}
+  isOutScreen: 0
 --- !u!114 &5144866848250573018
 MonoBehaviour:
   m_ObjectHideFlags: 0

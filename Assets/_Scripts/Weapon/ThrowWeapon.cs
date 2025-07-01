@@ -23,7 +23,6 @@ public class ThrowWeapon : MonoBehaviour
     public SoundController soundController;
     private void Start() {
         rb = GetComponent<Rigidbody>();
-        soundController = this.GetComponent<SoundController>();
         this.gameObject.transform.localScale += 
             new Vector3(stateWeapon.curScale, stateWeapon.curScale, stateWeapon.curScale); 
     }

@@ -192,32 +192,23 @@ public class DataManager : MonoBehaviour
 
     #region --------------SKILL_DATA---------------
     public SkillData GetSkillData() {
-        if (!PlayerPrefs.HasKey(GameVariable.PLAYER_SKILL)) {
-            SkillData skillData = new SkillData();
-            string json = JsonUtility.ToJson(skillData);
-            PlayerPrefs.SetString(GameVariable.PLAYER_SKILL, json);
-        }
-        string jsonData = PlayerPrefs.GetString(GameVariable.PLAYER_SKILL);
-        SkillData data = JsonUtility.FromJson<SkillData>(jsonData);
-        return data;
+        //if (!PlayerPrefs.HasKey(GameVariable.PLAYER_SKILL)) {
+        //    SkillData skillData = new SkillData();
+        //    string json = JsonUtility.ToJson(skillData);
+        //    PlayerPrefs.SetString(GameVariable.PLAYER_SKILL, json);
+        //}
+        //string jsonData = PlayerPrefs.GetString(GameVariable.PLAYER_SKILL);
+        //SkillData data = JsonUtility.FromJson<SkillData>(jsonData);
+        //return data;
+        return playerData.skillData;
     }
 
     public void SetSkillData(SkillData data) {
-        string json = JsonUtility.ToJson(data);
-        PlayerPrefs.SetString(GameVariable.PLAYER_SKILL, json);
+        //string json = JsonUtility.ToJson(data);
+        //PlayerPrefs.SetString(GameVariable.PLAYER_SKILL, json);
+        playerData.skillData = data;
+        PlayerPrefs.Save();
     }
     #endregion
 
-    #region ------------ZOMBIE_MODE_DATA-----------
-    //public int GetZombieDayVictory() {
-    //    if (!PlayerPrefs.HasKey(GameVariable.ZOMBIE_DAY_VICTORY))
-    //        PlayerPrefs.SetInt(GameVariable.ZOMBIE_DAY_VICTORY, 0);
-
-    //    return PlayerPrefs.GetInt(GameVariable.ZOMBIE_DAY_VICTORY);
-    //}
-
-    //public void SetZombieDayVictory(int currentDay) {
-    //    PlayerPrefs.SetInt("ZombieDayVictory", currentDay);
-    //}
-    #endregion
 }

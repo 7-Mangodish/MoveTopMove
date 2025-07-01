@@ -156,7 +156,7 @@ MonoBehaviour:
   isGrowing: 0
   isPiering: 0
   isUlti: 0
-  soundController: {fileID: 0}
+  soundController: {fileID: 3996381674499824625}
 --- !u!114 &3996381674499824625
 MonoBehaviour:
   m_ObjectHideFlags: 0

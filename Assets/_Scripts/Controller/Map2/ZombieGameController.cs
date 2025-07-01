@@ -77,8 +77,7 @@ public class ZombieGameController : MonoBehaviour
     IEnumerator LoseGame() {
         yield return new WaitUntil(() => (isPlayerLose && !isPlayerWin && ZombieUIController.Instance.isStartGame));
         ZombieUIController.Instance.TurnOnLoseUI();
-        AudioManager.Instance.PlaySoundClickButton();
-
+        soundController.PlaySound(SoundData.SoundName.end_lose);
     }
 
     IEnumerator Revive() {
