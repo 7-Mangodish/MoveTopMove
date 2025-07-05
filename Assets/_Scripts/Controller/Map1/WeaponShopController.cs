@@ -11,7 +11,7 @@ public class WeaponShopController : MonoBehaviour
     [SerializeField] private WeaponObjects weaponObjects;
     [SerializeField] private GameObject weaponDisplay;
     private int weaponIndexSelected;
-
+    //
     [Header("WeaponSkin")]
     [SerializeField] private GameObject[] listWeaponSkins;
     [SerializeField] Button[] listWeaponSkinButtons = new Button[5];
@@ -19,22 +19,20 @@ public class WeaponShopController : MonoBehaviour
     [SerializeField] private Button nextOptionsButton;
     [SerializeField] private Button previousOptionsButton;
     private int weaponSkinIndexSelected;
-
+    //
     [Header("Button")]
     [SerializeField] private Button selectButton;
     [SerializeField] private Button equipedButton;
-
     [SerializeField] private Button purchaseWeaponButton;
     [SerializeField] private TextMeshProUGUI purchaseWeaponText;
     [SerializeField] private TextMeshProUGUI weaponName;
     [SerializeField] private Button purchaseWeaponByAdButton;
     [SerializeField] private TextMeshProUGUI purchaseWeaponByAdText;
     [SerializeField] private TextMeshProUGUI weaponAttribute;
-
     [SerializeField] private Button purchaseSkinButton;
     [SerializeField] private TextMeshProUGUI purchaseSkinText;
     [SerializeField] private Button purchaseSkinByAdButton;
-
+    //
     [Header("Color")]
     [SerializeField] Button[] listColorButtons = new Button[18];
     [SerializeField] Button[] listWeaponPartButtons = new Button[3];
@@ -49,7 +47,7 @@ public class WeaponShopController : MonoBehaviour
             instance = this;
         else
             Destroy(this.gameObject);
-
+        //
         nextOptionsButton.onClick.AddListener(() =>{
             AudioManager.Instance.PlaySoundClickButton();
 
@@ -60,7 +58,7 @@ public class WeaponShopController : MonoBehaviour
             Debug.Log("idWeapon: " + id);
             LoadWeapon(id);
         });
-
+        //
         previousOptionsButton.onClick.AddListener(() => {
             AudioManager.Instance.PlaySoundClickButton();
 
@@ -72,7 +70,7 @@ public class WeaponShopController : MonoBehaviour
             int id = weaponObjects.listWeapon[weaponIndexSelected].id;
             LoadWeapon(id);   
         });
-
+        //
         selectButton.onClick.AddListener(SetUpSelectButton);
         purchaseSkinButton.onClick.AddListener(SetUpPurchaseSkinButton);
         purchaseSkinByAdButton.onClick.AddListener(SetUpPurchaseSkinButtonByAd);
@@ -94,7 +92,6 @@ public class WeaponShopController : MonoBehaviour
                 SetUpTargetPartButton();
             });
         }
-
         //Material
         for(int i=0; i<listColorButtons.Length; i++) {
             int ind = i;
@@ -143,36 +140,31 @@ public class WeaponShopController : MonoBehaviour
                 listBorderImage[i].gameObject.SetActive(false);
             SetUpSkin(weaponData.weaponId, i);
         }
-
         //SetUp material  va scale cho WeaponDisplay
         Mesh skinMesh = weaponObjects.GetMeshWeapon(weaponData.weaponId, weaponData.skinIndex);
         Material[] skinMaterial = weaponObjects.GetListMaterials(weaponData.weaponId, weaponData.skinIndex);
-
         SetMeshAndMaterial(weaponDisplay, skinMesh, skinMaterial);
         float scale = 3 * weapon.scale;
         weaponDisplay.transform.localScale = new Vector3(scale, scale, scale);  
-
         // SetUp Name va thuoc tinh cua bu khi
         weaponName.text = weapon.name;
         weaponAttribute.text = "+" + weapon.index + " " +
             weapon.attribute;
-
         //Kiem tra xemvu khi da duoc mua hay chua
         if (weaponData.isLock) {
             purchaseWeaponText.text = weapon.cost.ToString();
             purchaseWeaponButton.gameObject.SetActive(true);
             purchaseWeaponByAdButton.gameObject.SetActive(true);
-
             purchaseWeaponByAdText.text =
                 weaponData.adQuantity.ToString() + "/2";
-
             TurnOffUI();
             return;
-
         }
         else {
             listWeaponSkinButtons[weaponData.skinIndex].onClick.Invoke();
             TurnOnUI();
+            //Neu da mo khoa thi cho player su dung vu khi luon
+            DataManager.Instance.playerData.currentWeaponId = weaponId;
         }
         SetUpLockSkinIcon();
         SetSelectAndEquipButton(weaponData.skinIndex);
@@ -187,7 +179,6 @@ public class WeaponShopController : MonoBehaviour
                 if (child.gameObject.CompareTag("LockImage")) {
                     lockIcon = child; break;
                 }
-
             }
             purchaseSkinText.text = weaponObjects.listWeapon[weaponIndexSelected].weaponSkinCost[i].ToString();
             if (DataManager.Instance.playerData.listWeaponData[weaponIndexSelected].isLockSkin[i] == false) {
@@ -368,17 +359,11 @@ public class WeaponShopController : MonoBehaviour
     #region ----------PURCHASE_WEAPON-----------
     void SetUpPurchaseWeaponButton() {
         AudioManager.Instance.PlaySoundClickButton();
-
-        int playerCoin = PlayerPrefs.GetInt(GameVariable.PLAYER_COIN);
-        if (playerCoin > weapon.cost)
-            playerCoin -= weapon.cost;
-        else {
-            Debug.Log("Thieu tien roi b ei");
+        if (DataManager.Instance.playerData.coin < weapon.cost)
             return;
-        }
-        PlayerPrefs.SetInt(GameVariable.PLAYER_COIN, playerCoin);
+        DataManager.Instance.UpdatePlayerCoin(-weapon.cost);
         HomePageController.Instance.SetCoinText();
-
+        //
         purchaseWeaponButton.gameObject.SetActive(false);
         purchaseWeaponByAdButton.gameObject.SetActive(false);
         //
@@ -387,10 +372,8 @@ public class WeaponShopController : MonoBehaviour
         //
         equipedButton.gameObject.SetActive(true);
         equipedButton.gameObject.GetComponent<RectTransform>().localPosition = new Vector3(0, -500, -2);
-
         if (weapon.isBoom)
             weaponData.isBoom = true;
-        
         TurnOnUI();
         SetUpLockSkinIcon();
 
@@ -407,7 +390,6 @@ public class WeaponShopController : MonoBehaviour
     void HandlerPurchaseWeaponByAd() {
         weaponData.adQuantity += 1;
         purchaseWeaponByAdText.text = weaponData.adQuantity.ToString() + "/2";
-
         if (weaponData.adQuantity == 2) {
             purchaseWeaponButton.gameObject.SetActive(false);
             purchaseWeaponByAdButton.gameObject.SetActive(false);
@@ -423,8 +405,6 @@ public class WeaponShopController : MonoBehaviour
             TurnOnUI();
         }
         SetUpLockSkinIcon();
-
-
     }
     #endregion
 

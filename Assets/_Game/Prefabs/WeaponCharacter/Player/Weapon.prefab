@@ -152,10 +152,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d36a9fb908693a4e9283f946fe15d17, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deltaAngle: 720
   isGrowing: 0
   isPiering: 0
   isUlti: 0
+  deltaAngle: 720
   soundController: {fileID: 3996381674499824625}
 --- !u!114 &3996381674499824625
 MonoBehaviour:

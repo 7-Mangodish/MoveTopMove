@@ -141,7 +141,6 @@ public class DataManager : MonoBehaviour
     }
 
     #region ----------------WEAPON_DATA------------
-
     public void UpdateWeapon() {
         // Xoa weaponData neu xoa weapon tren weaponObjects
         for (int i = playerData.listWeaponData.Count - 1; i >= 0; i--) {
@@ -164,6 +163,7 @@ public class DataManager : MonoBehaviour
             }
         }
     }
+
     public WeaponData GetWeaponData(int id) {
         foreach (WeaponData data in playerData.listWeaponData) {
             if (data.weaponId == id)

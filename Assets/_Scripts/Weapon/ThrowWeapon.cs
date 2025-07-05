@@ -5,19 +5,12 @@ using UnityEngine;
 public class ThrowWeapon : MonoBehaviour
 {
 
-    [SerializeField] private float deltaAngle;
-    public struct StateWeapon {
-        public StateManager ownerStateManager;
-        public float maxDistance;
-        public float curScale;
-        public Vector3 positionSpawn;
-        public bool isBoom;
-    }
     [Header("-----Ability-----")]
     public bool isGrowing = false;
     public bool isPiering = false;
     public bool isUlti = false;
-
+    [Header("____Attribute____")]
+    [SerializeField] private float deltaAngle;
     private StateWeapon stateWeapon;
     private Rigidbody rb;
     public SoundController soundController;
@@ -112,5 +105,11 @@ public class ThrowWeapon : MonoBehaviour
             this.stateWeapon.maxDistance += 1.5f;
         }
     }
-
+    public struct StateWeapon {
+        public StateManager ownerStateManager;
+        public float maxDistance;
+        public float curScale;
+        public Vector3 positionSpawn;
+        public bool isBoom;
+    }
 }

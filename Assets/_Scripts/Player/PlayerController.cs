@@ -373,6 +373,10 @@ public class PlayerController : MonoBehaviour
             weaponHold.transform.localScale = new Vector3(11, 11, 11);
             weaponHold.transform.localPosition = new Vector3(0, .5f, 0);
         }
+        else {
+            weaponHold.transform.localScale = new Vector3(33, 33, 33);
+            weaponHold.transform.localPosition = Vector3.zero;
+        }
         LoadWeaponSkin(weapon);
         LoadWeaponSkin(weaponHold.gameObject);
     }

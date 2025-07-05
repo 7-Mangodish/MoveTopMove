@@ -115,7 +115,7 @@ public class GameUIController : MonoBehaviour
             soundOffButton.gameObject.SetActive(false);
             soundOnButton.gameObject.SetActive(true);
             //
-            DataManager.Instance.playerData.soundVolume = 0;
+            DataManager.Instance.playerData.soundVolume = 1;
         });
 
         vibrationOnButton.onClick.AddListener(() => {
